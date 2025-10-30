@@ -1,6 +1,6 @@
  <?php  
 	session_start();
-	if (!isset($_SESSION['LoginAdmin'])) {
+	if (!isset($_SESSION['LoginStudent'])) {
         echo "<script>alert('You Are Not Authorize Person For This link'); window.location.href='../index.php';</script>";
         exit;
     }
@@ -11,19 +11,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Dashboard</title>
+    <title>Student - Dashboard</title>
 </head>
 
 <body>
+
     <!-- NAVBAR -->
     <?php include '../Common/header.php'; ?>
     <!-- SIDEBAR -->
-    <?php include '../Common/admin-sidebar.php'; ?>
+    <?php include '../Common/student-sidebar.php'; ?>
 
     <!-- MAIN CONTENT -->
     <main>
         <div class="dashboard-header">
-            <h4 class="mb-0 fw-bold">Admin Dashboard</h4>
+            <h4 class="mb-0 fw-bold">Dashboard</h4>
         </div>
 
         <!-- Dashboard Cards -->
