@@ -1,3 +1,3 @@
 <div class="footer">
-    © 2025 MITS Exam Portal
+    Copyright © Anirudh J Bhatt, Dept of Computer Applications, MITS Kochi
 </div>

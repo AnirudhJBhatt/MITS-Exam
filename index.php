@@ -3,23 +3,23 @@
     session_start();
     if(isset($_POST['submit'])){
         $username = $_POST['username'];
-        $password = $_POaST['password'];
+        $password = $_POST['password'];
 
-        $query = "SELECT * FROM users WHERE email='$username' AND password='$password'";
+        $query = "SELECT * FROM login WHERE User_ID='$username' AND password='$password'";
         $result = mysqli_query($con, $query);
 
         if (mysqli_num_rows($result)>0) {
             while ($row=mysqli_fetch_array($result)) {
-                if ($row["role"]=="admin"){
-                    $_SESSION['LoginAdmin']=$row["user_id"];
+                if ($row["Role"]=="Admin"){
+                    $_SESSION['LoginAdmin']=$row["User_ID"];
                     header('Location: ./Admin/dashboard.php');
                 }
-                else if ($row["role"]=="faculty"){
-                    $_SESSION['LoginFaculty']=$row['user_id'];
+                else if ($row["Role"]=="Faculty"){
+                    $_SESSION['LoginFaculty']=$row['User_ID'];
                     header('Location: ./Faculty/dashboard.php');
                 }
-                else if ($row["role"]=="student"){
-                    $_SESSION['LoginStudent']=$row['user_id'];
+                else if ($row["Role"]=="Student"){
+                    $_SESSION['LoginStudent']=$row['User_ID'];
                     header('Location: ./Student/dashboard.php');
                 }
             }
