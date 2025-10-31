@@ -36,14 +36,58 @@
 		    <div class="sub-main">
 				<div class="row">
 					<div class="col-md-12 container-fluid">
+						<form method="POST" enctype="multipart/form-data">
+							<div class="row mt-3">
+								<div class="col-md-4">
+									<label>Title</label>
+									<input type="text" name="Title" class="form-control" required>
+								</div>
+								<div class="col-md-4">
+									<label>Batch</label>
+									<input type="text" name="Title" class="form-control" required>
+								</div>
+								<div class="col-md-4">
+									<label>Subject</label>
+									<input type="text" name="Title" class="form-control" required>
+								</div>
+							</div>	
+							<div class="row mt-3">	
+								<div class="col-md-4">
+									<label>Type</label>
+									<select class="form-select" name="Topic" required>
+										<option>Select Topic</option>
+										<option value="MCQ">MCQ</option>
+										<option value="Match">Match the following</option>
+										<option value="Fill">Fill in the blanks</option>
+									</select>
+								</div>							
+								<div class="col-md-4">
+									<label>Duration</label>
+									<input type="number" name="Total_Questions" class="form-control" required>
+								</div>
+								<div class="col-md-4">
+									<label>No of Questions</label>
+									<input type="number" name="Total_Questions" class="form-control" required>
+								</div>
+							</div>		
+							<div class="row mt-3">
+								<div class="col-md-6">
+									<input type="submit" name="Submit" value="Add Exam" class="btn btn-success">
+								</div>
+							</div>						
+						</form>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-12 container-fluid">
 						<section class="mt-3">
 							<table class="w-100 table table-bordered border-dark table-hover text-center" cellpadding="5">
 								<tr class="table-dark text-white">
 									<th>SL No</th>
 									<th>Exam</th>
+									<th>Batch</th>
 									<th>Subject</th>
 									<th>Action</th>
-									<th>Marks</th>
 								</tr>
 								<?php
 									$query="SELECT d.D_ID, d.D_Name, d.Marks_10th, d.Marks_12th, d.Marks_UG, d.CGPA, d.D_Date 
