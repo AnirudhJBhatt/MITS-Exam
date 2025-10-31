@@ -1,3 +1,27 @@
+<?php
+    if (isset($_SESSION["LoginAdmin"])) {
+        $userid = $_SESSION["LoginAdmin"];
+        $username = "Admin";
+        $profileurl = "../Admin/profile.php";
+        $settingsurl = "../Admin/settings.php";
+    } elseif (isset($_SESSION["LoginFaculty"])) {
+        $Fac_ID=$_SESSION['LoginFaculty'];
+        $query = "SELECT * FROM `faculty` WHERE `Fac_ID` = '$Fac_ID' ";
+        $run = mysqli_query($con, $query);
+        $res = mysqli_fetch_array($run);
+        $username = $res['Fac_Name'];
+        $profileurl = "../Faculty/profile.php";
+        $settingsurl = "../Faculty/settings.php";
+    } elseif (isset($_SESSION["LoginStudent"])) {
+        $Stud_ID=$_SESSION['LoginStudent'];
+	    $query = "SELECT * FROM `student` WHERE `Stud_ID` = '$Stud_ID' ";
+        $run = mysqli_query($con, $query);
+        $res = mysqli_fetch_array($run);
+        $username = $res['Stud_Name'];
+        $profileurl = "../Student/profile.php";
+        $settingsurl = "../Student/settings.php";
+    }
+?>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -26,10 +50,10 @@
         </a>
         <div class="ms-auto nav-profile dropdown">
             <i class="bi bi-person-circle fs-4 me-2"></i>
-            <span class="fw-bold text-dark dropdown-toggle" data-bs-toggle="dropdown">Admin</span>
+            <span class="fw-bold text-dark dropdown-toggle" data-bs-toggle="dropdown"><?php echo $username; ?></span>
             <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                <li><a class="dropdown-item" href="#"><i class="bi bi-person"></i> Profile</a></li>
-                <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i> Settings</a></li>
+                <li><a class="dropdown-item" href="<?php echo $profileurl;?>"><i class="bi bi-person"></i> Profile</a></li>
+                <li><a class="dropdown-item" href="<?php echo $settingsurl;?>"><i class="bi bi-gear"></i> Settings</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item text-danger" href="../Login/logout.php"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
             </ul>
