@@ -7,7 +7,7 @@
                     class="bi bi-people"></i><span> Manage Students</span></a></li>
         <li><a class="nav-link <?= ($current_page == 'manage-exam.php') ? 'active' : ''; ?>" href="../Faculty/manage-exam.php"><i
                     class="bi bi-pencil-square"></i><span> Exams</span></a></li>
-        <li><a class="nav-link <?= ($current_page == 'results.php') ? 'active' : ''; ?>" href="#"><i
+        <li><a class="nav-link <?= ($current_page == 'view-results.php') ? 'active' : ''; ?>" href="../Faculty/view-results.php"><i
                     class="bi bi-bar-chart"></i><span> Results</span></a></li>
         <li><a class="nav-link <?= ($current_page == 'reports.php') ? 'active' : ''; ?>" href="#"><i
                     class="bi bi-file-earmark-text"></i><span> Reports</span></a></li>

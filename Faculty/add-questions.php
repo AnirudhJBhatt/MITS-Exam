@@ -20,14 +20,9 @@
 		$Subject = $_POST['Subject'];
 		$Exam_Type = $_POST['Exam_Type'];
 		$Duration = $_POST['Duration'];
-		$Dept = $Fac_Dept;
-		$selected_questions = isset($_POST['selected_questions']) ? $_POST['selected_questions'] : [];
 
-		// Convert selected question IDs into JSON or comma-separated string
-		$Q_IDs = json_encode($selected_questions);
-
-		$query = "INSERT INTO `exam`(`Exam_Title`, `Exam_Type`, `Subject`, `Dept`, `Batch`,  `Q_IDs`, `Total_Marks`, `Duration`)
-		VALUES ('$Exam_Title', '$Exam_Type', '$Subject', '$Dept', '$Batch', '$Q_IDs', '0', '$Duration')";
+		$query = "INSERT INTO `exam`(`Exam_Title`, `Exam_Type`, `Subject`, `Batch`, `Total_Marks`, `Duration`)
+		VALUES ('$Exam_Title', '$Exam_Type', '$Subject', '$Batch', '0', '$Duration')";
 
 		$run = mysqli_query($con, $query);
 		if ($run) {
@@ -76,15 +71,11 @@
 							<div class="row mt-3">	
 								<div class="col-md-4">
 									<label>Type</label>
-									<select class="form-select" name="Exam_Type" id="Exam_Type" required>
-										<option value="">---None---</option>
-										<?php
-											$query = "SELECT * FROM question_type;";
-											$run = mysqli_query($con, $query);
-											while($row = mysqli_fetch_array($run)) {
-												echo '<option value="'.$row['Type_ID'].'">'.$row['Type_Name'].'</option>';
-											}
-										?>
+									<select class="form-select" name="Exam_Type" required>
+										<option>Select Type</option>
+										<option value="MCQ">MCQ</option>
+										<option value="Match">Match the following</option>
+										<option value="Fill">Fill in the blanks</option>
 									</select>
 								</div>							
 								<div class="col-md-4">
@@ -95,14 +86,12 @@
 									<label>No of Questions</label>
 									<input type="number" name="" class="form-control" required>
 								</div>
-							</div>
-							<!-- Container for the question table -->
-							<div class="row mt-3" id="questionTableContainer"></div>		
+							</div>		
 							<div class="row mt-3">
 								<div class="col-md-6">
 									<input type="submit" name="Submit" value="Add Exam" class="btn btn-success">
 								</div>
-							</div>			
+							</div>						
 						</form>
 					</div>
 				</div>
@@ -130,7 +119,8 @@
 									<td><?php echo $row['Batch']; ?></td>
 									<td><?php echo $row['Subject']; ?></td>
 									<td width='200'>
-										<a class="btn btn-warning" href="view-results.php?Exam_ID=<?php echo $row['Exam_ID']; ?>">Edit</a>
+										<a class="btn btn-info" href="add-questions.php?Exam_ID=<?php echo $row['Exam_ID']; ?>">Add Questions</a>
+										<a class="btn btn-success" href="add-questions.php?Exam_ID=<?php echo $row['Exam_ID']; ?>">Publish Results</a>
 									</td>
 								</tr>
 								<?php
@@ -142,36 +132,9 @@
 				</div>
 			</div>
 	</main>
+
 	<?php include '../Common/footer.php'; ?>
 </body>
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script>
-	$(document).ready(function(){
-		$('#Exam_Type').change(function(){
-			var type_id = $(this).val();
-			if(type_id !== ""){
-				$.ajax({
-					url: 'fetch_questions.php',
-					method: 'POST',
-					data: {type_id: type_id},
-					success: function(response){
-						$('#questionTableContainer').html(response);
-					}
-				});
-			} else {
-				$('#questionTableContainer').html('');
-			}
-		});
-	});
-	
-	$('form').on('submit', function(e){
-		let count = $('input[name="selected_questions[]"]:checked').length;
-		if(count === 0){
-			alert("Please select at least one question before adding the exam.");
-			e.preventDefault();
-		}
-	});
-</script>
 
 </html>
 

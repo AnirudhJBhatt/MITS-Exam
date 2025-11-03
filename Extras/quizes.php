@@ -1,5 +1,5 @@
  <!---------------- Session starts form here ----------------------->
- <?php  
+ <!-- <?php  
 	session_start();
 
 	if (!$_SESSION["LoginAdmin"]){
@@ -9,7 +9,7 @@
 
 	require_once "../connection/connection.php";
 
-?>
+?> -->
 <!---------------- Session Ends form here ------------------------>
 <?php  
 	if (isset($_POST['Submit'])) {

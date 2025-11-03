@@ -19,10 +19,10 @@ if (isset($_POST['submit_csv'])) {
 			$Stud_Mob = mysqli_real_escape_string($con, $record['Stud_Mob']);
 			$Stud_Email = mysqli_real_escape_string($con, $record['Stud_Email']);
 			$Stud_Course = mysqli_real_escape_string($con, $record['Stud_Course']);
-			$Stud_Branch = mysqli_real_escape_string($con, $record['Stud_Branch']);
+			$Stud_Dept = mysqli_real_escape_string($con, $record['Stud_Dept']);
 			$Stud_Year = mysqli_real_escape_string($con, $record['Stud_Year']);
 
-			$query1 = "INSERT INTO student (Stud_ID, Stud_Name, Stud_DOB, Stud_Gender, Stud_Mob, Stud_Email, Stud_Course, Stud_Branch, Stud_Year) VALUES ('$Stud_ID', '$Stud_Name', '$Stud_DOB', '$Stud_Gender', '$Stud_Mob', '$Stud_Email', '$Stud_Course', '$Stud_Branch', '$Stud_Year')";
+			$query1 = "INSERT INTO student (Stud_ID, Stud_Name, Stud_DOB, Stud_Gender, Stud_Mob, Stud_Email, Stud_Course, Stud_Dept, Stud_Year) VALUES ('$Stud_ID', '$Stud_Name', '$Stud_DOB', '$Stud_Gender', '$Stud_Mob', '$Stud_Email', '$Stud_Course', '$Stud_Dept', '$Stud_Year')";
 
 			$query2 = "INSERT INTO login (User_ID, Password, Role, Status) VALUES ('$Stud_ID', 'Student123*', 'Student', 'Activate')";
 
@@ -57,7 +57,6 @@ if (isset($_POST['submit_csv'])) {
 		</div>
 
 		<div class="sub-main">
-			<div class="container">
 				<section>
 					<form class="row row-cols-lg-auto g-3 align-items-center" action="" method="post" enctype="multipart/form-data">
 						<div class="col">
@@ -92,7 +91,7 @@ if (isset($_POST['submit_csv'])) {
 									'Stud_Mob'    => $data[4],
 									'Stud_Email'  => $data[5],
 									'Stud_Course' => $data[6],
-									'Stud_Branch' => $data[7],
+									'Stud_Dept' => $data[7],
 									'Stud_Year'   => $data[8],
 								];
 							}
@@ -120,7 +119,7 @@ if (isset($_POST['submit_csv'])) {
 											<td><?= htmlspecialchars($student['Stud_ID']) ?></td>
 											<td><?= htmlspecialchars($student['Stud_Name']) ?></td>
 											<td><?= htmlspecialchars($student['Stud_Course']) ?></td>
-											<td><?= htmlspecialchars($student['Stud_Branch']) ?></td>
+											<td><?= htmlspecialchars($student['Stud_Dept']) ?></td>
 											<td><?= htmlspecialchars($student['Stud_Year']) ?></td>
 										</tr>
 									<?php endforeach; ?>
@@ -136,7 +135,6 @@ if (isset($_POST['submit_csv'])) {
 					}
 				}
 				?>
-			</div>
 		</div>
 	</main>
 
