@@ -9,9 +9,9 @@
                     class="bi bi-pencil-square"></i><span> Exams</span></a></li>
         <li><a class="nav-link <?= ($current_page == 'view-results.php') ? 'active' : ''; ?>" href="../Faculty/view-results.php"><i
                     class="bi bi-bar-chart"></i><span> Results</span></a></li>
-        <li><a class="nav-link <?= ($current_page == 'reports.php') ? 'active' : ''; ?>" href="#"><i
-                    class="bi bi-file-earmark-text"></i><span> Reports</span></a></li>
-        <li><a class="nav-link <?= ($current_page == 'settings.php') ? 'active' : ''; ?>" href="#"><i
+        <li><a class="nav-link <?= ($current_page == 'question-bank.php') ? 'active' : ''; ?>" href="../Faculty/question-bank.php"><i
+                    class="bi bi-file-earmark-text"></i><span> Question Bank</span></a></li>
+        <li><a class="nav-link <?= ($current_page == 'settings.php') ? 'active' : ''; ?>" href="../Faculty/settings.php"><i
                     class="bi bi-gear-fill"></i><span> Settings</span></a></li>
     </ul>
 </div>

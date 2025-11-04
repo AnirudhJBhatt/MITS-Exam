@@ -4,7 +4,7 @@
     $Stud_ID = $_POST['Stud_ID'];
     $Exam_ID = $_POST['Exam_ID'];
 
-    $query = "SELECT Details FROM result WHERE Stud_ID='$Stud_ID' AND Exam_ID='$Exam_ID'";
+    $query = "SELECT * FROM result WHERE Stud_ID='$Stud_ID' AND Exam_ID='$Exam_ID'";
     $run = mysqli_query($con, $query);
     $row = mysqli_fetch_assoc($run);
     if ($row) {
@@ -35,6 +35,8 @@
                 </tr>";
             $sl++;
         }
+        
+            echo "<tr><td colspan='5'><strong>Total Marks:</strong> " . $row['Total_Marks'] . "</td></tr>";
     } else {
         echo "<tr><td colspan='5'>No result found.</td></tr>";
     }

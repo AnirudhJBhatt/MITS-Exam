@@ -86,7 +86,11 @@
 					<div class="exam-action">
 						<?php if (in_array($row['Exam_ID'], $attempted_exams)): ?>
 							<!-- <button class="btn btn-secondary" disabled>Attempted</button> -->
-							<a href="view-results.php?Exam_ID=<?php echo $row['Exam_ID']; ?>" class="btn btn-success">View Results</a>
+							<button class="btn btn-info view-details" 
+								data-studid="<?php echo $Stud_ID?>" 
+                                data-examid="<?php echo $row['Exam_ID']; ?>">
+                            	View Results
+                            </button>						
 						<?php else: ?>
 							<a href="attempt-exam.php?Exam_ID=<?php echo $row['Exam_ID']; ?>" class="btn btn-success">Attempt</a>
 						<?php endif; ?>
@@ -132,8 +136,58 @@
 						</section>
 					</div>
 				</div> -->
+
+		<!-- Modal -->
+                        <div class="modal fade" id="resultModal" tabindex="-1" aria-labelledby="resultModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-xl modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-dark text-white">
+                                        <h5 class="modal-title" id="resultModalLabel">Student Result Details</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <table class="table table-bordered text-center">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th>Q. No</th>
+                                                    <th>Question</th>
+                                                    <th>Correct Answer</th>
+                                                    <th>Selected Answer</th>
+                                                    <th>Marks</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="resultDetails">
+                                                <!-- AJAX Data will appear here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 	</main>
 	<?php include '../Common/footer.php'; ?>
+	 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('.view-details').click(function() {
+                var studID = $(this).data('studid');
+                var examID = $(this).data('examid');
+
+                $.ajax({
+                    url: '../Faculty/fetch-result-details.php',
+                    type: 'POST',
+                    data: { Stud_ID: studID, Exam_ID: examID },
+                    success: function(response) {
+                        $('#resultDetails').html(response);
+                        var modal = new bootstrap.Modal(document.getElementById('resultModal'));
+                        modal.show();
+                    }
+                });
+            });
+        }); 
+    </script>
+
 </body>
 
 </html>
