@@ -24,7 +24,7 @@
             height: 70px;
             box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
             z-index: 1001;
-        } 
+        }
 
         .navbar-brand {
             color: #d1202d !important;
