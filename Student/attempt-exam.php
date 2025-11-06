@@ -19,6 +19,7 @@
     $exam_query = "SELECT * FROM exam WHERE Exam_ID = '$Exam_ID'";
     $exam_run = mysqli_query($con, $exam_query);
     $exam_data = mysqli_fetch_assoc($exam_run);
+    $durationMinutes = (int)$exam_data['Duration'];
     $qids = json_decode($exam_data['Q_IDs'], true);
 
     // Fetch all questions in one query
@@ -206,7 +207,7 @@
     <script>
         const questions = <?php echo json_encode($questions); ?>;
         let currentQ = 0;
-        let time = 30 * 60;
+        let time = <?php echo $durationMinutes; ?> * 60;
         const answers = {};
         const visited = new Set();
 
@@ -310,13 +311,19 @@
             if (currentQ > 0) loadQuestion(currentQ - 1);
         }
 
-        // 🕒 Timer
         function timerTick() {
-            const m = Math.floor(time / 60), s = time % 60;
-            timerDisplay.textContent = `${m}:${s.toString().padStart(2,"0")}`;
-            if (time-- > 0) setTimeout(timerTick, 1000);
-            else { alert("Time’s up! Submitting..."); examForm.submit(); }
+            const m = Math.floor(time / 60);
+            const s = time % 60;
+            timerDisplay.textContent = `${m}:${s.toString().padStart(2, "0")}`;
+
+            if (time <= 0) {
+                clearInterval(timerInterval);
+                alert("Time’s up! Submitting...");
+                examForm.submit();
+            }
+            time--;
         }
+        
 
         // 🚫 Anti-cheat (tab switch lock)
         let tabSwitch = 0;
@@ -327,11 +334,63 @@
             }
         });
 
-        // 🚀 Initialize
+        // 🚀 Initialize        
         loadQuestion(0);
         timerTick();
     </script>
 
+    <div id="startOverlay" style="
+        position: fixed; 
+        top: 0; left: 0; 
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.9); 
+        color: white; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        flex-direction: column; 
+        z-index: 9999;">
+        <h2>Click below to start your exam in full-screen mode</h2>
+        <button id="startExamBtn" class="btn btn-primary btn-lg mt-3">Start Exam</button>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const startOverlay = document.getElementById("startOverlay");
+            const startExamBtn = document.getElementById("startExamBtn");
+
+            // Function to request fullscreen safely
+            const startFullscreen = () => {
+                const elem = document.documentElement;
+                if (elem.requestFullscreen) elem.requestFullscreen();
+                else if (elem.mozRequestFullScreen) elem.mozRequestFullScreen(); // Firefox
+                else if (elem.webkitRequestFullscreen) elem.webkitRequestFullscreen(); // Safari
+                else if (elem.msRequestFullscreen) elem.msRequestFullscreen(); // IE/Edge
+            };
+
+            // When user clicks Start Exam
+            startExamBtn.addEventListener("click", () => {
+                startFullscreen(); // ✅ Allowed by user gesture
+                startOverlay.style.display = "none"; // Hide overlay
+                loadQuestion(0); 
+                timerTick();
+                timerInterval = setInterval(timerTick, 1000);
+            });
+
+            // Detect exit fullscreen and warn
+            let exitCount = 0;
+            document.addEventListener("fullscreenchange", () => {
+                if (!document.fullscreenElement) {
+                    exitCount++;
+                    alert(`You exited full-screen mode (${exitCount} time${exitCount > 1 ? 's' : ''}).`);
+                    if (exitCount >= 3) {
+                        alert("You exited full-screen too many times. Exam locked.");
+                        document.querySelectorAll("button, input").forEach(e => e.disabled = true);
+                    }
+                }
+            });
+        });
+    </script>
 
     <!-- <script>
         const questions = <?php echo json_encode($questions); ?>;

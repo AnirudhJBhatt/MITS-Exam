@@ -105,8 +105,8 @@
                                 ?>
                             </table>
                             <div class="mt-3 text-center">
-                                <a href="export_results.php?exam_id=<?php echo $Exam_ID; ?>" class="btn btn-primary">Export Results</a>
-                                <a href="export_results.php?exam_id=<?php echo $Exam_ID; ?>" class="btn btn-success">Publish Results</a>
+                                <a href="export-results.php?Exam_ID=<?php echo $Exam_ID; ?>" class="btn btn-primary">Export Results</a>
+                                <button class="btn btn-success publish-btn" data-examid="<?php echo $Exam_ID; ?>">Publish Results</button>
                             </div>
                         </section>
                         <?php
@@ -150,7 +150,6 @@
 	</main>
 	<?php include '../Common/footer.php'; ?>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
         $(document).ready(function() {
@@ -169,7 +168,40 @@
                     }
                 });
             });
-        }); 
+        });
+
+        $(document).ready(function() {
+            $(".publish-btn").click(function() {
+                const button = $(this);
+                const examId = button.data("examid");
+
+                if (confirm("Are you sure you want to publish results for this exam?")) {
+                    button.prop("disabled", true).text("Publishing...");
+
+                    $.ajax({
+                        url: "update-exam-status.php",
+                        type: "POST",
+                        data: { Exam_ID: examId },
+                        success: function(response) {
+                            if (response.trim() === "success") {
+                                button
+                                    .removeClass("btn-success")
+                                    .addClass("btn-secondary")
+                                    .html("Published")
+                                    .prop("disabled", true);
+                            } else {
+                                alert("Failed to update exam status.");
+                                button.prop("disabled", false).text("Publish Results");
+                            }
+                        },
+                        error: function() {
+                            alert("Server error while updating status.");
+                            button.prop("disabled", false).text("Publish Results");
+                        }
+                    });
+                }
+            });
+        });
     </script>
 
 </body>

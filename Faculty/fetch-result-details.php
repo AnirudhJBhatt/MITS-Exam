@@ -15,7 +15,7 @@
             $Q_ID = $d['Q_ID'];
             $Selected = $d['Selected'];
             $Correct = $d['Correct'];
-            $Marks = $d['Marks'];
+            $Marks = $d['Obtained_Marks'];
 
             // Fetch question text
             $qQuery = "SELECT Question_Text FROM Question_Bank WHERE Q_ID='$Q_ID'";
@@ -35,8 +35,8 @@
                 </tr>";
             $sl++;
         }
-        
-            echo "<tr><td colspan='5'><strong>Total Marks:</strong> " . $row['Total_Marks'] . "</td></tr>";
+
+        echo "<tr><td colspan='5'><strong>Total Marks:</strong> " . $row['Obtained_Marks'] . "</td></tr>";
     } else {
         echo "<tr><td colspan='5'>No result found.</td></tr>";
     }

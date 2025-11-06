@@ -43,19 +43,20 @@
         $marks = $row['Marks'];
 
         $total_marks += $marks;
-
         $selected_answer = isset($answers[$qid]) ? trim($answers[$qid]) : "";
 
         $is_correct = false;
 
-        foreach ($correct_answers as $ans) {
-            if (strcasecmp(trim($selected_answer), trim($ans)) === 0) {
-                $is_correct = true;
-                break;
+        if (!empty($selected_answer) && is_array($correct_answers)) {
+            foreach ($correct_answers as $ans) {
+                if (strcasecmp(trim($selected_answer), trim($ans)) === 0) {
+                    $is_correct = true;
+                    break;
+                }
             }
         }
 
-        if ($is_correct) {
+        if ($is_correct === true) {
             $obtained_marks += $marks;
         }
 
@@ -64,9 +65,10 @@
             'Selected' => $selected_answer,
             'Correct' => implode(", ", $correct_answers),
             'Is_Correct' => $is_correct ? 1 : 0,
-            'Marks' => $marks
+            'Obtained_Marks' => $is_correct ? $marks : 0
         ];
     }
+
 
     // Convert details to JSON for optional storage
     $result_json = mysqli_real_escape_string($con, json_encode($result_details));

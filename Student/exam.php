@@ -84,16 +84,15 @@
 					<div class="exam-item"><strong>Duration:</strong> <?php echo $row['Duration']; ?> mins</div>
 					<div class="exam-item"><strong>Marks:</strong> <?php echo $row['Total_Marks']; ?></div>
 					<div class="exam-action">
-						<?php if (in_array($row['Exam_ID'], $attempted_exams)): ?>
-							<!-- <button class="btn btn-secondary" disabled>Attempted</button> -->
-							<button class="btn btn-info view-details" 
-								data-studid="<?php echo $Stud_ID?>" 
-                                data-examid="<?php echo $row['Exam_ID']; ?>">
-                            	View Results
-                            </button>						
-						<?php else: ?>
-							<a href="attempt-exam.php?Exam_ID=<?php echo $row['Exam_ID']; ?>" class="btn btn-success">Attempt</a>
-						<?php endif; ?>
+						<?php 
+							if (!in_array($row['Exam_ID'], $attempted_exams)) {
+								echo '<a href="attempt-exam.php?Exam_ID='.$row['Exam_ID'].'" class="btn btn-primary">Attempt Exam</a>';
+							} else if($row['Result_Status'] == 1) {
+								echo '<button class="btn btn-success view-details" data-studid="'.$Stud_ID.'" data-examid="'.$row['Exam_ID'].'">View Result</button>';
+							} else {
+								echo '<button class="btn btn-success" disabled>Completed</button>';
+							}
+						?>
 					</div>
 				</div>
 			</div>
