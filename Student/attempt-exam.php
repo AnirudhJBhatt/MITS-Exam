@@ -37,8 +37,9 @@
             "correct" => json_decode($row['Correct_Answer'], true),
             "marks" => $row['Marks']
         ];
-        
     }
+    mt_srand(crc32($Stud_ID . $Exam_ID));
+    shuffle($questions);
 ?>
 
 <!DOCTYPE html>
