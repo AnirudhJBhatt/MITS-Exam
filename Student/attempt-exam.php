@@ -362,7 +362,6 @@
         width: 100%; height: 100%;
         background: rgba(0,0,0,0.9);
         color: white;
-        display: flex;
         align-items: center;
         justify-content: center;
         flex-direction: column;
@@ -379,6 +378,9 @@
             const startExamBtn = document.getElementById("startExamBtn");
             const fullscreenWarning = document.getElementById("fullscreenWarning");
             const returnFullscreenBtn = document.getElementById("returnFullscreenBtn");
+
+            let exitCount = 0;
+            let fullscreenEnteredOnce = false; // ✅ prevent warning on first entry
 
             // Function to request fullscreen safely
             const startFullscreen = () => {
@@ -398,19 +400,23 @@
                 timerInterval = setInterval(timerTick, 1000);
             });
 
-            // Detect exit fullscreen and warn
-            let exitCount = 0;
-             document.addEventListener("fullscreenchange", () => {
+            // Detect fullscreen changes
+            document.addEventListener("fullscreenchange", () => {
                 if (!document.fullscreenElement) {
-                    exitCount++;
-                    fullscreenWarning.style.display = "flex"; // show warning
-                    if (exitCount >= 3) {
-                        alert("You exited full-screen too many times. Exam locked.");
-                        document.querySelectorAll("button, input").forEach(e => e.disabled = true);
-                        fullscreenWarning.style.display = "none";
+                    // If user exits fullscreen after the first entry
+                    if (fullscreenEnteredOnce) {
+                        exitCount++;
+                        fullscreenWarning.style.display = "flex";
+                        if (exitCount >= 3) {
+                            alert("You exited full-screen too many times. Exam locked.");
+                            document.querySelectorAll("button, input").forEach(e => e.disabled = true);
+                            fullscreenWarning.style.display = "none";
+                        }
                     }
                 } else {
-                    fullscreenWarning.style.display = "none"; // hide when fullscreen restored
+                    // First successful fullscreen entry
+                    fullscreenEnteredOnce = true;
+                    fullscreenWarning.style.display = "none";
                 }
             });
 
@@ -421,6 +427,7 @@
             });
         });
     </script>
+
 
     <!-- <script>
         const questions = <?php echo json_encode($questions); ?>;
