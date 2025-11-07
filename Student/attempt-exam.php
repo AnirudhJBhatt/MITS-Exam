@@ -354,10 +354,31 @@
         <button id="startExamBtn" class="btn btn-primary btn-lg mt-3">Start Exam</button>
     </div>
 
+    <!-- Fullscreen warning overlay -->
+    <div id="fullscreenWarning" style="
+        display:none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.9);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        z-index: 10000;
+        text-align: center;">
+        <h3>You exited full-screen mode.</h3>
+        <p>Please click below to return to full-screen and continue your exam.</p>
+        <button id="returnFullscreenBtn" class="btn btn-warning mt-3">Return to Fullscreen</button>
+    </div>
+
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const startOverlay = document.getElementById("startOverlay");
             const startExamBtn = document.getElementById("startExamBtn");
+            const fullscreenWarning = document.getElementById("fullscreenWarning");
+            const returnFullscreenBtn = document.getElementById("returnFullscreenBtn");
 
             // Function to request fullscreen safely
             const startFullscreen = () => {
@@ -379,15 +400,24 @@
 
             // Detect exit fullscreen and warn
             let exitCount = 0;
-            document.addEventListener("fullscreenchange", () => {
+             document.addEventListener("fullscreenchange", () => {
                 if (!document.fullscreenElement) {
                     exitCount++;
-                    alert(`You exited full-screen mode (${exitCount} time${exitCount > 1 ? 's' : ''}).`);
+                    fullscreenWarning.style.display = "flex"; // show warning
                     if (exitCount >= 3) {
                         alert("You exited full-screen too many times. Exam locked.");
                         document.querySelectorAll("button, input").forEach(e => e.disabled = true);
+                        fullscreenWarning.style.display = "none";
                     }
+                } else {
+                    fullscreenWarning.style.display = "none"; // hide when fullscreen restored
                 }
+            });
+
+            // Return to fullscreen (✅ valid user gesture)
+            returnFullscreenBtn.addEventListener("click", () => {
+                startFullscreen();
+                fullscreenWarning.style.display = "none";
             });
         });
     </script>
