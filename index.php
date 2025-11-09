@@ -1,34 +1,42 @@
 <?php
     include("Connection/connection.php");
     session_start();
-    if(isset($_POST['submit'])){
+
+    if (isset($_POST['submit'])) {
         $username = $_POST['username'];
         $password = $_POST['password'];
 
-        $query = "SELECT * FROM login WHERE User_ID='$username' AND password='$password'";
-        $result = mysqli_query($con, $query);
+        // Use prepared statement
+        $stmt = $con->prepare("SELECT * FROM login WHERE User_ID = ? AND password = ?");
+        $stmt->bind_param("ss", $username, $password);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-        if (mysqli_num_rows($result)>0) {
-            while ($row=mysqli_fetch_array($result)) {
-                if ($row["Role"]=="Admin"){
-                    $_SESSION['LoginAdmin']=$row["User_ID"];
+        if ($result && $row = $result->fetch_assoc()) {
+            // Role-based session handling
+            switch ($row["Role"]) {
+                case "Admin":
+                    $_SESSION['LoginAdmin'] = $row["User_ID"];
                     header('Location: ./Admin/dashboard.php');
-                }
-                else if ($row["Role"]=="Faculty"){
-                    $_SESSION['LoginFaculty']=$row['User_ID'];
+                    break;
+                case "Faculty":
+                    $_SESSION['LoginFaculty'] = $row["User_ID"];
                     header('Location: ./Faculty/dashboard.php');
-                }
-                else if ($row["Role"]=="Student"){
-                    $_SESSION['LoginStudent']=$row['User_ID'];
+                    break;
+                case "Student":
+                    $_SESSION['LoginStudent'] = $row["User_ID"];
                     header('Location: ./Student/dashboard.php');
-                }
+                    break;
             }
-        }
-        else{ 
+            exit();
+        } else {
             echo "<script>alert('Invalid Credentials');</script>";
         }
+
+        $stmt->close();
     }
 ?>
+
 
 <html>
 
