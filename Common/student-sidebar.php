@@ -1,9 +1,9 @@
 <div class="sidebar" id="sidebar">
     <?php $current_page = basename($_SERVER['PHP_SELF']); ?>
     <ul>
-        <li><a class="nav-link <?= ($current_page == 'dashboard.php') ? 'active' : ''; ?>" href="../student/dashboard.php"><i
+        <li><a class="nav-link <?= ($current_page == 'dashboard.php') ? 'active' : ''; ?>" href="../Student/dashboard.php"><i
                     class="bi bi-speedometer2"></i><span> Dashboard</span></a></li>
-        <li><a class="nav-link <?= ($current_page == 'exam.php') ? 'active' : ''; ?>" href="../student/exam.php"><i
+        <li><a class="nav-link <?= ($current_page == 'exam.php') ? 'active' : ''; ?>" href="../Student/exam.php"><i
                     class="bi bi-pencil-square"></i><span> Exams</span></a></li>
         <li><a class="nav-link <?= ($current_page == 'results.php') ? 'active' : ''; ?>" href="#"><i
                     class="bi bi-bar-chart"></i><span> Results</span></a></li>

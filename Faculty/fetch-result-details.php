@@ -18,7 +18,7 @@
             $Marks = $d['Obtained_Marks'];
 
             // Fetch question text
-            $qQuery = "SELECT Question_Text FROM Question_Bank WHERE Q_ID='$Q_ID'";
+            $qQuery = "SELECT Question_Text FROM question_bank WHERE Q_ID='$Q_ID'";
             $qRun = mysqli_query($con, $qQuery);
             $qRow = mysqli_fetch_assoc($qRun);
             $Question = $qRow ? $qRow['Question_Text'] : "Question not found";
