@@ -54,88 +54,65 @@
 
     <style>
         body {
-            margin: 0;
-            height: 100vh;
-            display: flex;
             font-family: 'Montserrat', sans-serif;
-            overflow: hidden;
         }
     </style>
 </head>
 
 <body>
-    <div class="left-panel">
-        <div class="logo-box">
-            <img src="https://mgmits.ac.in/frontend/images/logo1.png" alt="MITS Logo">
-        </div>
-        <h3>MITS Internal Exam Portal</h3>
-        <p>Empowering smart internal assessments with accuracy and transparency.</p>
-    </div>
+    <div class="wrapper">
 
-    <div class="right-panel">
-        <div class="login-container">
-            <h3>Login</h3>
-            <form action="" method="POST">
-                <div class="form-floating mb-3">
-                    <input type="text" class="form-control" name="username" placeholder="Username" required>
-                    <label for="username">Username</label>
-                </div>
-                <div class="form-floating mb-3 position-relative">
-                    <input type="password" class="form-control" name="password" id="password" placeholder="Password"
-                        required>
-                    <label for="password">Password</label>
-                    <button type="button"
-                        class="btn btn-outline-secondary btn-sm position-absolute top-50 end-0 translate-middle-y"
-                        id="togglePassword" aria-label="Show password" style="border: none; background: none;">
-                        <i class="fa fa-eye" aria-hidden="true"></i>
-                    </button>
-                </div>
-                <button type="submit" name="submit" class="btn btn-success btn-login">Login</button>
-                <div class="forgot-password">
-                    <a href="#" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">Forgot password?</a>
-                </div>
-                <!-- <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title text-danger" id="forgotPasswordModalLabel">Forgot Password</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <?php //include("./Login/forgot-password.php"); ?>
-                        </div>
+        <!-- Left Panel -->
+        <div class="left-panel">
+            <div class="logo-box">
+                <img src="https://mgmits.ac.in/frontend/images/logo1.png" alt="MITS Logo">
+            </div>
+            <h3>MITS Internal Exam Portal</h3>
+            <p>Empowering smart internal assessments with accuracy and transparency.</p>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="right-panel">
+            <div class="login-container">
+                <h3>Login</h3>
+
+                <form action="" method="POST">
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" name="username" placeholder="Username" required>
+                        <label for="username">Username</label>
                     </div>
-                </div>
-            </div> -->
-            </form>
-        </div>
-    </div>
 
-    <!-- Forgot Password Modal (optional) -->
-    <!--
-  <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title text-danger" id="forgotPasswordModalLabel">Forgot Password</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <div class="form-floating mb-3 position-relative">
+                        <input type="password" class="form-control" name="password" id="password" placeholder="Password" required>
+                        <label for="password">Password</label>
+                        <button type="button" id="togglePassword" class="password-toggle" aria-label="Show password">
+                            <i class="fa fa-eye" aria-hidden="true"></i>
+                        </button>
+                    </div>
+
+                    <button type="submit" name="submit" class="btn btn-success btn-login">Login</button>
+
+                    <div class="forgot-password">
+                        <a href="#" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">Forgot password?</a>
+                    </div>
+                </form>
+            </div>
         </div>
-        <div class="modal-body">
-          <?php // include("./Login/forgot-password.php"); ?>
-        </div>
-      </div>
+
     </div>
-  </div>
-  -->
 
     <script>
         document.getElementById('togglePassword').addEventListener('click', function () {
-            const passwordField = document.getElementById('password');
-            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordField.setAttribute('type', type);
-            this.classList.toggle('fa-eye-slash');
+            const pass = document.getElementById('password');
+            const type = pass.type === "password" ? "text" : "password";
+            pass.type = type;
+
+            const icon = this.querySelector("i");
+            icon.classList.toggle("fa-eye");
+            icon.classList.toggle("fa-eye-slash");
         });
     </script>
 </body>
+
 
 </html>
