@@ -48,24 +48,14 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Libre+Barcode+39&family=Montserrat:ital,wght@0,100..900;1,100..900&family=Solway:wght@300;400;500;700;800&display=swap" rel="stylesheet">   
-
-    <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
-        }
-    </style>
-</head>
-
+    <link href="https://fonts.googleapis.com/css2?family=Solway:wght@400;500;700&display=swap" rel="stylesheet">
 <body>
     <div class="wrapper">
 
         <!-- Left Panel -->
         <div class="left-panel">
             <div class="logo-box">
-                <img src="https://mgmits.ac.in/frontend/images/logo1.png" alt="MITS Logo">
+                <img src="Images/MITS Logo.png" alt="MITS Logo">
             </div>
             <h3>MITS Internal Exam Portal</h3>
             <p>Empowering smart internal assessments with accuracy and transparency.</p>

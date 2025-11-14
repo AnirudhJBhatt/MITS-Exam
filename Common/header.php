@@ -46,7 +46,7 @@
             <a class="navbar-brand fw-bold fs-5 text-white me-3" href="#" style="letter-spacing: 1px;">MITS Exam Portal</a>
         </div>
         <a class="navbar-brand position-absolute top-50 start-50 translate-middle" href="#">
-            <img src="https://mgmits.ac.in/frontend/images/logo1.png" alt="MITS Logo" height="75" class="me-2">
+            <img src="../Images/MITS Logo.png" alt="MITS Logo" height="75" class="me-2">
         </a>
         <div class="ms-auto nav-profile dropdown">
             <i class="bi bi-person-circle fs-4 me-2"></i>
