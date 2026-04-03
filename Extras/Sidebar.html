@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            display: flex;
+        }
+        .sidebar {
+            width: 250px;
+            background: #111;
+            transition: all 0.3s;
+            height: 100vh;
+        }
+        .sidebar.shrink {
+            width: 70px;
+        }
+        .sidebar .nav-link {
+            color: white;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .sidebar .nav-link i {
+            margin-right: 10px;
+        }
+        .sidebar.shrink .nav-link span {
+            display: none;
+        }
+        .toggle-btn {
+            position: absolute;
+            top: 10px;
+            left: 260px;
+            cursor: pointer;
+        }
+        .sidebar.shrink + .toggle-btn {
+            left: 80px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar d-flex flex-column p-3" id="sidebar">
+        <h4 class="text-white text-center">Sidemenu</h4>
+        <a href="#" class="nav-link"><i class="bi bi-house-door"></i><span>Dashboard</span></a>
+        <a href="#" class="nav-link"><i class="bi bi-house-door"></i><span>Home</span></a>
+        <a href="#" class="nav-link"><i class="bi bi-house-door"></i><span>Products</span></a>
+        <a href="#" class="nav-link"><i class="bi bi-house-door"></i><span>Customers</span></a>
+        <hr class="text-white">
+        <a href="#" class="nav-link"><i class="bi bi-house-door"></i><span>Yousaf</span></a>
+    </div>
+
+    <div class="toggle-btn btn btn-dark" onclick="toggleSidebar()">☰</div>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('shrink');
+        }
+    </script>
+
+</body>
+</html>

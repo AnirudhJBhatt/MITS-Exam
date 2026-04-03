@@ -1,0 +1,27 @@
+[
+    {
+        "question": "What is the time complexity of binary search in a sorted array?",
+        "options": ["O(n)", "O(log n)", "O(n log n)", "O(1)"],
+        "answer": "O(log n)"
+    },
+    {
+        "question": "Which data structure follows the Last In, First Out (LIFO) principle?",
+        "options": ["Queue", "Stack", "Linked List", "Heap"],
+        "answer": "Stack"
+    },
+    {
+        "question": "Which programming language is primarily used for Android app development?",
+        "options": ["Swift", "Kotlin", "C#", "JavaScript"],
+        "answer": "Kotlin"
+    },
+    {
+        "question": "What does SQL stand for?",
+        "options": ["Structured Query Language", "Simple Query Language", "Sequential Query Language", "Standard Query Language"],
+        "answer": "Structured Query Language"
+    },
+    {
+        "question": "Which of the following is not an OOP principle?",
+        "options": ["Encapsulation", "Polymorphism", "Recursion", "Inheritance"],
+        "answer": "Recursion"
+    }
+]
