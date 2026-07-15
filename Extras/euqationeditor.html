@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -44,6 +45,53 @@
 
 </body>
 </html>
+=======
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Equation Keyboard Test</title>
+
+    <!-- ✅ Correct MathLive CDN -->
+    <script src="https://unpkg.com/mathlive@0.100.0/dist/mathlive.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/mathlive@0.100.0/dist/mathlive.core.css">
+
+    <style>
+        math-field {
+            width: 100%;
+            min-height: 70px;
+            font-size: 22px;
+            border: 2px solid #444;
+            padding: 10px;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Click below → Equation Keyboard opens ⌨️</h2>
+
+<math-field id="mf"></math-field>
+
+<p><b>LaTeX Output:</b></p>
+<textarea id="output" rows="3" style="width:100%"></textarea>
+
+<script>
+    const mf = document.getElementById('mf');
+
+    // ✅ Force-enable virtual keyboard
+    mf.setOptions({
+        virtualKeyboardMode: "onfocus"
+    });
+
+    mf.addEventListener('input', () => {
+        document.getElementById('output').value = mf.getValue('latex');
+    });
+</script>
+
+</body>
+</html>
+>>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
 =======
 <!DOCTYPE html>
 <html lang="en">

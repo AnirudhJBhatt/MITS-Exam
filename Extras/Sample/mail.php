@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 <?php
     $to = "anirudhjbhatt@gmail.com"; // Replace with actual recipient email
     $subject = "Test Email from PHP";
@@ -11,6 +12,20 @@
         echo "Failed to send email.";
     }
 ?>
+=======
+<?php
+    $to = "anirudhjbhatt@gmail.com"; // Replace with actual recipient email
+    $subject = "Test Email from PHP";
+    $message = "Hello! This is a test email sent from a PHP script.";
+    $headers = "From: anirudhjbhatt@gmail.com"; // Replace with your email
+
+    if(mail($to, $subject, $message, $headers)) {
+        echo "Email sent successfully!";
+    } else {
+        echo "Failed to send email.";
+    }
+?>
+>>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
 =======
 <?php
     $to = "anirudhjbhatt@gmail.com"; // Replace with actual recipient email
