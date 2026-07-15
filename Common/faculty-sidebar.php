@@ -22,7 +22,10 @@
             </a>
         </li>
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> af63e72 (MITS-Exam)
         <li>
             <a class="nav-link <?= ($current_page == 'manage-exam.php') ? 'active' : ''; ?>"
             href="../Faculty/manage-exam.php">

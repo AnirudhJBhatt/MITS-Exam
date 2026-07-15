@@ -16,7 +16,11 @@ $examQuery = "
     FROM exam e
     JOIN courses c ON e.Course_ID = c.Course_ID
     JOIN programmes p ON e.Prog_ID = p.Prog_ID
+<<<<<<< HEAD
     WHERE e.Exam_ID = '$Exam_ID'
+=======
+    WHERE e.Exam_ID = '188'
+>>>>>>> af63e72 (MITS-Exam)
 ";
 
 $examRun = mysqli_query($con, $examQuery);
