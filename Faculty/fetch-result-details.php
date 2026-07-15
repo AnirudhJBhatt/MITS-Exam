@@ -1,0 +1,43 @@
+<?php
+    require_once "../Connection/connection.php";
+    session_start();
+    $Stud_ID = $_POST['Stud_ID'];
+    $Exam_ID = $_POST['Exam_ID'];
+
+    $query = "SELECT * FROM result WHERE Stud_ID='$Stud_ID' AND Exam_ID='$Exam_ID'";
+    $run = mysqli_query($con, $query);
+    $row = mysqli_fetch_assoc($run);
+    if ($row) {
+        $Details = json_decode($row['Details'], true);
+        $sl = 1;
+
+        foreach ($Details as $d) {
+            $Q_ID = $d['Q_ID'];
+            $Selected = $d['Selected'];
+            $Correct = $d['Correct'];
+            $Marks = $d['Obtained_Marks'];
+
+            // Fetch question text
+            $qQuery = "SELECT Question_Text FROM question_bank WHERE Q_ID='$Q_ID'";
+            $qRun = mysqli_query($con, $qQuery);
+            $qRow = mysqli_fetch_assoc($qRun);
+            $Question = $qRow ? $qRow['Question_Text'] : "Question not found";
+
+            // Highlight incorrect answers
+            $rowClass = ($Marks == 0) ? 'table-danger' : 'table-success';
+
+            echo "<tr class='$rowClass'>
+                    <td>$sl</td>
+                    <td>$Question</td>
+                    <td>$Correct</td>
+                    <td>$Selected</td>
+                    <td>$Marks</td>
+                </tr>";
+            $sl++;
+        }
+
+        echo "<tr><td colspan='5'><strong>Total Marks:</strong> " . $row['Obtained_Marks'] . "</td></tr>";
+    } else {
+        echo "<tr><td colspan='5'>No result found.</td></tr>";
+    }
+?>
