@@ -167,7 +167,7 @@
                                         </small>
                                     </div>
 
-                                    <a href="manage-exams.php?course=<?php echo urlencode($row['Course_ID']); ?>" class="btn btn-sm btn-success mt-3">Manage Exams</a>
+                                    <a href="manage-exams.php?Course_ID=<?php echo urlencode($row['Course_ID']); ?>" class="btn btn-sm btn-success mt-3">Manage Exams</a>
                                 </div>
                             </div>
                         </div>

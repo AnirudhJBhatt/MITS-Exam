@@ -12,7 +12,6 @@
 
     $Fac_ID=$_SESSION['LoginFaculty'];
 
-
 	// Fetch Faculty Details
 	$query1 = "SELECT * FROM `faculty` WHERE `Fac_ID` = '$Fac_ID' ";
     $run1 = mysqli_query($con, $query1);
@@ -30,14 +29,13 @@
 
 	$result = mysqli_query($con, $query);
 
-	$Course_ID = isset($_GET['Course_ID']) ? $_GET['Course_ID'] : null;
+	$Course_ID = isset($_GET['course']) ? $_GET['course'] : null;
 
 	$course_query = "SELECT * FROM `courses` WHERE `Course_ID` = '$Course_ID'";
 	$course_run = mysqli_query($con, $course_query);
 	$course = mysqli_fetch_array($course_run);
 	$Course_Name = $course['Course_Name'];
 	$Course_Code = $course['Course_Code'];
-
 
 ?>
 <html lang="en">
