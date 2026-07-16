@@ -1,5 +1,5 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
+
+
 <?php
 require_once('../Connection/connection.php');
 require_once('../vendor/autoload.php');
@@ -293,7 +293,7 @@ $html .= "<br><h3>Total Marks: $total</h3>";
 // OUTPUT
 // =====================
 $pdf->writeHTML($html);
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
+
 =======
 <?php
 require_once('../Connection/connection.php');
@@ -441,5 +441,5 @@ $html .= "<br><h3>Total Marks: $total</h3>";
 // OUTPUT
 // =====================
 $pdf->writeHTML($html);
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
+
 $pdf->Output("Result_$Stud_Name.pdf", "I");

@@ -626,9 +626,9 @@ mjx-container[jax="SVG"][display="false"] {
 	<script>
 		const questionForm = document.getElementById("questionForm");
 
-		/* =========================
+		/* ====
 		Sync MathLive Before Submit
-		========================= */
+		==== */
 		questionForm.addEventListener("submit", function () {
 
 			// Question LaTeX
@@ -651,9 +651,9 @@ mjx-container[jax="SVG"][display="false"] {
 		});
 
 
-		/* =========================
+		/* ====
 		EDIT BUTTON
-		========================= */
+		==== */
 		document.querySelectorAll(".editBtn").forEach(button => {
 
 			button.addEventListener("click", function () {
@@ -743,9 +743,9 @@ mjx-container[jax="SVG"][display="false"] {
 		});
 
 
-		/* =========================
+		/* ====
 		ADD BUTTON
-		========================= */
+		==== */
 		document.addEventListener("click", function (e) {
 
 			const addBtn = e.target.closest("#addQuestionBtn");

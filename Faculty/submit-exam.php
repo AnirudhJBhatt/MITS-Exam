@@ -1,5 +1,5 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
+
+
 <?php
 session_start();
 header('Content-Type: application/json');
@@ -305,7 +305,7 @@ echo json_encode([
     'marks_obtained'  => $marksObtained,
     'status'          => $resultStatus,
     'pending_review'  => $hasOpenQuestions,
-=======
+
 <?php
 session_start();
 header('Content-Type: application/json');
@@ -611,8 +611,8 @@ echo json_encode([
     'marks_obtained'  => $marksObtained,
     'status'          => $resultStatus,
     'pending_review'  => $hasOpenQuestions,
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
-=======
+
+
 <?php
 session_start();
 header('Content-Type: application/json');
@@ -918,5 +918,5 @@ echo json_encode([
     'marks_obtained'  => $marksObtained,
     'status'          => $resultStatus,
     'pending_review'  => $hasOpenQuestions,
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
+
 ]);

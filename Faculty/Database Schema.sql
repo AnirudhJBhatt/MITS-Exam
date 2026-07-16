@@ -1,5 +1,5 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
+
+
 -- ============================================================
 --  Exam Builder – Database Schema
 -- ============================================================
@@ -305,7 +305,7 @@ CREATE TABLE result_answers (
     Answer_Text VARCHAR(500) GENERATED ALWAYS AS (
         JSON_UNQUOTE(JSON_EXTRACT(Student_Answer, '$'))
     ) VIRTUAL
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
+
 =======
 -- ============================================================
 --  Exam Builder – Database Schema
@@ -459,5 +459,5 @@ CREATE TABLE result_answers (
     Answer_Text VARCHAR(500) GENERATED ALWAYS AS (
         JSON_UNQUOTE(JSON_EXTRACT(Student_Answer, '$'))
     ) VIRTUAL
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
+
 );

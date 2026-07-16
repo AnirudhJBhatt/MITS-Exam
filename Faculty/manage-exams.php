@@ -1,5 +1,5 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
+
+
 <?php  
 	session_start();
 	if (!$_SESSION["LoginFaculty"]){
@@ -13,7 +13,7 @@
 	error_reporting(E_ALL);
 
     $Fac_ID=$_SESSION['LoginFaculty'];
-<<<<<<< HEAD
+
 
 	// Fetch Faculty Details
 	$query1 = "SELECT * FROM `faculty` WHERE `Fac_ID` = '$Fac_ID' ";
@@ -31,7 +31,7 @@
 			  AND p.Prog_ID=c.Prog_ID";
 
 	$result = mysqli_query($con, $query);
-=======
+
 	$Course_ID = isset($_GET['Course_ID']) ? $_GET['Course_ID'] : null;
 
 	// Fetch Faculty Details
@@ -45,7 +45,7 @@
 	$Course_Name = $course['Course_Name'];
 	$Course_Code = $course['Course_Code'];
 
->>>>>>> af63e72 (MITS-Exam)
+
 ?>
 <html lang="en">
 
@@ -61,7 +61,7 @@
 	<?php include '../Common/faculty-sidebar.php'; ?>
 	<main>
 		<div class="dashboard-header">
-<<<<<<< HEAD
+
 			<h4 class="mb-0 fw-bold">Exam</h4>
 		</div>
 		<div class="row g-4">
@@ -91,7 +91,7 @@
 			}
 			?>
 
-=======
+
 			<h4 class="mb-0 fw-bold"><?php echo $Course_Code." - ".$Course_Name; ?></h4>
 		</div>
 		<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
@@ -143,7 +143,7 @@
 					</div>
 				</div>
 			</div>
->>>>>>> af63e72 (MITS-Exam)
+
 		</div>
 	</main>
 
@@ -152,7 +152,7 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
 
-=======
+
 <?php  
 	session_start();
 	if (!$_SESSION["LoginFaculty"]){
@@ -166,7 +166,7 @@
 	error_reporting(E_ALL);
 
     $Fac_ID=$_SESSION['LoginFaculty'];
-<<<<<<< HEAD
+
 
 	// Fetch Faculty Details
 	$query1 = "SELECT * FROM `faculty` WHERE `Fac_ID` = '$Fac_ID' ";
@@ -184,7 +184,7 @@
 			  AND p.Prog_ID=c.Prog_ID";
 
 	$result = mysqli_query($con, $query);
-=======
+
 	$Course_ID = isset($_GET['Course_ID']) ? $_GET['Course_ID'] : null;
 
 	// Fetch Faculty Details
@@ -198,7 +198,7 @@
 	$Course_Name = $course['Course_Name'];
 	$Course_Code = $course['Course_Code'];
 
->>>>>>> af63e72 (MITS-Exam)
+
 ?>
 <html lang="en">
 
@@ -214,7 +214,7 @@
 	<?php include '../Common/faculty-sidebar.php'; ?>
 	<main>
 		<div class="dashboard-header">
-<<<<<<< HEAD
+
 			<h4 class="mb-0 fw-bold">Exam</h4>
 		</div>
 		<div class="row g-4">
@@ -244,7 +244,7 @@
 			}
 			?>
 
-=======
+
 			<h4 class="mb-0 fw-bold"><?php echo $Course_Code." - ".$Course_Name; ?></h4>
 		</div>
 		<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
@@ -296,7 +296,7 @@
 					</div>
 				</div>
 			</div>
->>>>>>> af63e72 (MITS-Exam)
+
 		</div>
 	</main>
 
@@ -305,8 +305,8 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
 
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
-=======
+
+
 <?php  
 	session_start();
 	if (!$_SESSION["LoginFaculty"]){
@@ -320,7 +320,7 @@
 	error_reporting(E_ALL);
 
     $Fac_ID=$_SESSION['LoginFaculty'];
-<<<<<<< HEAD
+
 
 	// Fetch Faculty Details
 	$query1 = "SELECT * FROM `faculty` WHERE `Fac_ID` = '$Fac_ID' ";
@@ -338,7 +338,7 @@
 			  AND p.Prog_ID=c.Prog_ID";
 
 	$result = mysqli_query($con, $query);
-=======
+
 	$Course_ID = isset($_GET['Course_ID']) ? $_GET['Course_ID'] : null;
 
 	// Fetch Faculty Details
@@ -352,7 +352,7 @@
 	$Course_Name = $course['Course_Name'];
 	$Course_Code = $course['Course_Code'];
 
->>>>>>> af63e72 (MITS-Exam)
+
 ?>
 <html lang="en">
 
@@ -368,7 +368,7 @@
 	<?php include '../Common/faculty-sidebar.php'; ?>
 	<main>
 		<div class="dashboard-header">
-<<<<<<< HEAD
+
 			<h4 class="mb-0 fw-bold">Exam</h4>
 		</div>
 		<div class="row g-4">
@@ -398,7 +398,7 @@
 			}
 			?>
 
-=======
+
 			<h4 class="mb-0 fw-bold"><?php echo $Course_Code." - ".$Course_Name; ?></h4>
 		</div>
 		<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
@@ -450,7 +450,7 @@
 					</div>
 				</div>
 			</div>
->>>>>>> af63e72 (MITS-Exam)
+
 		</div>
 	</main>
 
@@ -459,5 +459,5 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
 
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
+
 </html>

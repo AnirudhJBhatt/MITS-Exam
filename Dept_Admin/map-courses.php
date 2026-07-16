@@ -13,7 +13,7 @@ function selected($field, $value) {
     return (isset($_POST[$field]) && $_POST[$field] == $value) ? "selected" : "";
 }
 
-/* ================= SAVE MULTIPLE FACULTY MAPPINGS ================= */
+/* === SAVE MULTIPLE FACULTY MAPPINGS === */
 
 if(isset($_POST['Save_Mappings'])) {
 

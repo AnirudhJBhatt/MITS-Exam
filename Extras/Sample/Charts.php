@@ -1,5 +1,5 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
+
+
 <?php
 // DB Connection
 $mysqli = new mysqli("localhost", "root", "", "mits-pms");
@@ -72,7 +72,7 @@ $year_result = $mysqli->query($year_query);
     <div id="year_chart" style="width: 600px; height: 400px;"></div>
 </body>
 </html>
-=======
+
 <?php
 // DB Connection
 $mysqli = new mysqli("localhost", "root", "", "mits-pms");
@@ -145,8 +145,8 @@ $year_result = $mysqli->query($year_query);
     <div id="year_chart" style="width: 600px; height: 400px;"></div>
 </body>
 </html>
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
-=======
+
+
 <?php
 // DB Connection
 $mysqli = new mysqli("localhost", "root", "", "mits-pms");
@@ -219,4 +219,4 @@ $year_result = $mysqli->query($year_query);
     <div id="year_chart" style="width: 600px; height: 400px;"></div>
 </body>
 </html>
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
+

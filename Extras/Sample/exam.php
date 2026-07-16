@@ -1,5 +1,5 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -267,7 +267,7 @@
     </script>
 </body>
 </html>
-=======
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -535,8 +535,8 @@
     </script>
 </body>
 </html>
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
-=======
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -804,4 +804,4 @@
     </script>
 </body>
 </html>
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
+

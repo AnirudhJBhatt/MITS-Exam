@@ -1,5 +1,5 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
+
+
 <?php
 // Database connection (Procedural)
 $conn = mysqli_connect("localhost", "root", "", "emp");
@@ -49,7 +49,7 @@ if (isset($_POST['submit'])) {
     <input type="file" name="csv_file" accept=".csv" required>
     <input type="submit" name="submit" value="Upload">
 </form>
-=======
+
 <?php
 // Database connection (Procedural)
 $conn = mysqli_connect("localhost", "root", "", "emp");
@@ -99,8 +99,8 @@ if (isset($_POST['submit'])) {
     <input type="file" name="csv_file" accept=".csv" required>
     <input type="submit" name="submit" value="Upload">
 </form>
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
-=======
+
+
 <?php
 // Database connection (Procedural)
 $conn = mysqli_connect("localhost", "root", "", "emp");
@@ -150,4 +150,4 @@ if (isset($_POST['submit'])) {
     <input type="file" name="csv_file" accept=".csv" required>
     <input type="submit" name="submit" value="Upload">
 </form>
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
+

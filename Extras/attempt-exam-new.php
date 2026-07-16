@@ -1,5 +1,5 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
+
+
 <?php
     session_start();
     require_once "../Connection/connection.php";
@@ -109,7 +109,7 @@
     <script src="../Css/exam.js"></script>
 </body>
 </html>
-=======
+
 <?php
     session_start();
     require_once "../Connection/connection.php";
@@ -219,8 +219,8 @@
     <script src="../Css/exam.js"></script>
 </body>
 </html>
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
-=======
+
+
 <?php
     session_start();
     require_once "../Connection/connection.php";
@@ -330,4 +330,4 @@
     <script src="../Css/exam.js"></script>
 </body>
 </html>
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
+

@@ -1,5 +1,5 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
+
+
 <?php  
 	session_start();
 	if (!$_SESSION["LoginFaculty"]){
@@ -168,11 +168,11 @@
                                             <?php echo "Credits: ".$row['Credits']; ?> 
                                         </small>
                                     </div>
-<<<<<<< HEAD
+
                                     <a href="manage-exams.php?course=<?php echo urlencode($row['Course_ID']); ?>" class="btn btn-sm btn-success mt-3">Manage Exams</a>
-=======
+
                                     <a href="manage-exams.php?Course_ID=<?php echo urlencode($row['Course_ID']); ?>" class="btn btn-sm btn-success mt-3">Manage Exams</a>
->>>>>>> af63e72 (MITS-Exam)
+
                                 </div>
                             </div>
                         </div>
@@ -187,7 +187,7 @@
     </main>
     <?php include '../Common/footer.php'; ?>
 </body>
-=======
+
 <?php  
 	session_start();
 	if (!$_SESSION["LoginFaculty"]){
@@ -356,11 +356,11 @@
                                             <?php echo "Credits: ".$row['Credits']; ?> 
                                         </small>
                                     </div>
-<<<<<<< HEAD
+
                                     <a href="manage-exams.php?course=<?php echo urlencode($row['Course_ID']); ?>" class="btn btn-sm btn-success mt-3">Manage Exams</a>
-=======
+
                                     <a href="manage-exams.php?Course_ID=<?php echo urlencode($row['Course_ID']); ?>" class="btn btn-sm btn-success mt-3">Manage Exams</a>
->>>>>>> af63e72 (MITS-Exam)
+
                                 </div>
                             </div>
                         </div>
@@ -375,8 +375,8 @@
     </main>
     <?php include '../Common/footer.php'; ?>
 </body>
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
-=======
+
+
 <?php  
 	session_start();
 	if (!$_SESSION["LoginFaculty"]){
@@ -545,11 +545,11 @@
                                             <?php echo "Credits: ".$row['Credits']; ?> 
                                         </small>
                                     </div>
-<<<<<<< HEAD
+
                                     <a href="manage-exams.php?course=<?php echo urlencode($row['Course_ID']); ?>" class="btn btn-sm btn-success mt-3">Manage Exams</a>
-=======
+
                                     <a href="manage-exams.php?Course_ID=<?php echo urlencode($row['Course_ID']); ?>" class="btn btn-sm btn-success mt-3">Manage Exams</a>
->>>>>>> af63e72 (MITS-Exam)
+
                                 </div>
                             </div>
                         </div>
@@ -564,5 +564,5 @@
     </main>
     <?php include '../Common/footer.php'; ?>
 </body>
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
+
 </html>

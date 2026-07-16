@@ -1,5 +1,5 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
+
+
 <?php
 session_start();
 if (!$_SESSION["LoginFaculty"]) {
@@ -852,7 +852,7 @@ $Course_Code = $course['Course_Code'] ?? '';
     </script>
 </body>
 
-=======
+
 <?php
 session_start();
 if (!$_SESSION["LoginFaculty"]) {
@@ -1705,8 +1705,8 @@ $Course_Code = $course['Course_Code'] ?? '';
     </script>
 </body>
 
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
-=======
+
+
 <?php
 session_start();
 if (!$_SESSION["LoginFaculty"]) {
@@ -2559,5 +2559,5 @@ $Course_Code = $course['Course_Code'] ?? '';
     </script>
 </body>
 
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
+
 </html>

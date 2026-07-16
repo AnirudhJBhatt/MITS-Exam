@@ -1,5 +1,5 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
+
+
 <?php  
 	session_start();
 	if (!$_SESSION["LoginFaculty"]){
@@ -229,12 +229,12 @@ $query = "SELECT
                                                 data-examid="<?php echo $Exam_ID; ?>">
                                                 View Details
                                             </button>
-<<<<<<< HEAD
-=======
+
+
                                             <a href="download-result.php?Stud_ID=<?php echo $row['Stud_ID']; ?>&Exam_ID=<?php echo $Exam_ID; ?>" class="btn btn-success btn-sm" target="_blank">
                                                 Download
                                             </a>
->>>>>>> af63e72 (MITS-Exam)
+
                                             <button 
                                                 class="btn btn-warning btn-sm enter-marks" 
                                                 data-studid="<?php echo $row['Stud_ID']; ?>" 
@@ -409,7 +409,7 @@ $query = "SELECT
 
 
 
-=======
+
 <?php  
 	session_start();
 	if (!$_SESSION["LoginFaculty"]){
@@ -639,12 +639,12 @@ $query = "SELECT
                                                 data-examid="<?php echo $Exam_ID; ?>">
                                                 View Details
                                             </button>
-<<<<<<< HEAD
-=======
+
+
                                             <a href="download-result.php?Stud_ID=<?php echo $row['Stud_ID']; ?>&Exam_ID=<?php echo $Exam_ID; ?>" class="btn btn-success btn-sm" target="_blank">
                                                 Download
                                             </a>
->>>>>>> af63e72 (MITS-Exam)
+
                                             <button 
                                                 class="btn btn-warning btn-sm enter-marks" 
                                                 data-studid="<?php echo $row['Stud_ID']; ?>" 
@@ -819,8 +819,8 @@ $query = "SELECT
 
 
 
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
-=======
+
+
 <?php  
 	session_start();
 	if (!$_SESSION["LoginFaculty"]){
@@ -1050,12 +1050,12 @@ $query = "SELECT
                                                 data-examid="<?php echo $Exam_ID; ?>">
                                                 View Details
                                             </button>
-<<<<<<< HEAD
-=======
+
+
                                             <a href="download-result.php?Stud_ID=<?php echo $row['Stud_ID']; ?>&Exam_ID=<?php echo $Exam_ID; ?>" class="btn btn-success btn-sm" target="_blank">
                                                 Download
                                             </a>
->>>>>>> af63e72 (MITS-Exam)
+
                                             <button 
                                                 class="btn btn-warning btn-sm enter-marks" 
                                                 data-studid="<?php echo $row['Stud_ID']; ?>" 
@@ -1230,5 +1230,5 @@ $query = "SELECT
 
 
 
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
+
             

@@ -1,5 +1,5 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
+
+
 [
     {
         "question": "What is the time complexity of binary search in a sorted array?",
@@ -27,7 +27,7 @@
         "answer": "Recursion"
     }
 ]
-=======
+
 [
     {
         "question": "What is the time complexity of binary search in a sorted array?",
@@ -55,8 +55,8 @@
         "answer": "Recursion"
     }
 ]
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
-=======
+
+
 [
     {
         "question": "What is the time complexity of binary search in a sorted array?",
@@ -84,4 +84,4 @@
         "answer": "Recursion"
     }
 ]
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
+

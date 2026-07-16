@@ -1,5 +1,5 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
+
+
 <?php
 $conn = mysqli_connect("localhost", "root", "", "mits-pms");
 if (!$conn) {
@@ -49,7 +49,7 @@ mysqli_close($conn);
 
     <input type="submit" value="Update PDF">
 </form>
-=======
+
 <?php
 $conn = mysqli_connect("localhost", "root", "", "mits-pms");
 if (!$conn) {
@@ -99,8 +99,8 @@ mysqli_close($conn);
 
     <input type="submit" value="Update PDF">
 </form>
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
-=======
+
+
 <?php
 $conn = mysqli_connect("localhost", "root", "", "mits-pms");
 if (!$conn) {
@@ -150,4 +150,4 @@ mysqli_close($conn);
 
     <input type="submit" value="Update PDF">
 </form>
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
+

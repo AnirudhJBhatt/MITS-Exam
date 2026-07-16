@@ -1,5 +1,5 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
+
+
 <?php
 /**
  * Exam Builder – API
@@ -399,7 +399,7 @@ function jsonError(string $message, int $httpCode = 400): void
     header('Content-Type: application/json');
     echo json_encode(['success' => false, 'message' => $message]);
     exit;
-=======
+
 <?php
 /**
  * Exam Builder – API
@@ -799,8 +799,8 @@ function jsonError(string $message, int $httpCode = 400): void
     header('Content-Type: application/json');
     echo json_encode(['success' => false, 'message' => $message]);
     exit;
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
-=======
+
+
 <?php
 /**
  * Exam Builder – API
@@ -1200,5 +1200,5 @@ function jsonError(string $message, int $httpCode = 400): void
     header('Content-Type: application/json');
     echo json_encode(['success' => false, 'message' => $message]);
     exit;
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
+
 }

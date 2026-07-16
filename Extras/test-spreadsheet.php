@@ -1,5 +1,5 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
+
+
 <?php
     require __DIR__ . '/../vendor/autoload.php';
 
@@ -76,7 +76,7 @@ if (isset($_POST['upload'])) {
 
 </body>
 </html>
-=======
+
 <?php
     require __DIR__ . '/../vendor/autoload.php';
 
@@ -153,8 +153,8 @@ if (isset($_POST['upload'])) {
 
 </body>
 </html>
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
-=======
+
+
 <?php
     require __DIR__ . '/../vendor/autoload.php';
 
@@ -231,4 +231,4 @@ if (isset($_POST['upload'])) {
 
 </body>
 </html>
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
+

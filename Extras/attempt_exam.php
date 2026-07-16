@@ -1,5 +1,5 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
+
+
 <!---------------- Session starts form here ----------------------->
 <?php  
 	session_start();
@@ -133,7 +133,7 @@ if (isset($_POST['submit_exam'])) {
 ?>
 
 </body>
-=======
+
 <!---------------- Session starts form here ----------------------->
 <?php  
 	session_start();
@@ -267,8 +267,8 @@ if (isset($_POST['submit_exam'])) {
 ?>
 
 </body>
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
-=======
+
+
 <!---------------- Session starts form here ----------------------->
 <?php  
 	session_start();
@@ -402,5 +402,5 @@ if (isset($_POST['submit_exam'])) {
 ?>
 
 </body>
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
+
 </html>

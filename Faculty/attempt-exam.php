@@ -1,5 +1,5 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
+
+
 <?php
 session_start();
 $con = mysqli_connect("localhost", "root", "", "exam_db");
@@ -1975,7 +1975,7 @@ $studentJson   = json_encode($student);
 	</script>
 </body>
 
-=======
+
 <?php
 session_start();
 $con = mysqli_connect("localhost", "root", "", "exam_db");
@@ -3951,8 +3951,8 @@ $studentJson   = json_encode($student);
 	</script>
 </body>
 
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
-=======
+
+
 <?php
 session_start();
 $con = mysqli_connect("localhost", "root", "", "exam_db");
@@ -5928,5 +5928,5 @@ $studentJson   = json_encode($student);
 	</script>
 </body>
 
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
+
 </html>

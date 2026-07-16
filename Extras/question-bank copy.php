@@ -1,5 +1,5 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
+
+
 <?php  
 	session_start();
 	if (!$_SESSION["LoginFaculty"]){
@@ -219,7 +219,7 @@
 	<?php include '../Common/footer.php'; ?>
 </body>
 
-=======
+
 <?php  
 	session_start();
 	if (!$_SESSION["LoginFaculty"]){
@@ -439,8 +439,8 @@
 	<?php include '../Common/footer.php'; ?>
 </body>
 
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
-=======
+
+
 <?php  
 	session_start();
 	if (!$_SESSION["LoginFaculty"]){
@@ -660,5 +660,5 @@
 	<?php include '../Common/footer.php'; ?>
 </body>
 
->>>>>>> f1e265abf03ca415a8e766b8518d8c076d9bf836
+
 </html>
