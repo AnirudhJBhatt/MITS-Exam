@@ -1,3 +1,23 @@
+<?php  
+	session_start();
+	if (!$_SESSION["LoginFaculty"]){
+		echo '<script> alert("Your Are Not Authorize Person For This link");</script>';
+        echo '<script>window.location="../Login/Login.php"</script>';
+	}
+
+	require_once "../Connection/connection.php";
+
+    $Fac_ID=$_SESSION['LoginFaculty'];
+	$query = "SELECT * FROM `faculty` WHERE `Fac_ID` = '$Fac_ID' ";
+    $run = mysqli_query($con, $query);
+    $row = mysqli_fetch_array($run);
+	$Fac_Dept=$row['Fac_Dept'];
+    
+    function selected($field, $value) {
+        return (isset($_POST[$field]) && $_POST[$field] == $value) ? "selected" : "";
+    }
+
+?>
 <html lang="en">
 
 <head>
