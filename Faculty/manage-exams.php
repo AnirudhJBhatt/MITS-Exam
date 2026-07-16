@@ -29,7 +29,7 @@
 
 	$result = mysqli_query($con, $query);
 
-	$Course_ID = isset($_GET['course']) ? $_GET['course'] : null;
+	$Course_ID = isset($_GET['Course_ID']) ? $_GET['Course_ID'] : null;
 
 	$course_query = "SELECT * FROM `courses` WHERE `Course_ID` = '$Course_ID'";
 	$course_run = mysqli_query($con, $course_query);
