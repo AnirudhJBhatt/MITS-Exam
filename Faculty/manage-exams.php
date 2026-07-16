@@ -53,40 +53,6 @@
 	<?php include '../Common/header.php'; ?>
 	<?php include '../Common/faculty-sidebar.php'; ?>
 	<main>
-		<div class="dashboard-header">
-
-			<h4 class="mb-0 fw-bold">Exam</h4>
-		</div>
-		<div class="row g-4">
-
-			<?php 
-			if(mysqli_num_rows($result) > 0){
-				while($row = mysqli_fetch_assoc($result)){
-			?>
-					<div class="col-md-4 col-lg-3">
-						<div class="card p-3">
-							<div class="card-body text-center">
-								<h5 class="card-title">
-									<?php echo strtoupper($row['Course_Name']); ?>
-								</h5>
-								<p class="semester-text mb-0">
-									S<?php echo $row['Semester']; ?> 
-									<?php echo $row['Prog_Name']; ?>
-								</p>
-								<a href="manage-exams.php?course=<?php echo urlencode($row['Course_ID']); ?>" class="btn btn-primary mt-3">Manage Exams</a>
-							</div>
-						</div>
-					</div>
-			<?php 
-				}
-			}else{
-				echo "<p class='text-muted'>No Subjects Assigned</p>";
-			}
-			?>
-
-
-			<h4 class="mb-0 fw-bold"><?php echo $Course_Code." - ".$Course_Name; ?></h4>
-		</div>
 		<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
 			<ol class="breadcrumb">
 				<li class="breadcrumb-item"><a href="#">Dashboard</a></li>
