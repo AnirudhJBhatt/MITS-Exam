@@ -87,7 +87,7 @@
 									<input type="submit" class="btn btn-primary" name="Add" value="Upload CSV">
 								</div>
 							</div>
-							<p class="text-muted mt-2">Click here to download template <a href="../Templates/Courses Template.csv" download>Download Template</a></p>
+							<p class="text-muted mt-2">Click here to download template <a href="../Templates/Courses_Template.csv" download>Download Template</a></p>
 						</form>
 					</div>
 				</div>
