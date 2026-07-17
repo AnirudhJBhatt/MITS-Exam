@@ -69,8 +69,8 @@
 					    <form method="POST" enctype="multipart/form-data">
 						    <div class="row mt-3">
 							    <div class="col-md-4">
-								    <select name="Stud_Branch" class="form-control">
-									<option value="">Select Programme</option>
+								    <select name="Stud_Branch" class="form-control" require>
+									<option value="" selected disabled>Select Programme</option>
 									    <?php
 										    $pgquery ="SELECT * FROM programmes WHERE Dept_ID='$Dept_ID' ORDER BY Prog_Name DESC";
 											$pgrun = mysqli_query($con, $pgquery);
