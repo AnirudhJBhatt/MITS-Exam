@@ -2,7 +2,7 @@
 
 <?php
 session_start();
-$con = mysqli_connect("localhost", "root", "", "exam_db");
+require_once __DIR__ . "/../Connection/connection.php";
 $exam_id = isset($_GET['exam_id']) ? (int)$_GET['exam_id'] : 4;
 
 if ($exam_id <= 0) {
@@ -1978,7 +1978,7 @@ $studentJson   = json_encode($student);
 
 <?php
 session_start();
-$con = mysqli_connect("localhost", "root", "", "exam_db");
+require_once __DIR__ . "/../Connection/connection.php";
 $exam_id = isset($_GET['exam_id']) ? (int)$_GET['exam_id'] : 4;
 
 if ($exam_id <= 0) {
@@ -3955,7 +3955,7 @@ $studentJson   = json_encode($student);
 
 <?php
 session_start();
-$con = mysqli_connect("localhost", "root", "", "exam_db");
+require_once __DIR__ . "/../Connection/connection.php";
 $exam_id = isset($_GET['exam_id']) ? (int)$_GET['exam_id'] : 4;
 
 if ($exam_id <= 0) {

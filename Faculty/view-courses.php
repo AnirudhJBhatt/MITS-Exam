@@ -12,6 +12,7 @@
     $run = mysqli_query($con, $query);
     $row = mysqli_fetch_array($run);
 	$Fac_Dept=$row['Fac_Dept'];
+    $Fac_Acad_Year=$row['Acad_Year'];
     
     function selected($field, $value) {
         return (isset($_POST[$field]) && $_POST[$field] == $value) ? "selected" : "";
@@ -119,7 +120,7 @@
                                 FROM course_mapping m
                                 JOIN courses c ON m.Course_ID = c.Course_ID
                                 JOIN programmes p ON c.Prog_ID = p.Prog_ID
-                                WHERE m.Fac_ID = '$Fac_ID'
+                                WHERE m.Fac_ID = '$Fac_ID' AND m.Acad_Year='$Fac_Acad_Year'
                                 ORDER BY c.Course_Name";
 
                     } else {

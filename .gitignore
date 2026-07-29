@@ -1,5 +1,5 @@
-env.php
 .htaccess
 composer.lock
 composer.json
 vendor/
+.env

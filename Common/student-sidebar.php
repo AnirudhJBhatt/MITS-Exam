@@ -9,8 +9,8 @@
         </li>
 
         <li>
-            <a class="nav-link <?= ($current_page == 'exam.php') ? 'active' : ''; ?>"
-            href="../Student/exam.php">
+            <a class="nav-link <?= ($current_page == 'view-exams.php') ? 'active' : ''; ?>"
+            href="../Student/view-exams.php">
                 <i class="bi bi-journal-text"></i><span> Exams</span>
             </a>
         </li>

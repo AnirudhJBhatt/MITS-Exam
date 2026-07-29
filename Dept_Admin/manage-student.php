@@ -57,6 +57,7 @@ if (json_last_error() !== JSON_ERROR_NONE) {
 	}
 }
 ?>
+
 <html lang="en">
 
 <head>
@@ -193,14 +194,14 @@ if (json_last_error() !== JSON_ERROR_NONE) {
 										</select>
 									</div>
 									<div class="col-md-4">
-										<label for="Stud_Batch">Select Batch</label>
-										<select class="form-select" name="Stud_Batch">
+										<label for="Stud_Branch">Select Batch</label>
+										<select class="form-select" name="Stud_Branch">
 											<option>Select Batch</option>
 											<?php
 												$bquery = "SELECT DISTINCT Stud_Year FROM student WHERE Stud_Dept='$Dept_ID' ORDER BY Stud_Year DESC";
 												$brun = mysqli_query($con, $bquery);
 												while ($brow = mysqli_fetch_array($brun)) {
-													echo "<option value='" . $brow['Stud_Year'] . "' " . selected('Stud_Batch', $brow['Stud_Year']) . ">" . $brow['Stud_Year'] . "</option>";
+													echo "<option value='" . $brow['Stud_Year'] . "' " . selected('Stud_Branch', $brow['Stud_Year']) . ">" . $brow['Stud_Year'] . "</option>";
 												}
 											?>
 										</select>
@@ -217,8 +218,8 @@ if (json_last_error() !== JSON_ERROR_NONE) {
 						<?php	
 							if (isset($_POST['Submit'])) {
 								$Stud_Branch = $_POST['Stud_Branch'];
-								$Stud_Batch = $_POST['Stud_Batch'];
-								$query = "SELECT * FROM student s, programmes p WHERE Stud_Dept='$Dept_ID' AND Stud_Year='$Stud_Batch' AND s.Stud_Branch = p.Prog_ID AND s.Stud_Branch='$Stud_Branch' ORDER BY Stud_Name ASC";
+								$Stud_Branch = $_POST['Stud_Branch'];
+								$query = "SELECT * FROM student s, programmes p WHERE Stud_Dept='$Dept_ID' AND Stud_Year='$Stud_Branch' AND s.Stud_Branch = p.Prog_ID AND s.Stud_Branch='$Stud_Branch' ORDER BY Stud_Name ASC";
 								// echo $query;
 								$run = mysqli_query($con, $query);
 								if (mysqli_num_rows($run) == 0) {
@@ -270,7 +271,3 @@ if (json_last_error() !== JSON_ERROR_NONE) {
 </body>
 
 </html>
-
-
-
-            

@@ -10,11 +10,11 @@ error_reporting(E_ALL);
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\IOFactory;
 
-if (!isset($_POST['Exam_ID'])) {
-    die("Invalid Request");
-}
+// if (!isset($_POST['Exam_ID'])) {
+//     die("Invalid Request");
+// }
 
-$Exam_ID = mysqli_real_escape_string($con, $_POST['Exam_ID']);
+$Exam_ID = 383;
 
 // =====================
 // FETCH EXAM DETAILS

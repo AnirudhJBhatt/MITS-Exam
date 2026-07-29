@@ -7,8 +7,7 @@
         echo '<script>window.location="../Login/Login.php"</script>';
     }
 
-    // require_once "../Connection/connection.php";
-    $con = mysqli_connect("localhost", "root", "", "exam_db");
+    require_once __DIR__ . "/../Connection/connection.php";
 
     $Fac_ID    = $_SESSION['LoginFaculty'];
     $Course_ID = $_GET['Course_ID'] ?? null;
@@ -705,8 +704,7 @@
         echo '<script>window.location="../Login/Login.php"</script>';
     }
 
-    // require_once "../Connection/connection.php";
-    $con = mysqli_connect("localhost", "root", "", "exam_db");
+    require_once __DIR__ . "/../Connection/connection.php";
 
     $Fac_ID    = $_SESSION['LoginFaculty'];
     $Course_ID = $_GET['Course_ID'] ?? null;
@@ -1404,8 +1402,7 @@
         echo '<script>window.location="../Login/Login.php"</script>';
     }
 
-    // require_once "../Connection/connection.php";
-    $con = mysqli_connect("localhost", "root", "", "exam_db");
+    require_once __DIR__ . "/../Connection/connection.php";
 
     $Fac_ID    = $_SESSION['LoginFaculty'];
     $Course_ID = $_GET['Course_ID'] ?? null;

@@ -14,7 +14,7 @@
 	$Stud_Branch=$row['Stud_Branch'];
 
 	$attempted_exams = array();
-	$examquery = "SELECT * FROM `result` WHERE `Stud_ID` = '$Stud_ID' ";
+	$examquery = "SELECT * FROM `results` WHERE `Stud_ID` = '$Stud_ID' ";
 	$run = mysqli_query($con, $examquery);
 	while ($row = mysqli_fetch_assoc($run)) {
 		$attempted_exams[] = $row['Exam_ID'];
@@ -79,19 +79,17 @@
 			<h4 class="mb-0 fw-bold">Exam</h4>
 		</div>
 		<?php
-			$query ="SELECT e.Exam_ID AS exam_id_exam, e.Total_Marks AS E_Marks, r.Total_Marks AS R_Marks, 
-					e.Result_Status, e.Exam_Title, e.Exam_Type, e.Course_ID, c.Course_Name, e.Duration, e.* ,
-					CASE 
-						WHEN CONVERT_TZ(NOW(), '+00:00', '+05:30') < e.Start_Time THEN 'Upcoming'
-						WHEN CONVERT_TZ(NOW(), '+00:00', '+05:30') BETWEEN e.Start_Time AND e.End_Time THEN 'Ongoing'
-						ELSE 'Completed'
-					END AS Current_Status
-					FROM exam e 
-					INNER JOIN student_course_mapping scm ON scm.Course_ID = e.Course_ID 
-					INNER JOIN courses c ON c.Course_ID = e.Course_ID
-					LEFT JOIN result r ON r.Exam_ID = e.Exam_ID AND r.Stud_ID = '$Stud_ID'
-					WHERE scm.Stud_ID = '$Stud_ID' AND e.Prog_ID = '$Stud_Branch' ORDER BY e.Exam_ID DESC";
-					
+			$query ="SELECT e.Exam_ID, e.Exam_Name, e.Start_Time, e.End_Time, e.Total_Marks, e.Duration, c.Course_Name, e.Result_Status,
+				CASE 
+					WHEN CONVERT_TZ(NOW(), '+00:00', '+05:30') < e.Start_Time THEN 'Upcoming'
+					WHEN CONVERT_TZ(NOW(), '+00:00', '+05:30') BETWEEN e.Start_Time AND e.End_Time THEN 'Ongoing'
+					ELSE 'Completed'
+				END AS Current_Status
+			FROM student_course_mapping scm 
+				JOIN exams e ON scm.Course_ID = e.Course_ID
+				JOIN courses c ON e.Course_ID = c.Course_ID
+				WHERE scm.Stud_ID = '$Stud_ID'";
+						
 			$run = mysqli_query($con, $query);
 			if(mysqli_num_rows($run) == 0) {
 				echo '<div class="alert alert-warning mt-4 text-center" role="alert">No exams available at the moment.</div>';
@@ -101,16 +99,13 @@
 		<div class="exam-card">
 			<div class="exam-row">
 				<div class="exam-title">
-					<?php echo $row['Exam_Title']; ?>
-				</div>
-				<div class="exam-item"><strong>Type:</strong>
-					<?php echo $row['Exam_Type']; ?>
+					<?php echo $row['Exam_Name']; ?>
 				</div>
 				<div class="exam-item"><strong>Subject:</strong>
 					<?php echo $row['Course_Name']; ?>
 				</div>
 				<div class="exam-item"><strong>Max Marks:</strong>
-					<?php echo $row['E_Marks']; ?>
+					<?php echo $row['Total_Marks']; ?>
 				</div>
 				<div class="exam-item"><strong>Start Time:</strong>
 					<?php echo $row['Start_Time']; ?>
@@ -119,13 +114,13 @@
 					<?php echo $row['End_Time']; ?>
 				</div>
 				<?php
-						if($row['Result_Status'] == 1) {
-							echo '<div class="exam-item"><strong>Marks:</strong> ' . $row['R_Marks'] . '</div>';
-						} 
+					if($row['Result_Status'] == 1) {
+						echo '<div class="exam-item"><strong>Marks:</strong> ' . $row['Total_Marks'] . '</div>';
+					} 
 				?>
 				<div class="exam-action">
 					<?php 
-						$exam_id = $row['exam_id_exam'];
+						$exam_id = $row['Exam_ID'];
 						$current_status = $row['Current_Status'];
 						if (in_array($exam_id, $attempted_exams)) {
 							if ($row['Result_Status'] == 1) {
@@ -135,7 +130,7 @@
 							}
 						} else {
 							if ($current_status == 'Ongoing') {
-								echo '<a href="attempt-exam.php?Exam_ID=' . $exam_id . '" class="btn btn-success btn-sm">Attempt</a>';
+								echo '<a href="attempt-exam-new.php?Exam_ID=' . $exam_id . '" class="btn btn-success btn-sm">Attempt</a>';
 							} elseif ($current_status == 'Upcoming') {
 								echo '<span class="badge bg-warning text-dark">Upcoming</span>';
 							} else {
@@ -149,56 +144,49 @@
 		<?php
 			}
 		?>
-
 		<!-- Modal -->
-		<div class="modal fade" id="resultModal" tabindex="-1" aria-labelledby="resultModalLabel" aria-hidden="true">
-			<div class="modal-dialog modal-xl modal-dialog-centered">
-				<div class="modal-content">
-					<div class="modal-header bg-dark text-white">
-						<h5 class="modal-title" id="resultModalLabel">Student Result Details</h5>
-						<button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-							aria-label="Close"></button>
-					</div>
-					<div class="modal-body">
-						<table class="table table-bordered text-center">
-							<thead class="table-dark">
-								<tr>
-									<th>Q. No</th>
-									<th>Question</th>
-									<th>Correct Answer</th>
-									<th>Selected Answer</th>
-									<th>Marks</th>
-								</tr>
-							</thead>
-							<tbody id="resultDetails">
-								<!-- AJAX Data will appear here -->
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-		</div>
+        <div class="modal fade" id="resultModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="resultModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header bg-dark text-white">
+                        <h5 class="modal-title" id="resultModalLabel">Student Result Details</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="resultDetails">
+                        <div class="text-center text-muted py-5">
+                            <div class="spinner-border text-danger" role="status"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 	</main>
 	<?php include '../Common/footer.php'; ?>
 	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 	<script>
 		$(document).ready(function () {
-			$('.view-details').click(function () {
-				var studID = $(this).data('studid');
-				var examID = $(this).data('examid');
+			$(document).on('click', '.view-details', function (e) {
+                e.preventDefault();
+                var studID = $(this).data('studid');
+                var examID = $(this).data('examid');
 
-				$.ajax({
-					url: '../Faculty/fetch-result-details.php',
-					type: 'POST',
-					data: { Stud_ID: studID, Exam_ID: examID },
-					success: function (response) {
-						$('#resultDetails').html(response);
-						var modal = new bootstrap.Modal(document.getElementById('resultModal'));
-						modal.show();
-					}
-				});
-			});
+                $('#resultDetails').html('<div class="text-center text-muted py-5"><div class="spinner-border text-danger" role="status"></div></div>');
+                var modal = new bootstrap.Modal(document.getElementById('resultModal'));
+                modal.show();
+
+                $.ajax({
+                    url: '../Faculty/fetch-result-details.php',
+                    type: 'POST',
+                    data: { Stud_ID: studID, Exam_ID: examID },
+                    success: function (response) {
+                        $('#resultDetails').html(response);
+                    },
+                    error: function () {
+                        $('#resultDetails').html('<p class="text-danger text-center py-5">Could not load result details.</p>');
+                    }
+                });
+            });
 		}); 
 	</script>
 

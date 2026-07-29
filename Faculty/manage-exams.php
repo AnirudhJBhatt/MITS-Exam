@@ -51,12 +51,15 @@
 	<?php include '../Common/header.php'; ?>
 	<?php include '../Common/faculty-sidebar.php'; ?>
 	<main>
-		<nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
+		<div class="dashboard-header">
+            <h4 class="mb-0 fw-bold">Manage Exams</h4>
+        </div>
+		<!-- <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
 			<ol class="breadcrumb">
 				<li class="breadcrumb-item"><a href="#">Dashboard</a></li>
 				<li class="breadcrumb-item active" aria-current="page">Manage Exams</li>
 			</ol>
-		</nav>
+		</nav> -->
 		<div class="row g-4">
 			<!-- Create Exam Card -->
 			<div class="col-md-4">
@@ -82,7 +85,7 @@
 							<i class="bi bi-file-earmark-text fs-2"></i>
 						</div>
 						<h5 class="fw-bold">Question Bank</h5>
-						<a href="question-bank.php?Course_ID=<?php echo urlencode($Course_ID); ?>" class="btn btn-success rounded-pill px-4">View Question Bank</a>
+						<a href="new_question-bank.php?Course_ID=<?php echo urlencode($Course_ID); ?>" class="btn btn-success rounded-pill px-4">View Question Bank</a>
 					</div>
 				</div>
 			</div>

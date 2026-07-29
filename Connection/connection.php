@@ -1,11 +1,19 @@
 <?php 
-	$config = include __DIR__ . '/../env.php';
-	
+	require_once __DIR__ . '/../vendor/autoload.php';
 
-	$host = $config['DB_HOST'];
-	$user = $config['DB_USER'];
-	$pass = $config['DB_PASSWORD'];
-	$db   = $config['DB_NAME'];
+	if (file_exists(__DIR__ . '/../.env')) {
+		try {
+			$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
+			$dotenv->safeLoad();
+		} catch (Exception $e) {
+			// Fallback if env file parsing fails
+		}
+	}
+
+	$host = $_ENV['DB_HOST'];
+	$user = $_ENV['DB_USER'];
+	$pass = $_ENV['DB_PASSWORD'];
+	$db   = $_ENV['DB_NAME'];
 
 	$con = mysqli_connect("$host", $user, $pass, $db);
 

@@ -14,7 +14,6 @@ $Course_ID = $_GET['Course_ID'] ?? "123";
 
 $q   = mysqli_query($con, "SELECT * FROM `faculty` WHERE `Fac_ID` = '$Fac_ID'");
 $row = mysqli_fetch_array($q);
-$Acad_Year = $row['Acad_Year'];
 
 $cq     = mysqli_query($con, "SELECT * FROM `courses` WHERE `Course_ID` = '$Course_ID'");
 $course = mysqli_fetch_array($cq);
@@ -116,7 +115,7 @@ $Course_Code = $course['Course_Code'] ?? '';
     <main>
         <div class="dashboard-header">
             <h4 class="mb-0 fw-bold">
-                <i class="ti ti-clipboard-plus me-2"></i>Create Exam
+                <i class="ti ti-clipboard-plus me-2"></i>Question Bank
                 <?php if ($Course_Name): ?>
                     <small class="fw-normal opacity-75 ms-2">
                         <?= htmlspecialchars($Course_Name) ?> (<?= htmlspecialchars($Course_Code) ?>)
@@ -124,140 +123,136 @@ $Course_Code = $course['Course_Code'] ?? '';
                 <?php endif; ?>
             </h4>
         </div>
-
-
-        <div class="sub-main pb-5">
-            <nav>
-                <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                    <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">
-                        Create New Exam
-                    </button>
-                    <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">
-                        View Exams
-                    </button>
-                </div>
-            </nav>
-            <div class="tab-content" id="nav-tabContent">
-                <div class="tab-pane fade show active mt-3" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab" tabindex="0">
-                    <!-- Top action bar -->
-                    <!-- <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
-                        <div>
-                            <nav aria-label="breadcrumb">
-                                <ol class="breadcrumb mb-1 small">
-                                    <li class="breadcrumb-item text-muted">Exams</li>
-                                    <li class="breadcrumb-item active">Create New Exam</li>
-                                </ol>
-                            </nav>
-                            <h5 class="mb-0 fw-semibold">Create exam</h5>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-outline-info" onclick="openExamList()">
-                                View Exams
-                            </button>
-                            <button class="btn btn-outline-secondary" id="btnDraft" onclick="saveExam('draft')">
-                                Save draft
-                            </button>
-                            <button class="btn btn-primary" id="btnPublish" onclick="saveExam('published')">
-                                Publish exam
-                            </button>
-                        </div>
-                    </div> -->
-
-                    <!-- Exam details card -->
-                    <div class="card border-0 shadow-sm mb-3">
-                        <div class="card-header bg-white border-bottom py-2">
-                            <span class="text-uppercase small fw-semibold text-muted">Exam Details</span>
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-3 mb-3">
-                                <div class="col-md-3">
-                                    <label class="form-label small text-muted">Exam Name <span class="text-danger">*</span></label>
-                                    <input type="text" id="examName" class="form-control" placeholder="Exam Name" required>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label small text-muted">Duration (min) <span class="text-danger">*</span></label>
-                                    <input type="number" id="examDuration" class="form-control" placeholder="Duration in Minutes" min="1" required>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label small text-muted">Start Time</label> <span class="text-danger">*</span></label>
-                                    <input type="datetime-local" id="startTime" class="form-control" required>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label small text-muted">End Time</label> <span class="text-danger">*</span></label>
-                                    <input type="datetime-local" id="endTime" class="form-control" required>
-                                </div>
-                            </div>
-
-                            <label class="form-label small text-muted">Select Question Type</label>
-                            <div class="d-flex flex-wrap gap-2">
-                                <button type="button" class="btn btn-sm btn-outline-primary type-pill active" data-type="mcq" onclick="setType(this,'mcq')">
-                                MCQ
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-primary type-pill" data-type="match" onclick="setType(this,'match')">
-                                    Match the following
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-primary type-pill" data-type="open" onclick="setType(this,'open')">
-                                    Open ended
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-primary type-pill" data-type="fill" onclick="setType(this,'fill')">
-                                    Fill in the blanks
-                                </button>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-primary type-pill" data-type="fill" onclick="setType(this,'fill')">
-                                    Case Study
-                                </button>
-                            </div>
-                        </div>
+        <nav>
+            <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Add Questions</button>
+                <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">View Question Bank</button>
+            </div>
+        </nav>
+        <div class="tab-content" id="nav-tabContent">
+            <div class="tab-pane fade show active mt-3" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab" tabindex="0">
+                <!-- Upload Methods Card -->
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-header bg-white border-bottom py-2">
+                        <span class="text-uppercase small fw-semibold text-muted">Choose Upload Method</span>
                     </div>
-
-                    <!-- Questions card -->
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-white border-bottom py-2 d-flex align-items-center justify-content-between flex-wrap gap-2">
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="text-uppercase small fw-semibold text-muted">Questions</span>
-                                <span class="badge bg-light text-secondary border" id="qnCountBadge">0 questions</span>
-                            </div>
-                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="openQBank()">
-                                Add from question bank
-                            </button>
-                        </div>
-                        <div class="card-body">
-                            <div id="questionList"></div>
-
-                            <div class="d-flex align-items-center gap-2 mt-2">
-                                <hr class="flex-grow-1 m-0">
-                                <button type="button" class="btn btn-success btn-sm" onclick="addQuestion()">
-                                    Add question manually
+                    <div class="card-body">
+                        <ul class="nav nav-pills mb-3" id="methodTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="manual-tab" data-bs-toggle="pill" data-bs-target="#manual-pane" type="button" role="tab" aria-controls="manual-pane" aria-selected="true">
+                                    Manually
                                 </button>
-                                <button type="button" class="btn btn-success btn-sm" onclick="openQBank()">
-                                    Add question from question bank
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="csv-tab" data-bs-toggle="pill" data-bs-target="#csv-pane" type="button" role="tab" aria-controls="csv-pane" aria-selected="false">
+                                    Bulk Upload
                                 </button>
-                                <hr class="flex-grow-1 m-0">
+                            </li>
+                        </ul>
+                        <div class="tab-content" id="methodTabContent">
+                            <!-- Manual Pane -->
+                            <div class="tab-pane fade show active" id="manual-pane" role="tabpanel" aria-labelledby="manual-tab">
+                                <label class="form-label small text-muted">Select Question Type</label>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button type="button" class="btn btn-sm btn-outline-primary type-pill active" data-type="mcq" onclick="setType(this,'mcq')">
+                                    MCQ
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary type-pill" data-type="match" onclick="setType(this,'match')">
+                                        Match the following
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary type-pill" data-type="open" onclick="setType(this,'open')">
+                                        Open ended
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary type-pill" data-type="fill" onclick="setType(this,'fill')">
+                                        Fill in the blanks
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- CSV Pane -->
+                            <div class="tab-pane fade" id="csv-pane" role="tabpanel" aria-labelledby="csv-tab">
+                                <form id="csvUploadForm" onsubmit="handleCsvSubmit(event)">
+                                    <div class="row g-3 align-items-end">
+                                        <div class="col-md-4">
+                                            <label class="form-label small text-muted">Question Type for CSV</label>
+                                            <select class="form-select form-select" id="csvQuestionType" onchange="updateCsvInstructions()" required>
+                                                <option value="mcq">MCQ</option>
+                                                <option value="match">Match the following</option>
+                                                <option value="open">Open ended</option>
+                                                <option value="fill">Fill in the blanks</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <label class="form-label small text-muted">Select CSV File</label>
+                                            <input type="file" class="form-control form-control" id="csvFile" accept=".csv" required>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <button type="submit" class="btn btn-success w-100" id="btnUploadCsv">
+                                                Import CSV
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 p-3 bg-light rounded border border-dashed">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 class="mb-0 fw-semibold text-muted small">CSV Format Instructions</h6>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size: 11px;" onclick="downloadCsvTemplate()">
+                                                <i class="ti ti-download me-1"></i>Download Template
+                                            </button>
+                                        </div>
+                                        <div id="csvInstructions" class="small text-muted mb-0">
+                                            <!-- Will be populated dynamically by JS -->
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
                         </div>
-                    </div>
-                    <div class="d-flex gap-2 justify-content-center mt-3">
-                        <button class="btn btn-primary" id="btnPublish" onclick="saveExam('published')">
-                            Publish exam
-                        </button>
                     </div>
                 </div>
-                <div class="tab-pane fade mt-3" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab" tabindex="0">
-                    <!-- Exam Search Card -->
-                    <div class="card border-0 shadow-sm mb-3">
-                        <div class="card-header bg-white border-bottom py-2">
-                            <span class="text-uppercase small fw-semibold text-muted">Exam Search</span>
+
+                <!-- Questions card -->
+                <div class="card border-0 shadow-sm" id="questionsCard">
+                    <div class="card-header bg-white border-bottom py-2 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="text-uppercase small fw-semibold text-muted">Questions</span>
+                            <span class="badge bg-light text-secondary border" id="qnCountBadge">0 questions</span>
                         </div>
-                        <div class="card-body">
-                            <div class="row g-3 mb-3">
-                                <div class="col-md-3">
-                                    <label class="form-label small   text-muted">Exam Name <span class="text-danger">*</span></label>
+                    </div>
+                    <div class="card-body">
+                        <div id="questionList"></div>
+
+                        <div class="d-flex align-items-center gap-2 mt-2">
+                            <hr class="flex-grow-1 m-0">
+                            <button type="button" class="btn btn-success btn-sm" onclick="addQuestion()">
+                                Add question
+                            </button>
+                            <hr class="flex-grow-1 m-0">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 justify-content-center mt-3">
+                    <button class="btn btn-primary" id="btnPublish" onclick="saveToBank()">
+                        Upload Questions
+                    </button>
+                </div>
+                    
+            </div>
+            <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab" tabindex="0">
+                <!-- Question Search Card -->
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-header bg-white border-bottom py-2">
+                        <span class="text-uppercase small fw-semibold text-muted">Exam Search</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-3">
+                                <label class="form-label small text-muted">Exam Name <span class="text-danger">*</span></label>
                                     <select class="form-control" name="Exam_ID" id="Exam_ID" required>
                                         <option value="" selected disabled>Select exam name</option>
                                         <?php
-                                            $q=mysqli_query($con,"select * from exams where Fac_ID='$Fac_ID' and Course_ID='$Course_ID'");
+                                            $q=mysqli_query($con,"select * from new_question_bank where Fac_ID='$Fac_ID' and Course_ID='$Course_ID'");
                                             while($row=mysqli_fetch_array($q)){
-                                                echo "<option value='".$row['Exam_ID']."'>".$row['Exam_Name']."</option>";
+                                                echo "<option value='".$row['Exam_ID']."'>".$row['Question_Text']."</option>";
                                             }
                                         ?>
                                     </select>
@@ -265,88 +260,37 @@ $Course_Code = $course['Course_Code'] ?? '';
                             </div>
                         </div>
                     </div>
-                    <!-- Exam details card -->
-                    <div class="card border-0 shadow-sm mb-3">
-                        <div class="card-header bg-white border-bottom py-2 d-flex justify-content-between align-items-center">
-                            <span class="text-uppercase small fw-semibold text-muted">Exam Details</span>
-                            <button class="btn btn-outline-secondary" id="btndwn" onclick="downloadQP()">
-                                Download Question Paper
-                            </button>
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-3 mb-3">
-                                <div class="col-md-3">
-                                    <label class="form-label small text-muted">Exam Name <span class="text-danger">*</span></label>
-                                    <input type="text" id="editExamName" class="form-control" placeholder="e.g. Mid-Semester Biology Test">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label small text-muted">Duration (min) <span class="text-danger">*</span></label>
-                                    <input type="number" id="editExamDuration" class="form-control" placeholder="e.g. 60" min="1">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label small text-muted">Start Time</label> <span class="text-danger">*</span></label>
-                                    <input type="datetime-local" id="editStartTime" class="form-control">
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label small text-muted">End Time</label> <span class="text-danger">*</span></label>
-                                    <input type="datetime-local" id="editEndTime" class="form-control">
-                                </div>
-                            </div>
-
-                            <label class="form-label small text-muted">Select Question Type</label>
-                            <div class="d-flex flex-wrap gap-2">
-                                <button type="button" class="btn btn-sm btn-outline-primary edit-type-pill active" data-type="mcq" onclick="setEditType(this,'mcq')">
-                                MCQ
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-primary edit-type-pill" data-type="match" onclick="setEditType(this,'match')">
-                                    Match the following
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-primary edit-type-pill" data-type="open" onclick="setEditType(this,'open')">
-                                    Open ended
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-primary edit-type-pill" data-type="fill" onclick="setEditType(this,'fill')">
-                                    Fill in the blanks
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-primary edit-type-pill" data-type="fill" onclick="setEditType(this,'fill')">
-                                    Case Study
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Questions card -->
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-white border-bottom py-2 d-flex align-items-center justify-content-between flex-wrap gap-2">
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="text-uppercase small fw-semibold text-muted">Questions</span>
-                                <span class="badge bg-light text-secondary border" id="editQnCountBadge">0 questions</span>
-                            </div>
-                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="openQBank(true)">
-                                Add from question bank
-                            </button>
-                        </div>
-                        <div class="card-body">
-                            <div id="editQuestionList"></div>
-
-                            <div class="d-flex align-items-center gap-2 mt-2">
-                                <hr class="flex-grow-1 m-0">
-                                <button type="button" class="btn btn-success btn-sm" onclick="addQuestion(null, null, null, true)">
-                                    Add question manually
-                                </button>
-                                <button type="button" class="btn btn-success btn-sm" onclick="openQBank(true)">
-                                    Add question from question bank
-                                </button>
-                                <hr class="flex-grow-1 m-0">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="d-flex gap-2 justify-content-center mt-3">
-                        <button class="btn btn-primary" id="btnUpdateExam" onclick="saveExam(editExamStatus || 'published', true)">
-                            Update exam
-                        </button>
-                    </div>
-                </div>
+                </div>    
             </div>
+        </div>
+
+        <div class="sub-main pb-5">
+
+            <!-- Top action bar -->
+            <!-- <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                <div>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb mb-1 small">
+                            <li class="breadcrumb-item text-muted">Exams</li>
+                            <li class="breadcrumb-item active">Create New Exam</li>
+                        </ol>
+                    </nav>
+                    <h5 class="mb-0 fw-semibold">Add Questions</h5>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-info" onclick="openExamList()">
+                        View Question Bank
+                    </button>
+                    <button class="btn btn-outline-secondary" id="btnDraft" onclick="saveExam('draft')">
+                        Save draft
+                    </button>
+                    <button class="btn btn-primary" id="btnPublish" onclick="saveToBank()">
+                        Upload Questions
+                    </button>
+                </div>
+            </div> -->
+
+            
         </div>
     </main>
 
@@ -393,13 +337,13 @@ $Course_Code = $course['Course_Code'] ?? '';
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script>
         'use strict';
 
         const COURSE_ID = <?= json_encode($Course_ID) ?>;
         const FAC_ID = <?= json_encode($Fac_ID) ?>;
-        const Acad_Year = <?= json_encode($Acad_Year) ?>;
         const API = 'api.php';
 
         const CHIP_CLASS = {
@@ -423,12 +367,6 @@ $Course_Code = $course['Course_Code'] ?? '';
         let bankTypeFilter = '';
         let bankDebounce = null;
 
-        // Edit Mode variables
-        let editExamId = null;
-        let editQuestions = [];
-        let editCurrentType = 'mcq';
-        let editExamStatus = 'published';
-
         const qbankModal = new bootstrap.Modal(document.getElementById('qbankModal'));
         const toastEl = document.getElementById('ebToast');
         const bsToast = new bootstrap.Toast(toastEl, {
@@ -440,12 +378,6 @@ $Course_Code = $course['Course_Code'] ?? '';
             document.querySelectorAll('.type-pill').forEach(p => p.classList.remove('active'));
             el.classList.add('active');
             currentType = type;
-        }
-
-        function setEditType(el, type) {
-            document.querySelectorAll('.edit-type-pill').forEach(p => p.classList.remove('active'));
-            if (el) el.classList.add('active');
-            editCurrentType = type;
         }
 
         // ── Image attachment block (mcq / open / fill — NOT match) ────
@@ -561,20 +493,14 @@ $Course_Code = $course['Course_Code'] ?? '';
         }
 
         // ── Add question ─────────────────────────────────────────────
-        function addQuestion(type, text, extraData, isEdit = false) {
+        function addQuestion(type, text, extraData) {
             questionCounter++;
-            const qId = (isEdit ? 'eq' : 'q') + questionCounter;
-            const qType = type || (isEdit ? editCurrentType : currentType);
-            
-            const qObj = {
+            const qId = 'q' + questionCounter;
+            const qType = type || currentType;
+            questions.push({
                 id: qId,
                 type: qType
-            };
-            if (isEdit) {
-                editQuestions.push(qObj);
-            } else {
-                questions.push(qObj);
-            }
+            });
 
             const card = document.createElement('div');
             card.className = 'card border shadow-sm qn-card mb-2';
@@ -585,16 +511,16 @@ $Course_Code = $course['Course_Code'] ?? '';
             card.innerHTML = `
                 <div class="card-body">
                     <div class="d-flex align-items-start gap-2 mb-3">
-                        <span class="badge bg-secondary rounded-circle d-flex align-items-center justify-content-center qn-num" style="width:26px;height:26px;font-size:12px">${isEdit ? editQuestions.length : questions.length}</span>
+                        <span class="badge bg-secondary rounded-circle d-flex align-items-center justify-content-center qn-num" style="width:26px;height:26px;font-size:12px">${questions.length}</span>
                         <span class="badge rounded-pill ${CHIP_CLASS[qType]}">${CHIP_LABEL[qType]}</span>
                         <div class="ms-auto d-flex gap-1">
-                            <button type="button" class="btn btn-sm btn-outline-secondary py-0" onclick="moveQuestion('${qId}',-1, ${isEdit})" title="Move up">
+                            <button type="button" class="btn btn-sm btn-outline-secondary py-0" onclick="moveQuestion('${qId}',-1)" title="Move up">
                                 <i class="ti ti-arrow-up"></i>
                             </button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary py-0" onclick="moveQuestion('${qId}',1, ${isEdit})" title="Move down">
+                            <button type="button" class="btn btn-sm btn-outline-secondary py-0" onclick="moveQuestion('${qId}',1)" title="Move down">
                                 <i class="ti ti-arrow-down"></i>
                             </button>
-                            <button type="button" class="btn btn-sm btn-outline-danger py-0" onclick="deleteQuestion('${qId}', ${isEdit})" title="Delete">
+                            <button type="button" class="btn btn-sm btn-outline-danger py-0" onclick="deleteQuestion('${qId}')" title="Delete">
                                 <i class="ti ti-trash"></i>
                             </button>
                         </div>
@@ -608,8 +534,7 @@ $Course_Code = $course['Course_Code'] ?? '';
                     </div>
                 </div>`;
 
-            const targetListId = isEdit ? 'editQuestionList' : 'questionList';
-            document.getElementById(targetListId).appendChild(card);
+            document.getElementById('questionList').appendChild(card);
 
             if (qType === 'mcq' || qType === 'open' || qType === 'fill') {
                 const uploadArea = card.querySelector('#du_' + qId);
@@ -639,7 +564,7 @@ $Course_Code = $course['Course_Code'] ?? '';
             if (qt && text) qt.value = text;
             if (extraData) prefillQuestion(card, qType, qId, extraData);
 
-            updateCount(isEdit);
+            updateCount();
             card.scrollIntoView({
                 behavior: 'smooth',
                 block: 'nearest'
@@ -727,39 +652,34 @@ $Course_Code = $course['Course_Code'] ?? '';
         }
 
         // ── Delete / move ────────────────────────────────────────────
-        function deleteQuestion(qId, isEdit = false) {
-            const arr = isEdit ? editQuestions : questions;
-            const idx = arr.findIndex(q => q.id === qId);
-            if (idx > -1) arr.splice(idx, 1);
+        function deleteQuestion(qId) {
+            const idx = questions.findIndex(q => q.id === qId);
+            if (idx > -1) questions.splice(idx, 1);
             const card = document.getElementById('card_' + qId);
             if (card) {
                 card.style.opacity = '0';
                 card.style.transform = 'scale(.97)';
                 setTimeout(() => card.remove(), 200);
             }
-            setTimeout(() => updateCount(isEdit), 220);
+            setTimeout(updateCount, 220);
         }
 
-        function moveQuestion(qId, dir, isEdit = false) {
-            const listId = isEdit ? 'editQuestionList' : 'questionList';
-            const list = document.getElementById(listId);
+        function moveQuestion(qId, dir) {
+            const list = document.getElementById('questionList');
             const card = document.getElementById('card_' + qId);
             if (dir === -1 && card.previousElementSibling) list.insertBefore(card, card.previousElementSibling);
             if (dir === 1 && card.nextElementSibling) list.insertBefore(card.nextElementSibling, card);
-            updateCount(isEdit);
+            updateCount();
         }
 
-        function updateCount(isEdit = false) {
-            const containerId = isEdit ? 'editQuestionList' : 'questionList';
-            const badgeId = isEdit ? 'editQnCountBadge' : 'qnCountBadge';
-            const cards = document.querySelectorAll(`#${containerId} .qn-card`);
+        function updateCount() {
+            const cards = document.querySelectorAll('.qn-card');
             cards.forEach((c, i) => {
                 const n = c.querySelector('.qn-num');
                 if (n) n.textContent = i + 1;
             });
             const cnt = cards.length;
-            const badge = document.getElementById(badgeId);
-            if (badge) badge.textContent = cnt + ' question' + (cnt !== 1 ? 's' : '');
+            document.getElementById('qnCountBadge').textContent = cnt + ' question' + (cnt !== 1 ? 's' : '');
         }
 
         // ── Serialize ────────────────────────────────────────────────
@@ -821,24 +741,15 @@ $Course_Code = $course['Course_Code'] ?? '';
             return q;
         }
 
-        // ── Validate ─────────────────────────────────────────────────
-        function validateExam(isEdit = false) {
-            const nameEl = isEdit ? document.getElementById('editExamName') : document.getElementById('examName');
-            const durationEl = isEdit ? document.getElementById('editExamDuration') : document.getElementById('examDuration');
-            if (!nameEl || !nameEl.value.trim()) {
-                showToast('Please enter an exam name', 'danger');
-                return false;
-            }
-            if (!durationEl || !durationEl.value.trim()) {
-                showToast('Please enter the duration', 'danger');
-                return false;
-            }
-            const containerId = isEdit ? 'editQuestionList' : 'questionList';
-            const cards = document.querySelectorAll(`#${containerId} .qn-card`);
+        // ── Save manual questions to bank ────────────────────────────
+        async function saveToBank() {
+            const cards = document.querySelectorAll('.qn-card');
             if (!cards.length) {
-                showToast('Add at least one question', 'danger');
-                return false;
+                showToast('Please add at least one question', 'danger');
+                return;
             }
+            
+            // Validate each question
             for (const card of cards) {
                 const qt = document.getElementById('qt_' + card.dataset.qid);
                 if (!qt?.value?.trim()) {
@@ -847,7 +758,7 @@ $Course_Code = $course['Course_Code'] ?? '';
                         block: 'center'
                     });
                     showToast('All questions must have question text', 'danger');
-                    return false;
+                    return;
                 }
                 if (card.dataset.type === 'mcq') {
                     const filled = Array.from(card.querySelectorAll('.opt-input')).filter(i => i.value.trim()).length;
@@ -857,44 +768,28 @@ $Course_Code = $course['Course_Code'] ?? '';
                             block: 'center'
                         });
                         showToast('MCQ needs at least 2 options', 'danger');
-                        return false;
+                        return;
+                    }
+                    const checked = card.querySelector('.opt-radio:checked');
+                    if (!checked) {
+                        card.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                        showToast('Please select a correct answer for MCQ', 'danger');
+                        return;
                     }
                 }
             }
-            return true;
-        }
-
-        // ── Save exam ────────────────────────────────────────────────
-        async function saveExam(status, isEdit = false) {
-            if (!validateExam(isEdit)) return;
-            const containerId = isEdit ? 'editQuestionList' : 'questionList';
-            const cards = document.querySelectorAll(`#${containerId} .qn-card`);
             
-            const nameEl = isEdit ? document.getElementById('editExamName') : document.getElementById('examName');
-            const durationEl = isEdit ? document.getElementById('editExamDuration') : document.getElementById('examDuration');
-            const startTimeEl = isEdit ? document.getElementById('editStartTime') : document.getElementById('startTime');
-            const endTimeEl = isEdit ? document.getElementById('editEndTime') : document.getElementById('endTime');
-
             const payload = {
                 course_id: COURSE_ID,
-                fac_id: FAC_ID,
-                acad_year: Acad_Year,
-                name: nameEl.value.trim(),
-                duration: parseInt(durationEl.value, 10),
-                start_time: startTimeEl.value || null,
-                end_time: endTimeEl.value || null,
-                status,
-                questions: Array.from(cards).map((c, i) => ({
-                    ...serializeQuestion(c),
-                    sort_order: i
-                })),
+                questions: Array.from(cards).map((c, i) => serializeQuestion(c))
             };
-            const currentExamId = isEdit ? editExamId : examId;
-            if (currentExamId) payload.exam_id = currentExamId;
-            setSavingState(true, isEdit);
+            
+            setSavingState(true);
             try {
-                const action = currentExamId ? 'update_exam' : 'save_exam';
-                const res = await fetch(`${API}?action=${action}`, {
+                const res = await fetch(`${API}?action=save_bank_questions`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -903,49 +798,175 @@ $Course_Code = $course['Course_Code'] ?? '';
                 });
                 const data = await res.json();
                 if (data.success) {
-                    if (isEdit) {
-                        showToast('Exam updated successfully!', 'success');
-                        // Update dropdown name option text if it changed
-                        const selectEl = document.getElementById('Exam_ID');
-                        if (selectEl && selectEl.selectedIndex >= 0) {
-                            const opt = selectEl.options[selectEl.selectedIndex];
-                            if (opt) opt.textContent = payload.name;
-                        }
-                    } else {
-                        examId = data.exam_id;
-                        showToast(status === 'published' ? `Exam published! (ID ${examId})` : `Draft saved (ID ${examId})`, 'success');
-                    }
+                    showToast(data.message || 'Questions uploaded to bank successfully!', 'success');
+                    // Clear the list of questions on success
+                    document.getElementById('questionList').innerHTML = '';
+                    questions = [];
+                    questionCounter = 0;
+                    updateCount();
                 } else {
-                    showToast('Error: ' + (data.message || 'Unknown error'), 'danger');
+                    showToast('Error: ' + (data.message || 'Save failed'), 'danger');
                 }
             } catch {
                 showToast('Network error — please try again', 'danger');
             } finally {
-                setSavingState(false, isEdit);
+                setSavingState(false);
             }
         }
 
-        function setSavingState(active, isEdit = false) {
+        function setSavingState(active) {
             document.getElementById('savingOverlay').classList.toggle('show', active);
-            if (isEdit) {
-                const btn = document.getElementById('btnUpdateExam');
-                if (btn) btn.disabled = active;
-            } else {
-                const btnDraft = document.getElementById('btnDraft');
-                const btnPublish = document.getElementById('btnPublish');
-                if (btnDraft) btnDraft.disabled = active;
-                if (btnPublish) btnPublish.disabled = active;
+            const btnPublish = document.getElementById('btnPublish');
+            if (btnPublish) btnPublish.disabled = active;
+            const btnUploadCsv = document.getElementById('btnUploadCsv');
+            if (btnUploadCsv) btnUploadCsv.disabled = active;
+        }
+
+        // ── CSV Import functions ──────────────────────────────────────
+        function updateCsvInstructions() {
+            const type = document.getElementById('csvQuestionType').value;
+            const instEl = document.getElementById('csvInstructions');
+            let content = '';
+            
+            if (type === 'mcq') {
+                content = `
+                    <p class="mb-1"><strong>Required Columns (in order):</strong></p>
+                    <ol class="mb-2 ps-3">
+                        <li><code>Question Text</code> (Required)</li>
+                        <li><code>Option A</code> (Required)</li>
+                        <li><code>Option B</code> (Required)</li>
+                        <li><code>Option C</code> (Required)</li>
+                        <li><code>Option D</code> (Required)</li>
+                        <li><code>Correct Option</code> (Required: A, B, C, or D)</li>
+                        <li><code>Marks</code> (Optional, defaults to 1)</li>
+                        <li><code>CO</code> (Optional Course Outcome, defaults to 1)</li>
+                    </ol>
+                    <p class="mb-0 text-secondary" style="font-size:11px;">Example Row: <code>"What is 2+2?","3","4","5","6","B",1,1</code></p>
+                `;
+            } else if (type === 'match') {
+                content = `
+                    <p class="mb-1"><strong>Required Columns (in order):</strong></p>
+                    <ol class="mb-2 ps-3">
+                        <li><code>Question Text</code> (Required)</li>
+                        <li><code>Pairs</code> (Required, format: <code>Key1:Val1|Key2:Val2|Key3:Val3|Key4:Val4</code>)</li>
+                        <li><code>Marks</code> (Optional, defaults to 1)</li>
+                        <li><code>CO</code> (Optional Course Outcome, defaults to 1)</li>
+                    </ol>
+                    <p class="mb-0 text-secondary" style="font-size:11px;">Example Row: <code>"Match capitals","Paris:France|London:UK|Rome:Italy|Berlin:Germany",1,1</code></p>
+                `;
+            } else if (type === 'open') {
+                content = `
+                    <p class="mb-1"><strong>Required Columns (in order):</strong></p>
+                    <ol class="mb-2 ps-3">
+                        <li><code>Question Text</code> (Required)</li>
+                        <li><code>Rubric / Marking Scheme</code> (Optional description)</li>
+                        <li><code>Word Limit</code> (Optional number, blank for no limit)</li>
+                        <li><code>Marks</code> (Optional, defaults to 1)</li>
+                        <li><code>CO</code> (Optional Course Outcome, defaults to 1)</li>
+                    </ol>
+                    <p class="mb-0 text-secondary" style="font-size:11px;">Example Row: <code>"Explain photosynthesis","2 marks for light reaction, 3 marks for dark reaction",200,5,2</code></p>
+                `;
+            } else if (type === 'fill') {
+                content = `
+                    <p class="mb-1"><strong>Required Columns (in order):</strong></p>
+                    <ol class="mb-2 ps-3">
+                        <li><code>Question Text</code> (Required, use <code>___</code> for blanks)</li>
+                        <li><code>Answers</code> (Required, comma or pipe-separated answers in order)</li>
+                        <li><code>Marks</code> (Optional, defaults to 1)</li>
+                        <li><code>CO</code> (Optional Course Outcome, defaults to 1)</li>
+                    </ol>
+                    <p class="mb-0 text-secondary" style="font-size:11px;">Example Row: <code>"The capital of France is ___ and Germany is ___.","Paris,Berlin",2,1</code></p>
+                `;
+            }
+            instEl.innerHTML = content;
+        }
+
+        function downloadCsvTemplate() {
+            const type = document.getElementById('csvQuestionType').value;
+            let headers = [];
+            let row = [];
+            
+            if (type === 'mcq') {
+                headers = ['Question Text', 'Option A', 'Option B', 'Option C', 'Option D', 'Correct Option', 'Marks', 'CO'];
+                row = ['What is the capital of France?', 'Paris', 'London', 'Berlin', 'Rome', 'A', '1', '1'];
+            } else if (type === 'match') {
+                headers = ['Question Text', 'Pairs', 'Marks', 'CO'];
+                row = ['Match the following countries and capitals', 'Paris:France|London:UK|Berlin:Germany|Rome:Italy', '1', '1'];
+            } else if (type === 'open') {
+                headers = ['Question Text', 'Rubric', 'Word Limit', 'Marks', 'CO'];
+                row = ['Describe the greenhouse effect and its primary causes.', 'Explain greenhouse gases (3 marks), human impact (2 marks)', '250', '5', '3'];
+            } else if (type === 'fill') {
+                headers = ['Question Text', 'Answers', 'Marks', 'CO'];
+                row = ['Water consists of ___ and ___ atoms.', 'hydrogen,oxygen', '2', '1'];
+            }
+            
+            const csvContent = "data:text/csv;charset=utf-8," 
+                + [headers.map(h => `"${h.replace(/"/g, '""')}"`).join(","), 
+                   row.map(r => `"${r.replace(/"/g, '""')}"`).join(",")].join("\n");
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `mits_${type}_question_template.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        async function handleCsvSubmit(e) {
+            e.preventDefault();
+            const fileInput = document.getElementById('csvFile');
+            const file = fileInput.files[0];
+            if (!file) {
+                showToast('Please select a CSV file to upload', 'danger');
+                return;
+            }
+            
+            const type = document.getElementById('csvQuestionType').value;
+            const fd = new FormData();
+            fd.append('csv_file', file);
+            fd.append('course_id', COURSE_ID);
+            fd.append('question_type', type);
+            
+            setSavingState(true);
+            try {
+                const res = await fetch(`${API}?action=upload_csv_questions`, {
+                    method: 'POST',
+                    body: fd
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast(data.message || 'CSV imported successfully!', 'success');
+                    fileInput.value = ''; // clear file input
+                } else {
+                    showToast('Error: ' + (data.message || 'Import failed'), 'danger');
+                }
+            } catch {
+                showToast('Network error during CSV upload', 'danger');
+            } finally {
+                setSavingState(false);
             }
         }
+
+        // Tab toggle listeners to hide/show manual questions list
+        document.getElementById('manual-tab').addEventListener('shown.bs.tab', function () {
+            document.getElementById('questionsCard').style.display = 'block';
+            document.getElementById('btnPublish').style.display = 'block';
+        });
+        document.getElementById('csv-tab').addEventListener('shown.bs.tab', function () {
+            document.getElementById('questionsCard').style.display = 'none';
+            document.getElementById('btnPublish').style.display = 'none';
+        });
+
+        // Initialize CSV instructions on page load
+        updateCsvInstructions();
 
         // ── Question bank ────────────────────────────────────────────
-        async function openQBank(isEdit = false) {
+        async function openQBank() {
             bankData = [];
             renderBankList([]);
             qbankModal.show();
-            document.getElementById('qbankModal').dataset.isEdit = isEdit ? 'true' : 'false';
-            const currentExamId = isEdit ? editExamId : examId;
-            await loadBankQuestions('', bankTypeFilter, currentExamId);
+            await loadBankQuestions('', bankTypeFilter);
         }
 
         function setBankTypeFilter(el, type) {
@@ -956,12 +977,10 @@ $Course_Code = $course['Course_Code'] ?? '';
             el.classList.remove('btn-outline-secondary');
             el.classList.add('btn-primary');
             bankTypeFilter = type;
-            const isEdit = document.getElementById('qbankModal').dataset.isEdit === 'true';
-            const currentExamId = isEdit ? editExamId : examId;
-            loadBankQuestions(document.getElementById('bankSearchInput').value.trim(), type, currentExamId);
+            loadBankQuestions(document.getElementById('bankSearchInput').value.trim(), type);
         }
 
-        async function loadBankQuestions(search, type, currentExamId) {
+        async function loadBankQuestions(search, type) {
             const list = document.getElementById('qbankList');
             list.innerHTML = '<p class="text-center text-muted py-4 mb-0">Loading…</p>';
             const params = new URLSearchParams({
@@ -969,7 +988,7 @@ $Course_Code = $course['Course_Code'] ?? '';
             });
             if (search) params.set('search', search);
             if (type) params.set('type', type);
-            if (currentExamId) params.set('exclude_exam', currentExamId);
+            if (examId) params.set('exclude_exam', examId);
             if (COURSE_ID) params.set('course_id', COURSE_ID);
             try {
                 const res = await fetch(`${API}?${params}`);
@@ -1010,81 +1029,24 @@ $Course_Code = $course['Course_Code'] ?? '';
                 showToast('Select at least one question', 'danger');
                 return;
             }
-            const isEdit = document.getElementById('qbankModal').dataset.isEdit === 'true';
             checked.forEach(cb => {
                 const q = bankData[parseInt(cb.value, 10)];
-                if (q) addQuestion(q.type, q.question_text, q, isEdit);
+                if (q) addQuestion(q.type, q.question_text, q);
             });
             qbankModal.hide();
             showToast(`${checked.length} question${checked.length > 1 ? 's' : ''} imported`, 'success');
         }
 
         document.getElementById('bankSearchInput').addEventListener('input', (e) => {
-            const isEdit = document.getElementById('qbankModal').dataset.isEdit === 'true';
-            const currentExamId = isEdit ? editExamId : examId;
             clearTimeout(bankDebounce);
-            bankDebounce = setTimeout(() => loadBankQuestions(e.target.value.trim(), bankTypeFilter, currentExamId), 350);
+            bankDebounce = setTimeout(() => loadBankQuestions(e.target.value.trim(), bankTypeFilter), 350);
         });
-
-        // ── Load Exam listener and functions ─────────────────────────
-        document.getElementById('Exam_ID').addEventListener('change', function() {
-            const val = this.value;
-            if (val) {
-                loadExam(val);
-            }
-        });
-
-        async function loadExam(id) {
-            setSavingState(true, true);
-            try {
-                const res = await fetch(`${API}?action=get_exam&exam_id=${id}`);
-                const data = await res.json();
-                if (data.success) {
-                    editExamId = data.exam.exam_id;
-                    editExamStatus = data.exam.status;
-                    document.getElementById('editExamName').value = data.exam.name;
-                    document.getElementById('editExamDuration').value = data.exam.duration;
-                    document.getElementById('editStartTime').value = data.exam.start_time;
-                    document.getElementById('editEndTime').value = data.exam.end_time;
-                    
-                    // Clear current questions on edit list
-                    document.getElementById('editQuestionList').innerHTML = '';
-                    editQuestions = [];
-                    
-                    // Reset edit current type pill
-                    setEditType(document.querySelector('.edit-type-pill[data-type="mcq"]'), 'mcq');
-                    
-                    // Add questions
-                    if (data.questions && data.questions.length > 0) {
-                        data.questions.forEach(q => {
-                            addQuestion(q.type, q.question_text, q, true);
-                        });
-                    }
-                } else {
-                    showToast('Failed to load exam details: ' + data.message, 'danger');
-                }
-            } catch (err) {
-                showToast('Network error while loading exam', 'danger');
-            } finally {
-                setSavingState(false, true);
-            }
-        }
 
         // ── Toast ────────────────────────────────────────────────────
         function showToast(msg, type = 'success') {
             toastEl.className = `toast align-items-center border-0 position-fixed bottom-0 end-0 m-3 text-bg-${type}`;
             document.getElementById('ebToastMsg').textContent = msg;
             bsToast.show();
-        }
-
-        function downloadQP() {
-            const examSelect = document.getElementById('Exam_ID');
-            const examId = examSelect ? examSelect.value : '';
-            if (!examId) {
-                showToast('Please select an exam first.', 'danger');
-                return;
-            }
-            window.location.href = 'download-qp.php?Exam_ID=' + encodeURIComponent(examId);
         }
 
         function escHtml(str) {
