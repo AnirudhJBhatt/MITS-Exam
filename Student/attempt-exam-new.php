@@ -6,7 +6,8 @@
     }
 	require_once __DIR__ . "/../Connection/connection.php";
 	$Stud_ID = $_SESSION['LoginStudent'];
-	$exam_id = (int)$_GET['exam_id'];
+	// Exam ID is passed via URL parameter, validate it
+	$exam_id = (int)$_GET['Exam_ID'];
 
 	if ($exam_id <= 0) {
 		die("Invalid Exam ID");
