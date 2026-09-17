@@ -1,23 +1,24 @@
 <?php 
+    // Set timezone to IST for correct time comparison
+    date_default_timezone_set('Asia/Kolkata');
+	
 	require_once __DIR__ . '/../vendor/autoload.php';
 
-	if (file_exists(__DIR__ . '/../.env')) {
-		try {
-			$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/..');
-			$dotenv->safeLoad();
-		} catch (Exception $e) {
-			// Fallback if env file parsing fails
-		}
+	if (class_exists('Dotenv\Dotenv')) {
+		$dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
+		$dotenv->safeLoad();
 	}
 
-	$host = $_ENV['DB_HOST'];
-	$user = $_ENV['DB_USER'];
-	$pass = $_ENV['DB_PASSWORD'];
-	$db   = $_ENV['DB_NAME'];
+	$db_host = $_ENV['DB_HOST'] ?? 'localhost';
+	$db_port = $_ENV['DB_PORT'] ?? '3306';
+	$db_user = $_ENV['DB_USER'] ?? 'root';
+	$db_pass = $_ENV['DB_PASSWORD'] ?? '';
+	$db_name = $_ENV['DB_NAME'] ?? 'mits-exam';
+	$JWT_SECRET = $_ENV['JWT_SECRET'] ?? '';
 
-	$con = mysqli_connect("$host", $user, $pass, $db);
-
-	if (!$con) {
+	$con = mysqli_connect($db_host, $db_user, $db_pass, $db_name, $db_port);
+	if(!$con){
 		echo "Failed to connect";
 	}
+
 ?>

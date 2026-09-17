@@ -223,7 +223,7 @@
                     <?php if (empty($results)): ?>
                         <div class="text-center py-5 text-secondary">
                             <i class="bi bi-clipboard-x display-3 text-muted d-block mb-3"></i>
-                            <p class="fs-6">No results yet. Once students submit, their scores will show up here grouped by exam.</p>
+                            <p class="fs-6">No results yet.  </p>
                         </div>
                     <?php else: ?>
                         <div class="card shadow-sm border-0 mb-4 overflow-hidden">

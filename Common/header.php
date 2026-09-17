@@ -42,9 +42,12 @@
     <link href="https://fonts.googleapis.com/css2?family=Solway:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- MathLive -->
     <script type="module">
-    import 'https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive.min.js';
+        import 'https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive.min.js';
     </script>
-
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
     <!-- Custom Styles -->
     <link rel="stylesheet" href="../Css/style.css">        

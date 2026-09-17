@@ -79,7 +79,7 @@
 			<h4 class="mb-0 fw-bold">Exam</h4>
 		</div>
 		<?php
-			$query ="SELECT e.Exam_ID, e.Exam_Name, e.Start_Time, e.End_Time, e.Total_Marks, e.Duration, c.Course_Name, e.Result_Status,
+			$query ="SELECT DISTINCT e.Exam_ID, e.Exam_Name, e.Start_Time, e.End_Time, e.Total_Marks, e.Duration, c.Course_Name, e.Result_Status,
 				CASE 
 					WHEN CONVERT_TZ(NOW(), '+00:00', '+05:30') < e.Start_Time THEN 'Upcoming'
 					WHEN CONVERT_TZ(NOW(), '+00:00', '+05:30') BETWEEN e.Start_Time AND e.End_Time THEN 'Ongoing'
