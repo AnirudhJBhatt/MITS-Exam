@@ -22,11 +22,7 @@
             </a>
         </li>
 
-
-
-
-
-        <li>
+        <!-- <li>
             <a class="nav-link <?= ($current_page == 'manage-exam.php') ? 'active' : ''; ?>"
             href="../Faculty/manage-exam.php">
                 <i class="bi bi-journal-text"></i><span> Exams</span>
@@ -45,7 +41,7 @@
             href="../Faculty/question-bank.php">
                 <i class="bi bi-collection"></i><span> Question Bank</span>
             </a>
-        </li>
+        </li> -->
 
         <li>
             <a class="nav-link <?= ($current_page == 'settings.php') ? 'active' : ''; ?>"
