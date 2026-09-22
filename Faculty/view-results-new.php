@@ -197,17 +197,18 @@
                     $Acad_Year=$_POST['Acad_Year'];
                     $Exam_ID=$_POST['Exam_ID'];
                     $query = "SELECT
-                            r.Result_ID, r.Stud_ID, r.Exam_ID,
+                            r.Result_ID, scm.Stud_ID, e.Exam_ID,
                             r.Total_Marks, r.Marks_Obtained,
-                            r.Status AS Result_Status,
+                            COALESCE(r.Status, 'not_attempted') AS Result_Status,
                             r.Submitted_At,
                             e.Exam_Name, e.Result_Status AS Exam_Result_Status,
                             c.Course_Name,  
-                            s.Stud_Name, s.Stud_ID
-                        FROM results r
-                        JOIN exams e   ON r.Exam_ID = e.Exam_ID
+                            s.Stud_Name
+                        FROM exams e
+                        JOIN student_course_mapping scm ON e.Course_ID = scm.Course_ID AND e.Fac_ID = scm.Fac_ID AND e.Acad_Year = scm.Acad_Year
+                        JOIN student s ON scm.Stud_ID = s.Stud_ID
                         JOIN courses c ON e.Course_ID = c.Course_ID
-                        JOIN student s ON r.Stud_ID = s.Stud_ID
+                        LEFT JOIN results r ON r.Exam_ID = e.Exam_ID AND r.Stud_ID = scm.Stud_ID
                         WHERE e.Fac_ID = ? AND e.Exam_ID = ? AND e.Acad_Year = ? 
                         ORDER BY e.Exam_Name, s.Stud_Name";
                     // echo $query;
@@ -217,8 +218,8 @@
                     $stmt->execute();
                     $run = $stmt->get_result();
                     $results = $run->fetch_all(MYSQLI_ASSOC);
-                    $Exam_Name = $results[0]['Exam_Name'];
-                    $Exam_Result_Status = $results[0]['Exam_Result_Status'];
+                    $Exam_Name = $results[0]['Exam_Name'] ?? 'Unknown Exam';
+                    $Exam_Result_Status = $results[0]['Exam_Result_Status'] ?? '';
             ?>
                     <?php if (empty($results)): ?>
                         <div class="text-center py-5 text-secondary">
@@ -279,9 +280,12 @@
                                                     <div class="text-muted small"><?= htmlspecialchars($row['Stud_ID'] ?? '') ?></div>
                                                 </td>
                                                 <td>
+                                                    <?php if ($statusKey === 'not_attempted'): ?>
+                                                        <span class="text-muted fst-italic small">N/A</span>
+                                                    <?php else: ?>
                                                     <div class="d-flex align-items-baseline gap-1 mb-1" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">
-                                                        <span class="fw-bold text-dark"><?= htmlspecialchars($row['Marks_Obtained']) ?></span>
-                                                        <span class="text-muted">/ <?= htmlspecialchars($row['Total_Marks']) ?> &middot; <?= $pct ?>%</span>
+                                                        <span class="fw-bold text-dark"><?= htmlspecialchars($row['Marks_Obtained'] ?? 0) ?></span>
+                                                        <span class="text-muted">/ <?= htmlspecialchars($row['Total_Marks'] ?? 0) ?> &middot; <?= $pct ?>%</span>
                                                     </div>
                                                     <div class="progress" style="height: 6px; width: 160px; background-color: var(--gray-200);">
                                                         <?php 
@@ -289,6 +293,7 @@
                                                         ?>
                                                         <div class="progress-bar <?= $bgClass ?>" role="progressbar" style="width: <?= min($pct, 100) ?>%" aria-valuenow="<?= $pct ?>" aria-valuemin="0" aria-valuemax="100"></div>
                                                     </div>
+                                                    <?php endif; ?>
                                                 </td>
                                                 <td>
                                                     <?php
@@ -296,6 +301,7 @@
                                                         if ($statusKey === 'graded') $badgeClass = 'bg-success-subtle text-success border border-success-subtle';
                                                         elseif ($statusKey === 'pending_review') $badgeClass = 'bg-warning-subtle text-warning-emphasis border border-warning-subtle';
                                                         elseif ($statusKey === 'published') $badgeClass = 'bg-danger-subtle text-danger border border-danger-subtle';
+                                                        elseif ($statusKey === 'not_attempted') $badgeClass = 'bg-light text-secondary border border-secondary-subtle';
                                                     ?>
                                                     <span class="badge rounded-pill <?= $badgeClass ?> px-3 py-1 text-capitalize fw-bold" style="font-size: 0.72rem;">
                                                         <?= htmlspecialchars(str_replace('_', ' ', $row['Result_Status'])) ?>
@@ -305,6 +311,9 @@
                                                     <?= $row['Submitted_At'] ? date('d M, g:i A', strtotime($row['Submitted_At'])) : '—' ?>
                                                 </td>
                                                 <td class="pe-4 text-end">
+                                                    <?php if ($statusKey === 'not_attempted'): ?>
+                                                        <span class="text-muted fst-italic small">N/A</span>
+                                                    <?php else: ?>
                                                     <div class="d-flex gap-2 justify-content-end align-items-center">
                                                         <a href="#" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 view-details"
                                                             data-studid="<?= $row['Stud_ID'] ?>"
@@ -318,11 +327,8 @@
                                                                 <i class="bi bi-pencil-square"></i> Grade
                                                         </a>
                                                         <?php endif; ?>
-                                                        <!-- <a href="download-result.php?Stud_ID=<?= $row['Stud_ID'] ?>&Exam_ID=<?= $row['Exam_ID'] ?>"
-                                                        class="btn btn-sm btn-outline-success d-inline-flex align-items-center justify-content-center" target="_blank">
-                                                            <i class="bi bi-download"></i>
-                                                        </a> -->
                                                     </div>
+                                                    <?php endif; ?>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>

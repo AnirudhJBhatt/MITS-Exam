@@ -21,12 +21,15 @@
     
     $headers[] = "Total Marks";
 
-    $sql = "SELECT r.Stud_ID, s.Stud_Name $coColumns, r.Marks_Obtained AS Total_Marks FROM results r
-            INNER JOIN student s ON r.Stud_ID=s.Stud_ID
-            INNER JOIN result_answers ra ON r.Result_ID=ra.Result_ID
-            INNER JOIN exam_questions q ON ra.Question_ID=q.Question_ID
-            WHERE r.Exam_ID='$Exam_ID'
-            GROUP BY r.Result_ID, r.Stud_ID, s.Stud_Name, r.Marks_Obtained
+    $sql = "SELECT scm.Stud_ID, s.Stud_Name, r.Status $coColumns, r.Marks_Obtained AS Total_Marks 
+            FROM exams e
+            INNER JOIN student_course_mapping scm ON e.Course_ID = scm.Course_ID AND e.Fac_ID = scm.Fac_ID AND e.Acad_Year = scm.Acad_Year
+            INNER JOIN student s ON scm.Stud_ID=s.Stud_ID
+            LEFT JOIN results r ON r.Stud_ID = scm.Stud_ID AND r.Exam_ID=e.Exam_ID
+            LEFT JOIN result_answers ra ON r.Result_ID=ra.Result_ID
+            LEFT JOIN exam_questions q ON ra.Question_ID=q.Question_ID
+            WHERE e.Exam_ID='$Exam_ID'
+            GROUP BY scm.Stud_ID, s.Stud_Name, r.Status, r.Marks_Obtained
             ORDER BY s.Stud_Name";
 
     $result = mysqli_query($con,$sql);
@@ -42,16 +45,26 @@
             $row['Stud_ID'],
             $row['Stud_Name']
         );
+        
+        $notAttempted = is_null($row['Status']);
 
         // Add CO columns
         foreach($headers as $header){
             if(strpos($header,'CO') === 0){
-                $csvRow[] = isset($row[$header]) ? $row[$header] : 0;
+                if ($notAttempted) {
+                    $csvRow[] = "N/A";
+                } else {
+                    $csvRow[] = isset($row[$header]) ? $row[$header] : 0;
+                }
             }
         }
 
         // Total Marks at the end
-        $csvRow[] = $row['Total_Marks'];
+        if ($notAttempted) {
+            $csvRow[] = "Not Attempted";
+        } else {
+            $csvRow[] = $row['Total_Marks'];
+        }
 
         fputcsv($output, $csvRow);
     }
