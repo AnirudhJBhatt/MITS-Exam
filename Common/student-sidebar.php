@@ -4,35 +4,35 @@
         <li class="nav-item">
             <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 sidebar-link <?= ($current_page == 'dashboard.php') ? 'active bg-danger text-white fw-bold shadow-sm' : 'text-white-50'; ?>"
             href="../Student/dashboard.php">
-                <i class="bi bi-speedometer fs-5"></i><span class="sidebar-text">Dashboard</span>
+                <i class="bi bi-grid-1x2-fill fs-5"></i><span class="sidebar-text">Dashboard</span>
             </a>
         </li>
 
         <li class="nav-item">
             <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 sidebar-link <?= ($current_page == 'view-exams.php') ? 'active bg-danger text-white fw-bold shadow-sm' : 'text-white-50'; ?>"
             href="../Student/view-exams.php">
-                <i class="bi bi-journal-text fs-5"></i><span class="sidebar-text">Exams</span>
+                <i class="bi bi-file-earmark-text-fill fs-5"></i><span class="sidebar-text">Exams</span>
             </a>
         </li>
 
         <li class="nav-item">
             <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 sidebar-link <?= ($current_page == 'view-courses.php') ? 'active bg-danger text-white fw-bold shadow-sm' : 'text-white-50'; ?>"
             href="../Student/view-courses.php">
-                <i class="bi bi-journal-bookmark fs-5"></i><span class="sidebar-text"> My Courses</span>
+                <i class="bi bi-book-fill fs-5"></i><span class="sidebar-text"> My Courses</span>
             </a>
         </li>
 
         <li class="nav-item">
             <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 sidebar-link <?= ($current_page == 'results.php') ? 'active bg-danger text-white fw-bold shadow-sm' : 'text-white-50'; ?>"
             href="#">
-                <i class="bi bi-graph-up fs-5"></i><span class="sidebar-text"> Results</span>
+                <i class="bi bi-bar-chart-fill fs-5"></i><span class="sidebar-text"> Results</span>
             </a>
         </li>
         
         <li class="nav-item">
             <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 sidebar-link <?= ($current_page == 'settings.php') ? 'active bg-danger text-white fw-bold shadow-sm' : 'text-white-50'; ?>"
             href="../Student/settings.php">
-                <i class="bi bi-sliders fs-5"></i><span class="sidebar-text"> Settings</span>
+                <i class="bi bi-gear-fill fs-5"></i><span class="sidebar-text"> Settings</span>
             </a>
         </li>
     </ul>

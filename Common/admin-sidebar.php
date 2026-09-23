@@ -4,56 +4,56 @@
         <li class="nav-item">
             <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 sidebar-link <?= ($current_page == 'dashboard.php') ? 'active bg-danger text-white fw-bold shadow-sm' : 'text-white-50'; ?>"
             href="../Admin/dashboard.php">
-                <i class="bi bi-speedometer fs-5"></i><span class="sidebar-text">Dashboard</span>
+                <i class="bi bi-grid-1x2-fill fs-5"></i><span class="sidebar-text">Dashboard</span>
             </a>
         </li>
 
         <li class="nav-item">
             <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 sidebar-link <?= ($current_page == 'manage-students.php') ? 'active bg-danger text-white fw-bold shadow-sm' : 'text-white-50'; ?>"
             href="../Admin/manage-students.php">
-                <i class="bi bi-person-lines-fill fs-5"></i><span class="sidebar-text">Manage Students</span>
+                <i class="bi bi-people-fill fs-5"></i><span class="sidebar-text">Manage Students</span>
             </a>
         </li>
 
         <li class="nav-item">
             <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 sidebar-link <?= ($current_page == 'manage-faculty.php') ? 'active bg-danger text-white fw-bold shadow-sm' : 'text-white-50'; ?>"
             href="../Admin/manage-faculty.php">
-                <i class="bi bi-person-workspace fs-5"></i><span class="sidebar-text">Manage Faculty</span>
+                <i class="bi bi-person-vcard-fill fs-5"></i><span class="sidebar-text">Manage Faculty</span>
             </a>
         </li>
 
         <li class="nav-item">
             <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 sidebar-link <?= ($current_page == 'manage-department.php') ? 'active bg-danger text-white fw-bold shadow-sm' : 'text-white-50'; ?>"
             href="../Admin/manage-department.php">
-                <i class="bi bi-building fs-5"></i><span class="sidebar-text">Manage Department</span>
+                <i class="bi bi-buildings-fill fs-5"></i><span class="sidebar-text">Manage Department</span>
             </a>
         </li>
 
         <li class="nav-item">
             <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 sidebar-link <?= ($current_page == 'view-exams.php' || $current_page == 'exam-list.php') ? 'active bg-danger text-white fw-bold shadow-sm' : 'text-white-50'; ?>"
             href="../Admin/view-exams.php">
-                <i class="bi bi-journal-check fs-5"></i><span class="sidebar-text">Exams</span>
+                <i class="bi bi-file-earmark-text-fill fs-5"></i><span class="sidebar-text">Exams</span>
             </a>
         </li>
 
         <li class="nav-item">
             <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 sidebar-link <?= ($current_page == 'view-results.php') ? 'active bg-danger text-white fw-bold shadow-sm' : 'text-white-50'; ?>"
             href="../Admin/view-results.php">
-                <i class="bi bi-graph-up fs-5"></i><span class="sidebar-text">Results</span>
+                <i class="bi bi-bar-chart-fill fs-5"></i><span class="sidebar-text">Results</span>
             </a>
         </li>
 
         <li class="nav-item">
             <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 sidebar-link <?= ($current_page == 'academic-year.php') ? 'active bg-danger text-white fw-bold shadow-sm' : 'text-white-50'; ?>"
             href="../Admin/academic-year.php">
-                <i class="bi bi-calendar3 fs-5"></i><span class="sidebar-text">Academic Year</span>
+                <i class="bi bi-calendar-event-fill fs-5"></i><span class="sidebar-text">Academic Year</span>
             </a>
         </li>
 
         <li class="nav-item">
             <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 sidebar-link <?= ($current_page == 'settings.php') ? 'active bg-danger text-white fw-bold shadow-sm' : 'text-white-50'; ?>"
             href="#">
-                <i class="bi bi-sliders fs-5"></i><span class="sidebar-text">Settings</span>
+                <i class="bi bi-gear-fill fs-5"></i><span class="sidebar-text">Settings</span>
             </a>
         </li>
     </ul>

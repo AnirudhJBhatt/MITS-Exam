@@ -5,28 +5,28 @@
         <li class="nav-item">
             <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 sidebar-link <?= ($current_page == 'dashboard.php') ? 'active bg-danger text-white fw-bold shadow-sm' : 'text-white-50'; ?>"
             href="../Faculty/dashboard.php">
-                <i class="bi bi-speedometer fs-5"></i><span class="sidebar-text">Dashboard</span>
+                <i class="bi bi-grid-1x2-fill fs-5"></i><span class="sidebar-text">Dashboard</span>
             </a>
         </li>
 
         <li class="nav-item">
             <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 sidebar-link <?= ($current_page == 'manage-student.php') ? 'active bg-danger text-white fw-bold shadow-sm' : 'text-white-50'; ?>"
             href="../Faculty/manage-student.php">
-                <i class="bi bi-person-lines-fill fs-5"></i><span class="sidebar-text">View Students</span>
+                <i class="bi bi-people-fill fs-5"></i><span class="sidebar-text">View Students</span>
             </a>
         </li>        
 
         <li class="nav-item">
             <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 sidebar-link <?= ($current_page == 'view-courses.php') ? 'active bg-danger text-white fw-bold shadow-sm' : 'text-white-50'; ?>"
             href="../Faculty/view-courses.php">
-                <i class="bi bi-journal-bookmark fs-5"></i><span class="sidebar-text">View Courses</span>
+                <i class="bi bi-book-fill fs-5"></i><span class="sidebar-text">View Courses</span>
             </a>
         </li>
 
         <li class="nav-item">
             <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 sidebar-link <?= ($current_page == 'settings.php') ? 'active bg-danger text-white fw-bold shadow-sm' : 'text-white-50'; ?>"
             href="../Faculty/settings.php">
-                <i class="bi bi-gear fs-5"></i><span class="sidebar-text">Settings</span>
+                <i class="bi bi-gear-fill fs-5"></i><span class="sidebar-text">Settings</span>
             </a>
         </li>
     </ul>
