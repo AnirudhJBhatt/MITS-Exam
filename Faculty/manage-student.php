@@ -45,7 +45,7 @@
 				<!-- Filter Card -->
 				<div class="card shadow-sm border-0 mb-5">
 					<div class="card-header bg-light border-0 py-3 px-4">
-						<h6 class="mb-0 fw-bold text-secondary text-uppercase" style="letter-spacing: 0.5px;">Filter Students</h6>
+						<h6 class="mb-0 fw-bold text-uppercase">Filter Students</h6>
 					</div>
 					<div class="card-body px-4 py-3">
 						<form method="POST" class="row g-3 align-items-end">
