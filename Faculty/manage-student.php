@@ -18,7 +18,6 @@
 <?php
 
 ?>
-<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -45,7 +44,7 @@
 			<div class="sub-main">
 				<!-- Filter Card -->
 				<div class="card shadow-sm border-0 mb-5">
-					<div class="card-header bg-light border-0 pt-3 pb-2">
+					<div class="card-header bg-light border-0 py-3 px-4">
 						<h6 class="mb-0 fw-bold text-secondary text-uppercase" style="letter-spacing: 0.5px;">Filter Students</h6>
 					</div>
 					<div class="card-body px-4 py-3">
