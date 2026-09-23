@@ -18,6 +18,8 @@
 <?php
 
 ?>
+
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -134,7 +136,7 @@
 							else {
 					?>	
 						<div class="card shadow-sm border-0">
-							<div class="card-header border-bottom pt-3 pb-2 d-flex justify-content-between align-items-center">
+							<div class="card-header border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
 								<h6 class="mb-0 fw-bold"><i class="bi bi-people-fill me-2"></i>Student List</h6>
 								<span class="badge bg-white text-dark rounded-pill"><?php echo mysqli_num_rows($run); ?> Students</span>
 							</div>

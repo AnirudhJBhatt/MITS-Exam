@@ -46,38 +46,78 @@
 
     <!-- MAIN CONTENT -->
     <main>
-        <div class="dashboard-header">
-            <h4 class="mb-0 fw-bold">Settings</h4>
-        </div>
-        <div class="sub-main">
-            <div class="row">
-                <div class="col-md-12">
-                    <form action="" method="post">
-                        <div class="row">
-                            <div class="col">
-                                <input type="password" name="new_pass" class="form-control" required
-                                    placeholder="Enter New Password" id="new_pass">
+        <div class="container-fluid">
+            <!-- Header -->
+            <div class="dashboard-header mb-4 border-bottom pb-3">
+                <h4 class="mb-0 fw-bold">
+                    <i class="bi bi-gear-fill me-2"></i>Account Settings
+                </h4>
+            </div>
+
+            <div class="sub-main">
+                <div class="row justify-content-center">
+                    <div class="col-md-8 col-lg-6">
+                        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+                            <div class="card-header bg-white border-bottom-0 py-3 px-4">
+                                <h6 class="text-uppercase fw-bold mb-0" style="letter-spacing: 0.5px;">
+                                    <i class="bi bi-shield-lock me-2"></i>Update Password
+                                </h6>
                             </div>
-                            <div class="col">
-                                <input type="password" name="conf_pass" class="form-control" required
-                                    placeholder="Confirm New Password" id="conf_pass">
-                            </div>
-                            <div class="col">
-                                <input type="submit" name="submit" value="Update Password" class="btn btn-primary px-3">
+                            <div class="card-body px-4 py-4">
+                                <form action="" method="post">
+                                    <div class="mb-3">
+                                        <label for="new_pass" class="form-label small fw-bold text-muted">New Password <span class="text-danger">*</span></label>
+                                        <div class="input-group shadow-sm">
+                                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-key text-muted"></i></span>
+                                            <input type="password" name="new_pass" class="form-control border-start-0 ps-0 focus-ring focus-ring-light" required placeholder="Enter New Password" id="new_pass" style="border-left: none;">
+                                        </div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="conf_pass" class="form-label small fw-bold text-muted">Confirm New Password <span class="text-danger">*</span></label>
+                                        <div class="input-group shadow-sm">
+                                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-check2-circle text-muted"></i></span>
+                                            <input type="password" name="conf_pass" class="form-control border-start-0 ps-0 focus-ring focus-ring-light" required placeholder="Confirm New Password" id="conf_pass" style="border-left: none;">
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mb-4">
+                                        <div class="form-check form-switch user-select-none">
+                                            <input type="checkbox" class="form-check-input shadow-sm" style="cursor: pointer;" onclick="myFunction()" id="check">
+                                            <label class="form-check-label text-muted small fw-semibold" style="cursor: pointer;" for="check">Show Passwords</label>
+                                        </div>
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="submit" name="submit" class="btn btn-primary btn-lg rounded-pill fw-bold shadow-sm hover-elevate">
+                                            <i class="bi bi-save me-1"></i> Update Password
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
-                        <div class="row mt-3">
-                            <div class="col">
-                                <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" onclick="myFunction()"
-                                        id="check">Show Password
-                                </div>
-                            </div>
-                        </div>
-                    </form>
+                    </div>
                 </div>
             </div>
         </div>
+        <style>
+            .hover-elevate {
+                transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            }
+            .hover-elevate:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.15) !important;
+            }
+            .focus-ring-light:focus {
+                box-shadow: none !important;
+                border-color: #dee2e6 !important;
+            }
+            .input-group:focus-within {
+                box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+                border-radius: 0.375rem;
+            }
+            .input-group:focus-within .input-group-text,
+            .input-group:focus-within .form-control {
+                border-color: #86b7fe !important;
+            }
+        </style>
     </main>
     <?php include '../Common/footer.php'; ?>
     <script>
