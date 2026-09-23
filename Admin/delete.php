@@ -2,7 +2,7 @@
 	session_start();
 	if (!($_SESSION["LoginAdmin"] || $_SESSION["LoginFaculty"] || $_SESSION["LoginDeptAdmin"])) {
 		echo '<script> alert("Your Are Not Authorize Person For This link");</script>';
-        echo '<script>window.location="../Login/Login.php"</script>';
+        echo '<script>window.location="../index.php"</script>';
 	}
 	require_once "../Connection/connection.php";
 ?>

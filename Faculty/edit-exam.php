@@ -2,7 +2,7 @@
 session_start();
 if (!$_SESSION["LoginFaculty"]) {
     echo '<script>alert("You Are Not An Authorized Person For This Link");</script>';
-    echo '<script>window.location="../Login/Login.php"</script>';
+    echo '<script>window.location="../index.php"</script>';
 }
 
 require_once "../Connection/connection.php";
@@ -66,6 +66,12 @@ if(!$Edit_Exam_ID) { echo '<script>alert("No Exam Selected"); window.location="d
             background: #fce8ef;
             color: #6e1c35;
         }
+
+        .chip-multiselect {
+            background: #fff3cd;
+            color: #664d03;
+        }
+        
 
         .image-upload {
             border: 2px dashed #dee2e6;
@@ -174,7 +180,10 @@ if(!$Edit_Exam_ID) { echo '<script>alert("No Exam Selected"); window.location="d
                                 <button type="button" class="btn btn-sm btn-outline-primary edit-type-pill" data-type="fill" onclick="setEditType(this,'fill')">
                                     Fill in the blanks
                                 </button>
-                                <button type="button" class="btn btn-sm btn-outline-primary edit-type-pill" data-type="fill" onclick="setEditType(this,'fill')">
+                                <button type="button" class="btn btn-sm btn-outline-primary edit-type-pill" data-type="multiselect" onclick="setEditType(this,'multiselect')">
+                                    Multi Select
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-primary edit-type-pill" data-type="case" onclick="setEditType(this,'case')">
                                     Case Study
                                 </button>
                             </div>
@@ -244,6 +253,7 @@ if(!$Edit_Exam_ID) { echo '<script>alert("No Exam Selected"); window.location="d
                             <button type="button" class="btn btn-sm btn-outline-secondary type-filter-chip" onclick="setBankTypeFilter(this,'open')">Open ended</button>
                             <button type="button" class="btn btn-sm btn-outline-secondary type-filter-chip" onclick="setBankTypeFilter(this,'fill')">Fill</button>
                             <button type="button" class="btn btn-sm btn-outline-secondary type-filter-chip" onclick="setBankTypeFilter(this,'match')">Match</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary type-filter-chip" onclick="setBankTypeFilter(this,'multiselect')">Multi Select</button>
                         </div>
                     </div>
                     <div id="qbankList" class="p-3" style="min-height:200px">
@@ -275,13 +285,15 @@ if(!$Edit_Exam_ID) { echo '<script>alert("No Exam Selected"); window.location="d
             mcq: 'chip-mcq',
             match: 'chip-match',
             open: 'chip-open',
-            fill: 'chip-fill'
+            fill: 'chip-fill',
+            multiselect: 'chip-multiselect'
         };
         const CHIP_LABEL = {
             mcq: 'MCQ',
             match: 'Match',
             open: 'Open ended',
-            fill: 'Fill up'
+            fill: 'Fill up',
+            multiselect: 'Multi Select'
         };
 
         let currentType = 'mcq';
@@ -343,6 +355,19 @@ if(!$Edit_Exam_ID) { echo '<script>alert("No Exam Selected"); window.location="d
                     </div>`).join('')}
                 </div>
                 <p class="text-muted small mt-2 mb-0"><i class="ti ti-info-circle me-1"></i>Select the radio button to mark the correct answer</p>
+                ${getImageAttachmentBlock(qId)}`;
+
+            if (type === 'multiselect') return `
+                <math-field id="qt_${qId}" placeholder="Enter your question here…"></math-field>
+                <div class="mt-2 d-flex flex-column gap-2">
+                    ${['A','B','C','D'].map(l => `
+                    <div class="d-flex align-items-center gap-2">
+                        <input type="checkbox" name="correct_${qId}" value="${l}" class="opt-checkbox form-check-input mt-0 flex-shrink-0">
+                        <span class="badge bg-light text-dark border">${l}</span>
+                        <math-field class="opt-input flex-grow-1" id="qo_${qId}_${l}" placeholder="Option ${l}"></math-field>
+                    </div>`).join('')}
+                </div>
+                <p class="text-muted small mt-2 mb-0"><i class="ti ti-info-circle me-1"></i>Select the checkboxes to mark the correct answers</p>
                 ${getImageAttachmentBlock(qId)}`;
 
             if (type === 'match') return `
@@ -480,7 +505,7 @@ if(!$Edit_Exam_ID) { echo '<script>alert("No Exam Selected"); window.location="d
             const targetListId = isEdit ? 'editQuestionList' : 'questionList';
             document.getElementById(targetListId).appendChild(card);
 
-            if (qType === 'mcq' || qType === 'open' || qType === 'fill') {
+            if (qType === 'mcq' || qType === 'multiselect' || qType === 'open' || qType === 'fill') {
                 const uploadArea = card.querySelector('#du_' + qId);
                 if (uploadArea) {
                     const fi = document.createElement('input');
@@ -527,6 +552,34 @@ if(!$Edit_Exam_ID) { echo '<script>alert("No Exam Selected"); window.location="d
                     const letters = ['A', 'B', 'C', 'D'];
                     const idx = letters.indexOf(data.correct_opt);
                     if (idx >= 0 && radios[idx]) radios[idx].checked = true;
+                }
+            }
+            if (type === 'multiselect' && Array.isArray(data.options)) {
+                data.options.forEach(opt => {
+                    const el = document.getElementById(`qo_${qId}_${opt.letter}`);
+                    if (el) el.value = opt.text || '';
+                });
+                if (data.answers) {
+                    const checkboxes = card.querySelectorAll('.opt-checkbox');
+                    const letters = ['A', 'B', 'C', 'D'];
+                    let correctOpts = [];
+                    
+                    if (Array.isArray(data.answers)) {
+                        correctOpts = data.answers;
+                    } else if (typeof data.answers === 'string') {
+                        try {
+                            const parsed = JSON.parse(data.answers);
+                            if (Array.isArray(parsed)) correctOpts = parsed;
+                            else correctOpts = data.answers.split(',');
+                        } catch (e) {
+                            correctOpts = data.answers.split(',');
+                        }
+                    }
+
+                    correctOpts.forEach(c => {
+                        const idx = letters.indexOf(String(c).trim());
+                        if (idx >= 0 && checkboxes[idx]) checkboxes[idx].checked = true;
+                    });
                 }
             }
             if (type === 'match' && Array.isArray(data.pairs)) {
@@ -663,6 +716,23 @@ if(!$Edit_Exam_ID) { echo '<script>alert("No Exam Selected"); window.location="d
                 q.options = opts;
                 q.correct_opt = correctOpt;
             }
+            if (type === 'multiselect') {
+                const opts = [];
+                let correctOpts = [];
+                const letters = ['A', 'B', 'C', 'D'];
+                card.querySelectorAll('.d-flex.align-items-center.gap-2').forEach((row, i) => {
+                    const checkbox = row.querySelector('.opt-checkbox');
+                    const input = row.querySelector('.opt-input');
+                    if (!input) return;
+                    opts.push({
+                        letter: letters[i],
+                        text: input.value || ''
+                    });
+                    if (checkbox?.checked) correctOpts.push(letters[i]);
+                });
+                q.options = opts;
+                q.answers = correctOpts;
+            }
             if (type === 'open') {
                 q.rubric = card.querySelector('.open-rubric')?.value || null;
                 const wl = card.querySelector('.word-limit-input')?.value;
@@ -718,14 +788,14 @@ if(!$Edit_Exam_ID) { echo '<script>alert("No Exam Selected"); window.location="d
                     showToast('All questions must have question text', 'danger');
                     return false;
                 }
-                if (card.dataset.type === 'mcq') {
+                if (card.dataset.type === 'mcq' || card.dataset.type === 'multiselect') {
                     const filled = Array.from(card.querySelectorAll('.opt-input')).filter(i => i.value.trim()).length;
                     if (filled < 2) {
                         card.scrollIntoView({
                             behavior: 'smooth',
                             block: 'center'
                         });
-                        showToast('MCQ needs at least 2 options', 'danger');
+                        showToast((card.dataset.type === 'mcq' ? 'MCQ' : 'Multi Select') + ' needs at least 2 options', 'danger');
                         return false;
                     }
                 }

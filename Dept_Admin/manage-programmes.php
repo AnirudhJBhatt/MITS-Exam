@@ -2,7 +2,7 @@
     session_start();
     if (!$_SESSION["LoginDeptAdmin"]) {
         echo '<script>alert("Unauthorized access!");</script>';
-        echo '<script>window.location="../Login/Login.php"</script>';
+        echo '<script>window.location="../index.php"</script>';
     }
     
     $Dept_ID=$_SESSION['LoginDeptAdmin'];

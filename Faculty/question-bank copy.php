@@ -2,7 +2,7 @@
 	session_start();
 	if (!isset($_SESSION["LoginFaculty"])) {
 		echo '<script>alert("You are not authorized");</script>';
-		echo '<script>window.location="../Login/Login.php"</script>';
+		echo '<script>window.location="../index.php"</script>';
 		exit;
 	}
 

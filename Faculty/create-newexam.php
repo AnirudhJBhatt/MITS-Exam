@@ -2,7 +2,7 @@
 session_start();
 if (!$_SESSION["LoginFaculty"]) {
     echo '<script>alert("You Are Not An Authorized Person For This Link");</script>';
-    echo '<script>window.location="../Login/Login.php"</script>';
+    echo '<script>window.location="../index.php"</script>';
 }
 
 require_once "../Connection/connection.php";
