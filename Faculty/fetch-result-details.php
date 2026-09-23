@@ -265,6 +265,48 @@
                             </div>
                         </div>
 
+                    <?php elseif ($qType === 'multiselect'): 
+                        $options = json_decode($row['Options_JSON'] ?? '[]', true) ?: [];
+                        $studentSelected = json_decode($row['Student_Answer'] ?? '[]', true) ?: [];
+                        $correctAnswers = json_decode($row['Answers_JSON'] ?? '[]', true) ?: [];
+                    ?>
+                        <div class="options-container">
+                            <div class="row g-2">
+                                <?php foreach ($options as $opt): 
+                                    $letter = $opt['letter'] ?? '';
+                                    $text = $opt['text'] ?? '';
+                                    
+                                    $optClass = 'border bg-white text-dark';
+                                    $badge = '';
+                                    
+                                    $isSelected = in_array($letter, $studentSelected);
+                                    $isCorrectOpt = in_array($letter, $correctAnswers);
+                                    
+                                    if ($isSelected) {
+                                        if ($isCorrectOpt) {
+                                            $optClass = 'border-success bg-success-subtle text-success-emphasis fw-bold';
+                                            $badge = '<span class="badge bg-success ms-auto">Your Answer & Correct</span>';
+                                        } else {
+                                            $optClass = 'border-danger bg-danger-subtle text-danger-emphasis fw-bold';
+                                            $badge = '<span class="badge bg-danger ms-auto">Your Answer (Incorrect)</span>';
+                                        }
+                                    } elseif ($isCorrectOpt) {
+                                        $optClass = 'border-success text-success-emphasis fw-semibold bg-white';
+                                        $badge = '<span class="badge bg-success-subtle text-success border border-success ms-auto">Correct Answer</span>';
+                                    }
+                                ?>
+                                    <div class="col-12">
+                                        <div class="p-2 px-3 rounded d-flex align-items-center <?= $optClass ?>" style="font-size: 0.92rem; min-height: 42px;">
+                                            <div class="d-flex align-items-center gap-2 flex-grow-1">
+                                                <strong class="text-center rounded border d-inline-flex align-items-center justify-content-center bg-light text-dark fw-bold" style="width:24px; height:24px; font-size:0.8rem;"><?= $letter ?></strong>
+                                                <span class="text-break"><?= htmlspecialchars($text) ?></span>
+                                            </div>
+                                            <?= $badge ?>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
                     <?php elseif ($qType === 'fill'): 
                         $studentSelected = json_decode($row['Student_Answer'] ?? 'null', true);
                         $acceptedAnswers = json_decode($row['Answers_JSON'] ?? '[]', true) ?: [];

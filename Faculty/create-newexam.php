@@ -119,179 +119,189 @@ $Course_Code = $course['Course_Code'] ?? '';
     </div>
 
     <main>
-        <!-- A simple bootstrap button with icon -->
-        <div class="dashboard-header">
-            <h4 class="mb-0 fw-bold">
-                <i class="ti ti-clipboard-plus me-2"></i>Create Exam
-                <?php if ($Course_Name): ?>
-                    <small class="fw-normal opacity-75 ms-2">
-                        <?= htmlspecialchars($Course_Name) ?> (<?= htmlspecialchars($Course_Code) ?>)
-                    </small>
-                <?php endif; ?>
-            </h4>
-        </div>
-
-
-        <div class="sub-main pb-5">
-            <nav>
-                <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                    <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">
-                        Create New Exam
-                    </button>
-                    <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">
-                        View Exams
-                    </button>
+        <div class="container-fluid">
+            <!-- Header -->
+            <div class="dashboard-header mb-4 d-flex justify-content-between align-items-center border-bottom pb-3">
+                <div>
+                    <h5 class="mb-0 fw-bold">
+                        <i class="ti ti-clipboard-plus me-2"></i>Create Exam - <?= htmlspecialchars($Course_Code) ?> - <?= htmlspecialchars($Course_Name) ?>
+                    </h5>
                 </div>
-            </nav>
-            <div class="tab-content" id="nav-tabContent">
-                <div class="tab-pane fade show active mt-3" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab" tabindex="0">
-                    <!-- Top action bar -->
-                    <!-- <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
-                        <div>
-                            <nav aria-label="breadcrumb">
-                                <ol class="breadcrumb mb-1 small">
-                                    <li class="breadcrumb-item text-muted">Exams</li>
-                                    <li class="breadcrumb-item active">Create New Exam</li>
-                                </ol>
-                            </nav>
-                            <h5 class="mb-0 fw-semibold">Create exam</h5>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-outline-info" onclick="openExamList()">
-                                View Exams
-                            </button>
-                            <button class="btn btn-outline-secondary" id="btnDraft" onclick="saveExam('draft')">
-                                Save draft
-                            </button>
-                            <button class="btn btn-primary" id="btnPublish" onclick="saveExam('published')">
-                                Publish exam
-                            </button>
-                        </div>
-                    </div> -->
+                <a href="manage-exams.php?Course_ID=<?php echo urlencode($Course_ID); ?>" class="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-semibold">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Exams
+                </a>
+            </div>
 
-                    <!-- Exam details card -->
-                    <div class="card border-0 shadow-sm mb-3">
-                        <div class="card-header bg-white border-bottom py-2">
-                            <span class="text-uppercase small fw-semibold text-muted">Exam Details</span>
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-3 mb-3">
-                                <div class="col-md-3">
-                                    <label class="form-label small text-muted">Exam Name <span class="text-danger">*</span></label>
-                                    <input type="text" id="examName" class="form-control" placeholder="Exam Name" required>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label small text-muted">Duration (min) <span class="text-danger">*</span></label>
-                                    <input type="number" id="examDuration" class="form-control" placeholder="Duration in Minutes" min="1" required>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label small text-muted">Start Time</label> <span class="text-danger">*</span></label>
-                                    <input type="datetime-local" id="startTime" class="form-control" required>
-                                </div>
-                                <div class="col-md-3">
-                                    <label class="form-label small text-muted">End Time</label> <span class="text-danger">*</span></label>
-                                    <input type="datetime-local" id="endTime" class="form-control" required>
-                                </div>
-                            </div>
-
-                            <label class="form-label small text-muted">Select Question Type</label>
-                            <div class="d-flex flex-wrap gap-2">
-                                <button type="button" class="btn btn-sm btn-outline-primary type-pill active" data-type="mcq" onclick="setType(this,'mcq')">
-                                MCQ
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-primary type-pill" data-type="multiselect" onclick="setType(this,'multiselect')">
-                                    Multiselect
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-primary type-pill" data-type="match" onclick="setType(this,'match')">
-                                    Match the following
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-primary type-pill" data-type="open" onclick="setType(this,'open')">
-                                    Open ended
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-primary type-pill" data-type="fill" onclick="setType(this,'fill')">
-                                    Fill in the blanks
-                                </button>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-outline-primary type-pill" data-type="fill" onclick="setType(this,'fill')">
-                                    Case Study
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Questions card -->
-                    <div class="card border-0 shadow-sm">
-                        <div class="card-header bg-white border-bottom py-2 d-flex align-items-center justify-content-between flex-wrap gap-2">
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="text-uppercase small fw-semibold text-muted">Questions</span>
-                                <span class="badge bg-light text-secondary border" id="qnCountBadge">0 questions</span>
-                            </div>
-                            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="openQBank()">
-                                Add from question bank
-                            </button>
-                        </div>
-                        <div class="card-body">
-                            <div id="questionList"></div>
-
-                            <div class="d-flex align-items-center gap-2 mt-2">
-                                <hr class="flex-grow-1 m-0">
-                                <button type="button" class="btn btn-success btn-sm" onclick="addQuestion()">
-                                    Add question manually
-                                </button>
-                                <button type="button" class="btn btn-success btn-sm" onclick="openQBank()">
-                                    Add question from question bank
-                                </button>
-                                <hr class="flex-grow-1 m-0">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="d-flex gap-2 justify-content-center mt-3">
-                        <button class="btn btn-primary" id="btnPublish" onclick="saveExam('published')">
-                            Publish exam
+            <div class="sub-main pb-5">
+                <nav class="mb-4">
+                    <div class="nav nav-pills gap-3" id="nav-tab" role="tablist">
+                        <button class="nav-link active rounded-pill px-4 fw-semibold shadow-sm border border-primary" id="nav-home-tab" data-bs-toggle="pill" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">
+                            <i class="bi bi-plus-circle me-1"></i> Create New Exam
+                        </button>
+                        <button class="nav-link rounded-pill px-4 fw-semibold shadow-sm border border-secondary" id="nav-profile-tab" data-bs-toggle="pill" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">
+                            <i class="bi bi-list-ul me-1"></i> View Exams
                         </button>
                     </div>
-                </div>
-                <div class="tab-pane fade mt-3" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab" tabindex="0">
-                    <!-- Exam Search Card -->
-                    <div class="card border-0 shadow-sm mb-3">
-                        <div class="card-header bg-white border-bottom py-2">
-                            <span class="text-uppercase small fw-semibold text-muted">Exam Search</span>
+                </nav>
+                
+                <div class="tab-content" id="nav-tabContent">
+                    <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab" tabindex="0">
+
+                        <!-- Exam details card -->
+                        <div class="card border-0 shadow-sm mb-4 rounded-4">
+                            <div class="card-header bg-white border-bottom-0 py-3 px-4">
+                                <h6 class="text-uppercase fw-bold mb-0" style="letter-spacing: 0.5px;"><i class="bi bi-info-circle-fill me-2"></i>Exam Details</h6>
+                            </div>
+                            <div class="card-body px-4 pb-4">
+                                <div class="row g-4 mb-4">
+                                    <div class="col-md-3">
+                                        <label class="form-label small fw-bold text-secondary mb-1">Exam Name <span class="text-danger">*</span></label>
+                                        <input type="text" id="examName" class="form-control shadow-none border-secondary-subtle" placeholder="e.g. Midterm 1" required>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label small fw-bold text-secondary mb-1">Duration (min) <span class="text-danger">*</span></label>
+                                        <input type="number" id="examDuration" class="form-control shadow-none border-secondary-subtle" placeholder="e.g. 60" min="1" required>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label small fw-bold text-secondary mb-1">Start Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" id="startTime" class="form-control shadow-none border-secondary-subtle" required>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label small fw-bold text-secondary mb-1">End Time <span class="text-danger">*</span></label>
+                                        <input type="datetime-local" id="endTime" class="form-control shadow-none border-secondary-subtle" required>
+                                    </div>
+                                </div>
+
+                                <div class="p-3 bg-light rounded-3 border">
+                                    <label class="form-label small fw-bold text-secondary mb-3 d-block"><i class="bi bi-list-task me-1"></i>Select Question Type</label>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <button type="button" class="btn btn-sm btn-outline-primary type-pill active rounded-pill px-3 fw-semibold" data-type="mcq" onclick="setType(this,'mcq')">
+                                            MCQ
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary type-pill rounded-pill px-3 fw-semibold" data-type="multiselect" onclick="setType(this,'multiselect')">
+                                            Multiselect
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary type-pill rounded-pill px-3 fw-semibold" data-type="match" onclick="setType(this,'match')">
+                                            Match the following
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary type-pill rounded-pill px-3 fw-semibold" data-type="open" onclick="setType(this,'open')">
+                                            Open ended
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-primary type-pill rounded-pill px-3 fw-semibold" data-type="fill" onclick="setType(this,'fill')">
+                                            Fill in the blanks
+                                        </button>
+                                        <!-- Case Study button mapped to fill in original code -->
+                                        <button type="button" class="btn btn-sm btn-outline-primary type-pill rounded-pill px-3 fw-semibold" data-type="fill" onclick="setType(this,'fill')">
+                                            Case Study
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-hover align-middle">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th scope="col" style="width: 10%;">SL No</th>
-                                            <th scope="col">Exam Name</th>
-                                            <th scope="col" style="width: 15%;">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php
-                                            $q=mysqli_query($con,"select * from exams where Fac_ID='$Fac_ID' and Course_ID='$Course_ID'");
-                                            $sl_no = 1;
-                                            if(mysqli_num_rows($q) > 0) {
-                                                while($row=mysqli_fetch_array($q)){
-                                                    echo "<tr>";
-                                                    echo "<td>".$sl_no."</td>";
-                                                    echo "<td>".$row['Exam_Name']."</td>";
-                                                    echo "<td><a href='edit-exam.php?Exam_ID=".$row['Exam_ID']."&Course_ID=".$Course_ID."' class='btn btn-sm btn-primary'><i class='bi bi-pencil-square'></i> Edit</a></td>";
-                                                    echo "</tr>";
-                                                    $sl_no++;
+
+                        <!-- Questions card -->
+                        <div class="card border-0 shadow-sm rounded-4 mb-4">
+                            <div class="card-header bg-white border-bottom-0 py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                <div class="d-flex align-items-center gap-3">
+                                    <h6 class="text-uppercase fw-bold mb-0" style="letter-spacing: 0.5px;"><i class="bi bi-card-text me-2"></i>Questions</h6>
+                                    <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 fw-bold border border-primary-subtle" id="qnCountBadge">0 questions</span>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-success fw-bold rounded-pill px-3" onclick="openQBank()">
+                                    <i class="bi bi-cloud-arrow-down me-1"></i> Add from bank
+                                </button>
+                            </div>
+                            <div class="card-body px-4 pb-4">
+                                <div id="questionList" class="mb-4"></div>
+
+                                <div class="d-flex align-items-center gap-3 mt-4 bg-light p-4 rounded-3 border text-center justify-content-center flex-wrap" style="border-style: dashed !important; border-width: 2px !important;">
+                                    <button type="button" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" onclick="addQuestion()">
+                                        <i class="bi bi-plus-lg me-1"></i> Add Question Manually
+                                    </button>
+                                    <button type="button" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm" onclick="openQBank()">
+                                        <i class="bi bi-cloud-arrow-down me-1"></i> Browse Question Bank
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end mt-4">
+                            <button class="btn btn-success btn-lg rounded-pill px-5 fw-bold shadow hover-elevate" id="btnPublish" onclick="saveExam('published')">
+                                <i class="bi bi-check2-circle me-2"></i> Publish Exam
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab" tabindex="0">
+                        <!-- Exam Search Card -->
+                        <div class="card border-0 shadow-sm rounded-4 mb-3 mt-1">
+                            <div class="card-header bg-white border-bottom-0 py-3 px-4">
+                                <h6 class="text-uppercase fw-bold mb-0" style="letter-spacing: 0.5px;"><i class="bi bi-search me-2"></i>Exam Search</h6>
+                            </div>
+                            <div class="card-body px-4 pb-4">
+                                <div class="table-responsive rounded-3 border">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th scope="col" class="py-3 text-secondary fw-semibold px-4" style="width: 10%;">SL No</th>
+                                                <th scope="col" class="py-3 text-secondary fw-semibold">Exam Name</th>
+                                                <th scope="col" class="py-3 text-secondary fw-semibold text-end px-4" style="width: 15%;">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php
+                                                $q=mysqli_query($con,"select * from exams where Fac_ID='$Fac_ID' and Course_ID='$Course_ID'");
+                                                $sl_no = 1;
+                                                if(mysqli_num_rows($q) > 0) {
+                                                    while($row=mysqli_fetch_array($q)){
+                                                        echo "<tr>";
+                                                        echo "<td class='px-4 text-muted fw-bold'>".$sl_no."</td>";
+                                                        echo "<td class='fw-semibold text-dark'>".$row['Exam_Name']."</td>";
+                                                        echo "<td class='text-end px-4'><a href='edit-exam.php?Exam_ID=".$row['Exam_ID']."&Course_ID=".$Course_ID."' class='btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold'><i class='bi bi-pencil-square me-1'></i> Edit</a></td>";
+                                                        echo "</tr>";
+                                                        $sl_no++;
+                                                    }
+                                                } else {
+                                                    echo "<tr><td colspan='3' class='text-center text-muted py-4'><i class='bi bi-info-circle me-1'></i> No exams found.</td></tr>";
                                                 }
-                                            } else {
-                                                echo "<tr><td colspan='3' class='text-center text-muted'>No exams found.</td></tr>";
-                                            }
-                                        ?>
-                                    </tbody>
-                                </table>
+                                            ?>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        <style>
+            .hover-elevate {
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            .hover-elevate:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+            }
+            .nav-pills .nav-link {
+                color: #6c757d;
+                background-color: #fff;
+                transition: all 0.3s ease;
+            }
+            .nav-pills .nav-link.active {
+                background-color: #0d6efd !important;
+                color: #fff !important;
+                border-color: #0d6efd !important;
+            }
+            .nav-pills .nav-link:hover:not(.active) {
+                background-color: #f8f9fa;
+                color: #0d6efd;
+            }
+            .bg-primary-subtle {
+                background-color: #cfe2ff !important;
+            }
+            .border-primary-subtle {
+                border-color: #9ec5fe !important;
+            }
+        </style>
     </main>
 
     <?php include '../Common/footer.php'; ?>

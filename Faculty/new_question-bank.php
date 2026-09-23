@@ -118,209 +118,220 @@ $Course_Code = $course['Course_Code'] ?? '';
     </div>
 
     <main>
-        <div class="dashboard-header">
-            <h4 class="mb-0 fw-bold">
-                <i class="ti ti-clipboard-plus me-2"></i>Question Bank
-                <?php if ($Course_Name): ?>
-                    <small class="fw-normal opacity-75 ms-2">
-                        <?= htmlspecialchars($Course_Name) ?> (<?= htmlspecialchars($Course_Code) ?>)
-                    </small>
-                <?php endif; ?>
-            </h4>
-        </div>
-        <nav>
-            <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">Add Questions</button>
-                <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">View Question Bank</button>
+        <div class="container-fluid">
+            <!-- Header -->
+            <div class="dashboard-header mb-4 d-flex justify-content-between align-items-center border-bottom pb-3">
+                <div>
+                    <h5 class="mb-0 fw-bold">
+                        <i class="ti ti-clipboard-plus me-2"></i>Question Bank - <?= htmlspecialchars($Course_Code) ?> - <?= htmlspecialchars($Course_Name) ?>
+                    </h5>
+                </div>
+                <a href="manage-exams.php?Course_ID=<?php echo urlencode($Course_ID); ?>" class="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-semibold">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Exams
+                </a>
             </div>
-        </nav>
-        <div class="tab-content" id="nav-tabContent">
-            <div class="tab-pane fade show active mt-3" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab" tabindex="0">
-                <!-- Upload Methods Card -->
-                <div class="card border-0 shadow-sm mb-3">
-                    <div class="card-header bg-white border-bottom py-2">
-                        <span class="text-uppercase small fw-semibold text-muted">Choose Upload Method</span>
+
+            <div class="sub-main pb-5">
+                <nav class="mb-4">
+                    <div class="nav nav-pills gap-3" id="nav-tab" role="tablist">
+                        <button class="nav-link active rounded-pill px-4 fw-semibold shadow-sm border border-primary" id="nav-home-tab" data-bs-toggle="pill" data-bs-target="#nav-home" type="button" role="tab" aria-controls="nav-home" aria-selected="true">
+                            <i class="bi bi-plus-circle me-1"></i> Add Questions
+                        </button>
+                        <button class="nav-link rounded-pill px-4 fw-semibold shadow-sm border border-secondary" id="nav-profile-tab" data-bs-toggle="pill" data-bs-target="#nav-profile" type="button" role="tab" aria-controls="nav-profile" aria-selected="false">
+                            <i class="bi bi-list-ul me-1"></i> View Question Bank
+                        </button>
                     </div>
-                    <div class="card-body">
-                        <ul class="nav nav-pills mb-3" id="methodTab" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="manual-tab" data-bs-toggle="pill" data-bs-target="#manual-pane" type="button" role="tab" aria-controls="manual-pane" aria-selected="true">
-                                    Manually
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="csv-tab" data-bs-toggle="pill" data-bs-target="#csv-pane" type="button" role="tab" aria-controls="csv-pane" aria-selected="false">
-                                    Bulk Upload
-                                </button>
-                            </li>
-                        </ul>
-                        <div class="tab-content" id="methodTabContent">
-                            <!-- Manual Pane -->
-                            <div class="tab-pane fade show active" id="manual-pane" role="tabpanel" aria-labelledby="manual-tab">
-                                <label class="form-label small text-muted">Select Question Type</label>
-                                <div class="d-flex flex-wrap gap-2">
-                                    <button type="button" class="btn btn-sm btn-outline-primary type-pill active" data-type="mcq" onclick="setType(this,'mcq')">
-                                    MCQ
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-outline-primary type-pill" data-type="multiselect" onclick="setType(this,'multiselect')">
-                                        Multiselect
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-outline-primary type-pill" data-type="match" onclick="setType(this,'match')">
-                                        Match the following
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-outline-primary type-pill" data-type="open" onclick="setType(this,'open')">
-                                        Open ended
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-outline-primary type-pill" data-type="fill" onclick="setType(this,'fill')">
-                                        Fill in the blanks
+                </nav>
+                
+                <div class="tab-content" id="nav-tabContent">
+                    <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab" tabindex="0">
+                        
+                        <!-- Upload Methods Card -->
+                        <div class="card border-0 shadow-sm mb-4 rounded-4">
+                            <div class="card-header bg-white border-bottom-0 py-3 px-4">
+                                <h6 class="text-uppercase fw-bold mb-0" style="letter-spacing: 0.5px;"><i class="bi bi-cloud-arrow-up-fill me-2"></i>Choose Upload Method</h6>
+                            </div>
+                            <div class="card-body px-4 pb-4">
+                                <ul class="nav nav-pills mb-4 gap-2" id="methodTab" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link active rounded-pill px-3 fw-semibold" id="manual-tab" data-bs-toggle="pill" data-bs-target="#manual-pane" type="button" role="tab" aria-controls="manual-pane" aria-selected="true" style="font-size: 14px;">
+                                            <i class="bi bi-pencil-square me-1"></i> Manually
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button class="nav-link rounded-pill px-3 fw-semibold" id="csv-tab" data-bs-toggle="pill" data-bs-target="#csv-pane" type="button" role="tab" aria-controls="csv-pane" aria-selected="false" style="font-size: 14px;">
+                                            <i class="bi bi-file-earmark-spreadsheet me-1"></i> Bulk Upload (CSV)
+                                        </button>
+                                    </li>
+                                </ul>
+                                
+                                <div class="tab-content" id="methodTabContent">
+                                    <!-- Manual Pane -->
+                                    <div class="tab-pane fade show active bg-light p-3 rounded-3 border" id="manual-pane" role="tabpanel" aria-labelledby="manual-tab">
+                                        <label class="form-label small fw-bold text-secondary mb-3 d-block"><i class="bi bi-list-task me-1"></i>Select Question Type</label>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <button type="button" class="btn btn-sm btn-outline-primary type-pill active rounded-pill px-3 fw-semibold" data-type="mcq" onclick="setType(this,'mcq')">
+                                                MCQ
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-primary type-pill rounded-pill px-3 fw-semibold" data-type="multiselect" onclick="setType(this,'multiselect')">
+                                                Multiselect
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-primary type-pill rounded-pill px-3 fw-semibold" data-type="match" onclick="setType(this,'match')">
+                                                Match the following
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-primary type-pill rounded-pill px-3 fw-semibold" data-type="open" onclick="setType(this,'open')">
+                                                Open ended
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-primary type-pill rounded-pill px-3 fw-semibold" data-type="fill" onclick="setType(this,'fill')">
+                                                Fill in the blanks
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- CSV Pane -->
+                                    <div class="tab-pane fade bg-light p-3 rounded-3 border" id="csv-pane" role="tabpanel" aria-labelledby="csv-tab">
+                                        <form id="csvUploadForm" onsubmit="handleCsvSubmit(event)">
+                                            <div class="row g-3 align-items-end">
+                                                <div class="col-md-4">
+                                                    <label class="form-label small fw-bold text-secondary mb-1">Question Type for CSV <span class="text-danger">*</span></label>
+                                                    <select class="form-select shadow-none border-secondary-subtle" id="csvQuestionType" onchange="updateCsvInstructions()" required>
+                                                        <option value="mcq">MCQ</option>
+                                                        <option value="multiselect">Multiselect</option>
+                                                        <option value="match">Match the following</option>
+                                                        <option value="open">Open ended</option>
+                                                        <option value="fill">Fill in the blanks</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-5">
+                                                    <label class="form-label small fw-bold text-secondary mb-1">Select CSV File <span class="text-danger">*</span></label>
+                                                    <input type="file" class="form-control shadow-none border-secondary-subtle" id="csvFile" accept=".csv" required>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <button type="submit" class="btn btn-success w-100 rounded-pill fw-bold shadow-sm hover-elevate" id="btnUploadCsv">
+                                                        <i class="bi bi-file-earmark-arrow-up me-1"></i> Import CSV
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <div class="mt-4 p-4 bg-white rounded-3 shadow-sm border">
+                                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                                    <h6 class="mb-0 fw-bold"><i class="bi bi-info-circle me-1"></i>CSV Format Instructions</h6>
+                                                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold hover-elevate" onclick="downloadCsvTemplate()">
+                                                        <i class="bi bi-download me-1"></i> Download Template
+                                                    </button>
+                                                </div>
+                                                <div id="csvInstructions" class="small text-muted mb-0 lh-lg">
+                                                    <!-- Will be populated dynamically by JS -->
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Questions card -->
+                        <div class="card border-0 shadow-sm rounded-4 mb-4" id="questionsCard">
+                            <div class="card-header bg-white border-bottom-0 py-3 px-4">
+                                <div class="d-flex align-items-center gap-3">
+                                    <h6 class="text-uppercase fw-bold mb-0" style="letter-spacing: 0.5px;"><i class="bi bi-card-text me-2"></i>Questions</h6>
+                                    <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 fw-bold border border-primary-subtle" id="qnCountBadge">0 questions</span>
+                                </div>
+                            </div>
+                            <div class="card-body px-4 pb-4">
+                                <div id="questionList" class="mb-4"></div>
+
+                                <div class="d-flex align-items-center gap-3 mt-4 bg-light p-4 rounded-3 border text-center justify-content-center flex-wrap" style="border-style: dashed !important; border-width: 2px !important;">
+                                    <button type="button" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" onclick="addQuestion()">
+                                        <i class="bi bi-plus-lg me-1"></i> Add Question
                                     </button>
                                 </div>
                             </div>
-                            
-                            <!-- CSV Pane -->
-                            <div class="tab-pane fade" id="csv-pane" role="tabpanel" aria-labelledby="csv-tab">
-                                <form id="csvUploadForm" onsubmit="handleCsvSubmit(event)">
-                                    <div class="row g-3 align-items-end">
-                                        <div class="col-md-4">
-                                            <label class="form-label small text-muted">Question Type for CSV</label>
-                                            <select class="form-select form-select" id="csvQuestionType" onchange="updateCsvInstructions()" required>
-                                                <option value="mcq">MCQ</option>
-                                                <option value="multiselect">Multiselect</option>
-                                                <option value="match">Match the following</option>
-                                                <option value="open">Open ended</option>
-                                                <option value="fill">Fill in the blanks</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-5">
-                                            <label class="form-label small text-muted">Select CSV File</label>
-                                            <input type="file" class="form-control form-control" id="csvFile" accept=".csv" required>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <button type="submit" class="btn btn-success w-100" id="btnUploadCsv">
-                                                Import CSV
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="mt-3 p-3 bg-light rounded border border-dashed">
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <h6 class="mb-0 fw-semibold text-muted small">CSV Format Instructions</h6>
-                                            <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size: 11px;" onclick="downloadCsvTemplate()">
-                                                <i class="ti ti-download me-1"></i>Download Template
-                                            </button>
-                                        </div>
-                                        <div id="csvInstructions" class="small text-muted mb-0">
-                                            <!-- Will be populated dynamically by JS -->
-                                        </div>
-                                    </div>
-                                </form>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-4">
+                            <button class="btn btn-success btn-lg rounded-pill px-5 fw-bold shadow hover-elevate" id="btnPublish" onclick="saveToBank()">
+                                <i class="bi bi-cloud-upload me-2"></i> Upload Questions
+                            </button>
+                        </div>                    
+                    </div>
+                    
+                    <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab" tabindex="0">
+                        <!-- Question Search Card -->
+                        <div class="card border-0 shadow-sm rounded-4 mb-3 mt-1">
+                            <div class="card-header bg-white border-bottom-0 py-3 px-4">
+                                <h6 class="text-uppercase fw-bold mb-0" style="letter-spacing: 0.5px;"><i class="bi bi-search me-2"></i>Question Search</h6>
+                            </div>
+                            <div class="card-body px-4 pb-4">
+                                <div class="table-responsive rounded-3 border">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th scope="col" class="py-3 text-secondary fw-semibold px-4" style="width: 10%;">SL No</th>
+                                                <th scope="col" class="py-3 text-secondary fw-semibold">Question Text</th>
+                                                <th scope="col" class="py-3 text-secondary fw-semibold text-center" style="width: 10%;">Type</th>
+                                                <th scope="col" class="py-3 text-secondary fw-semibold text-center" style="width: 10%;">Marks</th>
+                                                <th scope="col" class="py-3 text-secondary fw-semibold text-center" style="width: 10%;">CO</th>
+                                                <th scope="col" class="py-3 text-secondary fw-semibold text-end px-4" style="width: 15%;">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php
+                                                $q=mysqli_query($con,"select * from new_question_bank where Fac_ID='$Fac_ID' and (Course_ID='$Course_ID' OR Course_ID IS NULL) ORDER BY Bank_ID DESC");
+                                                $sl_no = 1;
+                                                if(mysqli_num_rows($q) > 0) {
+                                                    while($row=mysqli_fetch_array($q)){
+                                                        echo "<tr>";
+                                                        echo "<td class='px-4 text-muted fw-bold'>".$sl_no."</td>";
+                                                        echo "<td class='text-dark'>".htmlspecialchars(strip_tags($row['Question_Text']))."</td>";
+                                                        echo "<td class='text-center'><span class='badge bg-light text-dark border rounded-pill px-3 py-1 shadow-sm'>".strtoupper($row['Question_Type'])."</span></td>";
+                                                        echo "<td class='text-center fw-semibold text-muted'>".$row['Marks']."</td>";
+                                                        echo "<td class='text-center fw-bold'>CO".$row['CO']."</td>";
+                                                        echo "<td class='text-end px-4'><button class='btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold' onclick='openEditBankModal(".$row['Bank_ID'].")'><i class='bi bi-pencil-square me-1'></i> Edit</button></td>";
+                                                        echo "</tr>";
+                                                        $sl_no++;
+                                                    }
+                                                } else {
+                                                    echo "<tr><td colspan='6' class='text-center text-muted py-4'><i class='bi bi-info-circle me-1'></i> No questions found.</td></tr>";
+                                                }
+                                            ?>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Questions card -->
-                <div class="card border-0 shadow-sm" id="questionsCard">
-                    <div class="card-header bg-white border-bottom py-2 d-flex align-items-center justify-content-between flex-wrap gap-2">
-                        <div class="d-flex align-items-center gap-2">
-                            <span class="text-uppercase small fw-semibold text-muted">Questions</span>
-                            <span class="badge bg-light text-secondary border" id="qnCountBadge">0 questions</span>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div id="questionList"></div>
-
-                        <div class="d-flex align-items-center gap-2 mt-2">
-                            <hr class="flex-grow-1 m-0">
-                            <button type="button" class="btn btn-success btn-sm" onclick="addQuestion()">
-                                Add question
-                            </button>
-                            <hr class="flex-grow-1 m-0">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="d-flex gap-2 justify-content-center mt-3">
-                    <button class="btn btn-primary" id="btnPublish" onclick="saveToBank()">
-                        Upload Questions
-                    </button>
-                </div>                    
-            </div>
-            <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab" tabindex="0">
-                <!-- Question Search Card -->
-                <div class="card border-0 shadow-sm mb-3">
-                    <div class="card-header bg-white border-bottom py-2">
-                        <span class="text-uppercase small fw-semibold text-muted">Exam Search</span>
-                    </div>
-                    <div class="card-body">
-                                                <div class="table-responsive">
-                            <table class="table table-bordered table-hover align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th scope="col" style="width: 10%;">SL No</th>
-                                        <th scope="col">Question Text</th>
-                                        <th scope="col" style="width: 10%;">Type</th>
-                                        <th scope="col" style="width: 10%;">Marks</th>
-                                        <th scope="col" style="width: 10%;">CO</th>
-                                        <th scope="col" style="width: 15%;">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php
-                                        $q=mysqli_query($con,"select * from new_question_bank where Fac_ID='$Fac_ID' and (Course_ID='$Course_ID' OR Course_ID IS NULL) ORDER BY Bank_ID DESC");
-                                        $sl_no = 1;
-                                        if(mysqli_num_rows($q) > 0) {
-                                            while($row=mysqli_fetch_array($q)){
-                                                echo "<tr>";
-                                                echo "<td>".$sl_no."</td>";
-                                                echo "<td>".htmlspecialchars(strip_tags($row['Question_Text']))."</td>";
-                                                echo "<td><span class='badge bg-light text-dark border'>".strtoupper($row['Question_Type'])."</span></td>";
-                                                echo "<td>".$row['Marks']."</td>";
-                                                echo "<td>CO".$row['CO']."</td>";
-                                                echo "<td><button class='btn btn-sm btn-primary d-inline-flex align-items-center gap-1' onclick='openEditBankModal(".$row['Bank_ID'].")'><i class='ti ti-pencil'></i> Edit</button></td>";
-                                                echo "</tr>";
-                                                $sl_no++;
-                                            }
-                                        } else {
-                                            echo "<tr><td colspan='6' class='text-center text-muted'>No questions found.</td></tr>";
-                                        }
-                                    ?>
-                                </tbody>
-                            </table>
-                        </div>
-                        </div>
-                    </div>
-                </div>    
             </div>
         </div>
-
-        <div class="sub-main pb-5">
-
-            <!-- Top action bar -->
-            <!-- <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
-                <div>
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb mb-1 small">
-                            <li class="breadcrumb-item text-muted">Exams</li>
-                            <li class="breadcrumb-item active">Create New Exam</li>
-                        </ol>
-                    </nav>
-                    <h5 class="mb-0 fw-semibold">Add Questions</h5>
-                </div>
-                <div class="d-flex gap-2">
-                    <button class="btn btn-outline-info" onclick="openExamList()">
-                        View Question Bank
-                    </button>
-                    <button class="btn btn-outline-secondary" id="btnDraft" onclick="saveExam('draft')">
-                        Save draft
-                    </button>
-                    <button class="btn btn-primary" id="btnPublish" onclick="saveToBank()">
-                        Upload Questions
-                    </button>
-                </div>
-            </div> -->
-
-            
-        </div>
+        <style>
+            .hover-elevate {
+                transition: transform 0.3s ease, box-shadow 0.3s ease;
+            }
+            .hover-elevate:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+            }
+            .nav-pills .nav-link {
+                color: #6c757d;
+                background-color: #fff;
+                transition: all 0.3s ease;
+            }
+            .nav-pills .nav-link.active {
+                background-color: #0d6efd !important;
+                color: #fff !important;
+                border-color: #0d6efd !important;
+            }
+            .nav-pills .nav-link:hover:not(.active) {
+                background-color: #f8f9fa;
+                color: #0d6efd;
+            }
+            .bg-primary-subtle {
+                background-color: #cfe2ff !important;
+            }
+            .border-primary-subtle {
+                border-color: #9ec5fe !important;
+            }
+        </style>
     </main>
 
     <?php include '../Common/footer.php'; ?>
@@ -1196,8 +1207,7 @@ $Course_Code = $course['Course_Code'] ?? '';
             } else if (type === 'multiselect') {
                 headers = ['Question Text', 'Option A', 'Option B', 'Option C', 'Option D', 'Correct Options', 'Marks', 'CO'];
                 row = ['Which of these are even numbers?', '1', '2', '3', '4', 'B,D', '1', '1'];
-            } 
-            else if (type === 'match') {
+            } else if (type === 'match') {
                 headers = ['Question Text', 'Pairs', 'Marks', 'CO'];
                 row = ['Match the following countries and capitals', 'Paris:France|London:UK|Berlin:Germany|Rome:Italy', '1', '1'];
             } else if (type === 'open') {

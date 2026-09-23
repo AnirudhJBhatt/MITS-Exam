@@ -52,61 +52,78 @@
 	<?php include '../Common/header.php'; ?>
 	<?php include '../Common/faculty-sidebar.php'; ?>
 	<main>
-		<div class="dashboard-header">
-            <h4 class="mb-0 fw-bold">Manage Exams</h4>
-        </div>
-		<!-- <nav style="--bs-breadcrumb-divider: '>';" aria-label="breadcrumb">
-			<ol class="breadcrumb">
-				<li class="breadcrumb-item"><a href="#">Dashboard</a></li>
-				<li class="breadcrumb-item active" aria-current="page">Manage Exams</li>
-			</ol>
-		</nav> -->
-		<div class="row g-4">
-			<!-- Create Exam Card -->
-			<div class="col-md-4">
-				<div class="card border-0 shadow-sm h-100 rounded-4">
-					<div class="card-body text-center p-4">
-						<div class="bg-primary bg-opacity-10 text-primary rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
-							style="width:70px;height:70px;">
-							<i class="bi bi-journal-plus fs-2"></i>
+		<div class="container-fluid">
+			<!-- Header -->
+			<div class="dashboard-header mb-4 d-flex justify-content-between align-items-center border-bottom pb-3">
+				<div>
+					<h4 class="mb-0 fw-bold">Manage Exams</h4>
+					<small class="text-muted"><?php echo htmlspecialchars($Course_Code . " - " . $Course_Name); ?></small>
+				</div>
+				<a href="view-courses.php" class="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-semibold">
+					<i class="bi bi-arrow-left me-1"></i> Back to Courses
+				</a>
+			</div>
+            
+			<div class="row g-4 mt-2">
+				<!-- Create Exam Card -->
+				<div class="col-md-4">
+					<div class="card h-100 border-0 shadow-sm rounded-4 hover-elevate">
+						<div class="card-body text-center p-5 d-flex flex-column align-items-center justify-content-center">
+							<div class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+								<i class="bi bi-journal-plus fs-1"></i>
+							</div>
+							<h5 class="fw-bold mb-3 text-dark">Exams</h5>
+							<p class="text-muted small mb-4">Create, view, and manage examinations for this course.</p>
+							<a href="create-newexam.php?Course_ID=<?php echo urlencode($Course_ID); ?>" class="btn btn-primary rounded-pill px-4 fw-semibold mt-auto w-100">
+								Create Exam
+							</a>
 						</div>
-						<h5 class="fw-bold">Exams</h5>
-						<a href="create-newexam.php?Course_ID=<?php echo urlencode($Course_ID); ?>" class="btn btn-primary rounded-pill px-4"> Create Exam
-						</a>
+					</div>
+				</div>
+
+				<!-- Question Bank Card -->
+				<div class="col-md-4">
+					<div class="card h-100 border-0 shadow-sm rounded-4 hover-elevate">
+						<div class="card-body text-center p-5 d-flex flex-column align-items-center justify-content-center">
+							<div class="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+								<i class="bi bi-file-earmark-text fs-1"></i>
+							</div>
+							<h5 class="fw-bold mb-3 text-dark">Question Bank</h5>
+							<p class="text-muted small mb-4">Create and manage the repository of questions.</p>
+							<a href="new_question-bank.php?Course_ID=<?php echo urlencode($Course_ID); ?>" class="btn btn-success rounded-pill px-4 fw-semibold mt-auto w-100">
+								View Question Bank
+							</a>
+						</div>
+					</div>
+				</div>
+
+				<!-- Results Card -->
+				<div class="col-md-4">
+					<div class="card h-100 border-0 shadow-sm rounded-4 hover-elevate">
+						<div class="card-body text-center p-5 d-flex flex-column align-items-center justify-content-center">
+							<div class="bg-warning bg-opacity-10 text-warning rounded-circle d-flex align-items-center justify-content-center mb-4" style="width: 80px; height: 80px;">
+								<i class="bi bi-bar-chart-line fs-1"></i>
+							</div>
+							<h5 class="fw-bold mb-3 text-dark">View Results</h5>
+							<p class="text-muted small mb-4">Analyze and export student performance and grades.</p>
+							<a href="view-results-new.php?Course_ID=<?php echo urlencode($Course_ID); ?>" class="btn btn-warning text-white rounded-pill px-4 fw-semibold mt-auto w-100">
+								View Results
+							</a>
+						</div>
 					</div>
 				</div>
 			</div>
-
-			<!-- Question Bank Card -->
-			<div class="col-md-4">
-				<div class="card border-0 shadow-sm h-100 rounded-4">
-					<div class="card-body text-center p-4">
-						<div class="bg-success bg-opacity-10 text-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
-							style="width:70px;height:70px;">
-							<i class="bi bi-file-earmark-text fs-2"></i>
-						</div>
-						<h5 class="fw-bold">Question Bank</h5>
-						<a href="new_question-bank.php?Course_ID=<?php echo urlencode($Course_ID); ?>" class="btn btn-success rounded-pill px-4">View Question Bank</a>
-					</div>
-				</div>
-			</div>
-
-			<!-- Results Card -->
-			<div class="col-md-4">
-				<div class="card border-0 shadow-sm h-100 rounded-4">
-					<div class="card-body text-center p-4">
-						<div class="bg-warning bg-opacity-10 text-warning rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
-							style="width:70px;height:70px;">
-							<i class="bi bi-bar-chart-line fs-2"></i>
-						</div>
-						<h5 class="fw-bold">View Results</h5>
-						<a href="view-results-new.php?Course_ID=<?php echo urlencode($Course_ID); ?>" class="btn btn-warning rounded-pill px-4 text-white"> View Results </a>
-					</div>
-				</div>
-			</div>
-
 		</div>
 	</main>
+	<style>
+		.hover-elevate {
+			transition: transform 0.3s ease, box-shadow 0.3s ease;
+		}
+		.hover-elevate:hover {
+			transform: translateY(-5px);
+			box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+		}
+	</style>
 
 	<?php include '../Common/footer.php'; ?>
 </body>

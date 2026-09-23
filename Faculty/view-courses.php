@@ -48,8 +48,8 @@
             <div class="sub-main">
                 <!-- Filter Card -->
                 <div class="card shadow-sm border-0 mb-5">
-                    <div class="card-header bg-light border-0 pt-3 pb-2">
-                        <h6 class="mb-0 fw-bold text-secondary text-uppercase" style="letter-spacing: 0.5px;">Filter Courses</h6>
+                    <div class="card-header bg-light border-0 py-3 px-4">
+                        <h6 class="mb-0 fw-bold text-uppercase">Filter Courses</h6>
                     </div>
                     <div class="card-body px-4 py-3">
                         <form method="POST" class="row g-3 align-items-end">
@@ -165,13 +165,13 @@
                     ?>
                         <div class="col-md-6 col-lg-4 col-xl-3">
                             <div class="card h-100 shadow-sm border-0 bg-white rounded-3 overflow-hidden transition-hover">
-                                <div class="card-header bg-light border-0 py-3">
-                                    <h6 class="mb-0 fw-bold text-dark text-truncate" title="<?php echo $row['Course_Name']; ?>">
+                                <div class="card-header bg-light border-0 py-3 px-4">
+                                    <h6 class="mb-0 fw-bold text-truncate" title="<?php echo $row['Course_Name']; ?>">
                                         <?php echo $row['Course_Code']; ?>
                                     </h6>
                                 </div>
                                 <div class="card-body d-flex flex-column">
-                                    <h5 class="card-title fw-bold text-primary mb-3" style="font-size: 1.1rem;">
+                                    <h5 class="card-title fw-bold mb-3" style="font-size: 1.1rem;">
                                         <?php echo $row['Course_Name']; ?>
                                     </h5>
                                     

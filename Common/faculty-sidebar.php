@@ -1,7 +1,7 @@
 <div class="sidebar bg-white shadow-sm border-end d-flex flex-column pt-4" id="sidebar" style="transition: all 0.3s ease; z-index: 1040;">
     <?php $current_page = basename($_SERVER['PHP_SELF']); ?>
     
-    <ul class="nav flex-column  mb-auto w-100 px-3 gap-1">
+    <ul class="nav flex-column mb-auto w-100 px-3 gap-1">
         <li class="nav-item">
             <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 text-dark sidebar-link <?= ($current_page == 'dashboard.php') ? 'active bg-danger-subtle text-danger fw-bold' : ''; ?>"
             href="../Faculty/dashboard.php">

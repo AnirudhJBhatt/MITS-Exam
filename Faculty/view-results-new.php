@@ -137,210 +137,249 @@
     <?php include '../Common/faculty-sidebar.php'; ?>
 
     <main>
-        <div class="dashboard-header">
-            <h4 class="mb-0 fw-bold">
-                <i class="ti ti-clipboard-plus me-2"></i>View Results
-                <?php if ($Course_Name): ?>
-                    <small class="fw-normal opacity-75 ms-2">
-                        <?= htmlspecialchars($Course_Name) ?> (<?= htmlspecialchars($Course_Code) ?>)
-                    </small>
-                <?php endif; ?>
-            </h4>
-        </div>
-
-        <div class="sub-main">
-            <div class="card border-0 shadow-sm mb-3">
-                <div class="card-header bg-white border-bottom py-2">
-                    <span class="text-uppercase small fw-semibold text-muted">Exam Search</span>
+        <div class="container-fluid">
+            <!-- Header -->
+            <div class="dashboard-header mb-4 d-flex justify-content-between align-items-center border-bottom pb-3">
+                <div>
+                    <h5 class="mb-0 fw-bold">
+                        <i class="ti ti-clipboard-data me-2"></i>View Results - <?= htmlspecialchars($Course_Code) ?> - <?= htmlspecialchars($Course_Name) ?>
+                    </h5>
                 </div>
-                <div class="card-body">
-                    
-                <form method="POST" enctype="multipart/form-data">
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-3">
-                            <label class="form-label small text-muted">Academic Year <span class="text-danger">*</span></label>
-                            <select class="form-control" name="Acad_Year" id="Acad_Year" required onchange="this.form.submit()">
-                                <option value="" selected disabled>Select Academic Year</option>
-                                <?php
-                                    $q=mysqli_query($con,"select * from academic_year");
-                                    while($row=mysqli_fetch_array($q)){
-                                        $selected = (isset($_POST['Acad_Year']) && $_POST['Acad_Year'] == $row['AY_Name']) ? "selected" : "";
-                                        echo "<option value='".$row['AY_Name']."' ".$selected."> ".$row['AY_Name']."</option>";
-                                    }
-                                ?>
-                            </select>
-                        </div>
-                        <!-- Fetch Acad_Year from above select-->                         
-                        <div class="col-md-3">
-                            <label class="form-label small text-muted">Exam Name <span class="text-danger">*</span></label>
-                            <select class="form-control" name="Exam_ID" id="Exam_ID" required>
-                                <option value="" selected disabled>Select Exam Name</option>
-                                <?php
-                                    $Acad_Year = isset($_POST['Acad_Year']) ? $_POST['Acad_Year'] : "";
-                                    $q=mysqli_query($con,"select * from exams WHERE Fac_ID = '$Fac_ID' AND Course_ID = '$Course_ID' AND Acad_Year = '$Acad_Year'");
-                                    while($row=mysqli_fetch_array($q)){
-                                        $selected = (isset($_POST['Exam_ID']) && $_POST['Exam_ID'] == $row['Exam_ID']) ? "selected" : "";
-                                        echo "<option value='".$row['Exam_ID']."' ".$selected."> ".$row['Exam_Name']."</option>";
-                                    }
-                                ?>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="text-end mt-3">
-                        <input type="submit" class="btn btn-primary" name="Add" value="View Results">
-                    </div>
-                </form>
-                </div>
+                <a href="manage-exams.php?Course_ID=<?php echo urlencode($Course_ID); ?>" class="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-semibold">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Exams
+                </a>
             </div>
-            <?php 
-                if(isset($_POST['Add'])){
-                    $Acad_Year=$_POST['Acad_Year'];
-                    $Exam_ID=$_POST['Exam_ID'];
-                    $query = "SELECT
-                            r.Result_ID, scm.Stud_ID, e.Exam_ID,
-                            r.Total_Marks, r.Marks_Obtained,
-                            COALESCE(r.Status, 'not_attempted') AS Result_Status,
-                            r.Submitted_At,
-                            e.Exam_Name, e.Result_Status AS Exam_Result_Status,
-                            c.Course_Name,  
-                            s.Stud_Name
-                        FROM exams e
-                        JOIN student_course_mapping scm ON e.Course_ID = scm.Course_ID AND e.Fac_ID = scm.Fac_ID AND e.Acad_Year = scm.Acad_Year
-                        JOIN student s ON scm.Stud_ID = s.Stud_ID
-                        JOIN courses c ON e.Course_ID = c.Course_ID
-                        LEFT JOIN results r ON r.Exam_ID = e.Exam_ID AND r.Stud_ID = scm.Stud_ID
-                        WHERE e.Fac_ID = ? AND e.Exam_ID = ? AND e.Acad_Year = ? 
-                        ORDER BY e.Exam_Name, s.Stud_Name";
-                    // echo $query;
-                    // $q=mysqli_query($con, $query);
-                    $stmt = $con->prepare($query);
-                    $stmt->bind_param("sis", $Fac_ID,$Exam_ID,$Acad_Year);
-                    $stmt->execute();
-                    $run = $stmt->get_result();
-                    $results = $run->fetch_all(MYSQLI_ASSOC);
-                    $Exam_Name = $results[0]['Exam_Name'] ?? 'Unknown Exam';
-                    $Exam_Result_Status = $results[0]['Exam_Result_Status'] ?? '';
-            ?>
-                    <?php if (empty($results)): ?>
-                        <div class="text-center py-5 text-secondary">
-                            <i class="bi bi-clipboard-x display-3 text-muted d-block mb-3"></i>
-                            <p class="fs-6">No results yet.  </p>
-                        </div>
-                    <?php else: ?>
-                        <div class="card shadow-sm border-0 mb-4 overflow-hidden">
-                            <div class="card-header d-flex align-items-center justify-content-between py-3 px-4 text-white" style="background: #D1202D; border: none;">
-                                <div>
-                                    <h5 class="mb-0 fw-bold">
-                                        <?= htmlspecialchars($Exam_Name) ?>
-                                        <div class="text-white-50 mt-1"><?= count($results) ?> submission<?= count($results) == 1 ? '' : 's' ?></div></h5>
-                                </div>
-                                <div class="exam-head-actions">
-                                    <!-- <span class="badge <?= $Exam_Result_Status ? 'bg-success' : 'bg-secondary' ?> me-3">
-                                        <?= $Exam_Result_Status ? 'Published' : 'Draft' ?>
-                                    </span> -->
-                                    
-                                    <button
-                                        class="btn btn-sm fw-bold px-3 download-btn btn-outline-light text-white bg-transparent border-white-50"
-                                        data-examid="<?= $Exam_ID ?>"
-                                        data-examname="<?= $Exam_Name ?>">
-                                        Export Results
-                                    </button>
-                                    
-                                    <button
-                                        class="btn btn-sm fw-bold px-3 publish-btn <?= $Exam_Result_Status ? 'btn-outline-light text-white bg-transparent border-white-50 btn-do-unpublish' : 'btn-light text-danger btn-do-publish' ?>"
-                                        data-examid="<?= $Exam_ID ?>"
-                                        data-status="<?= $Exam_Result_Status ?>">
-                                        <?= $Exam_Result_Status ? 'Unpublish Results' : 'Publish Results' ?>
-                                    </button>
-                                </div>
-                            </div>
 
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
-                                    <thead class="table-light text-secondary" style="letter-spacing: 0.5px;">
-                                        <tr>
-                                            <th class="ps-4 py-3">Student</th>
-                                            <th class="py-3">Score</th>
-                                            <th class="py-3">Status</th>
-                                            <th class="py-3">Submitted</th>
-                                            <th class="pe-4 py-3 text-end">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($results as $row):
-                                            $pct = $row['Total_Marks'] > 0
-                                                ? round(($row['Marks_Obtained'] / $row['Total_Marks']) * 100, 1)
-                                                : 0;
-                                            $tier = $pct >= 75 ? 'high' : ($pct >= 40 ? 'mid' : 'low');
-                                            $statusKey = strtolower(str_replace(' ', '_', $row['Result_Status']));
-                                        ?>
-                                            <tr>
-                                                <td class="ps-4">
-                                                    <div class="fw-bold text-dark"><?= htmlspecialchars($row['Stud_Name']) ?></div>
-                                                    <div class="text-muted small"><?= htmlspecialchars($row['Stud_ID'] ?? '') ?></div>
-                                                </td>
-                                                <td>
-                                                    <?php if ($statusKey === 'not_attempted'): ?>
-                                                        <span class="text-muted fst-italic small">N/A</span>
-                                                    <?php else: ?>
-                                                    <div class="d-flex align-items-baseline gap-1 mb-1" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">
-                                                        <span class="fw-bold text-dark"><?= htmlspecialchars($row['Marks_Obtained'] ?? 0) ?></span>
-                                                        <span class="text-muted">/ <?= htmlspecialchars($row['Total_Marks'] ?? 0) ?> &middot; <?= $pct ?>%</span>
-                                                    </div>
-                                                    <div class="progress" style="height: 6px; width: 160px; background-color: var(--gray-200);">
-                                                        <?php 
-                                                            $bgClass = $pct >= 75 ? 'bg-success' : ($pct >= 40 ? 'bg-warning' : 'bg-danger');
-                                                        ?>
-                                                        <div class="progress-bar <?= $bgClass ?>" role="progressbar" style="width: <?= min($pct, 100) ?>%" aria-valuenow="<?= $pct ?>" aria-valuemin="0" aria-valuemax="100"></div>
-                                                    </div>
-                                                    <?php endif; ?>
-                                                </td>
-                                                <td>
-                                                    <?php
-                                                        $badgeClass = 'bg-secondary';
-                                                        if ($statusKey === 'graded') $badgeClass = 'bg-success-subtle text-success border border-success-subtle';
-                                                        elseif ($statusKey === 'pending_review') $badgeClass = 'bg-warning-subtle text-warning-emphasis border border-warning-subtle';
-                                                        elseif ($statusKey === 'published') $badgeClass = 'bg-danger-subtle text-danger border border-danger-subtle';
-                                                        elseif ($statusKey === 'not_attempted') $badgeClass = 'bg-light text-secondary border border-secondary-subtle';
-                                                    ?>
-                                                    <span class="badge rounded-pill <?= $badgeClass ?> px-3 py-1 text-capitalize fw-bold" style="font-size: 0.72rem;">
-                                                        <?= htmlspecialchars(str_replace('_', ' ', $row['Result_Status'])) ?>
-                                                    </span>
-                                                </td>
-                                                <td class="text-muted small">
-                                                    <?= $row['Submitted_At'] ? date('d M, g:i A', strtotime($row['Submitted_At'])) : '—' ?>
-                                                </td>
-                                                <td class="pe-4 text-end">
-                                                    <?php if ($statusKey === 'not_attempted'): ?>
-                                                        <span class="text-muted fst-italic small">N/A</span>
-                                                    <?php else: ?>
-                                                    <div class="d-flex gap-2 justify-content-end align-items-center">
-                                                        <a href="#" class="btn btn-sm btn-outline-secondary d-inline-flex align-items-center gap-1 view-details"
-                                                            data-studid="<?= $row['Stud_ID'] ?>"
-                                                            data-examid="<?= $row['Exam_ID'] ?>">
-                                                                <i class="bi bi-eye"></i> View
-                                                        </a>
-                                                        <?php if ($statusKey === 'pending_review'): ?>
-                                                        <a href="#" class="btn btn-sm btn-outline-warning d-inline-flex align-items-center gap-1 enter-marks"
-                                                            data-studid="<?= $row['Stud_ID'] ?>"
-                                                            data-examid="<?= $row['Exam_ID'] ?>">
-                                                                <i class="bi bi-pencil-square"></i> Grade
-                                                        </a>
-                                                        <?php endif; ?>
-                                                    </div>
-                                                    <?php endif; ?>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
+            <div class="sub-main pb-5">
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-header bg-white border-bottom-0 py-3 px-4">
+                        <h6 class="text-uppercase fw-bold mb-0" style="letter-spacing: 0.5px;"><i class="bi bi-search me-2"></i>Exam Search</h6>
+                    </div>
+                    <div class="card-body px-4 pb-4">
+                        
+                    <form method="POST" enctype="multipart/form-data">
+                        <div class="row g-4 mb-3 align-items-end">
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-secondary mb-1">Academic Year <span class="text-danger">*</span></label>
+                                <select class="form-select shadow-none border-secondary-subtle" name="Acad_Year" id="Acad_Year" required onchange="this.form.submit()">
+                                    <option value="" selected disabled>Select Academic Year</option>
+                                    <?php
+                                        $q=mysqli_query($con,"select * from academic_year");
+                                        while($row=mysqli_fetch_array($q)){
+                                            $selected = (isset($_POST['Acad_Year']) && $_POST['Acad_Year'] == $row['AY_Name']) ? "selected" : "";
+                                            echo "<option value='".$row['AY_Name']."' ".$selected."> ".$row['AY_Name']."</option>";
+                                        }
+                                    ?>
+                                </select>
+                            </div>
+                            <!-- Fetch Acad_Year from above select-->                         
+                            <div class="col-md-5">
+                                <label class="form-label small fw-bold text-secondary mb-1">Exam Name <span class="text-danger">*</span></label>
+                                <select class="form-select shadow-none border-secondary-subtle" name="Exam_ID" id="Exam_ID" required>
+                                    <option value="" selected disabled>Select Exam Name</option>
+                                    <?php
+                                        $Acad_Year = isset($_POST['Acad_Year']) ? $_POST['Acad_Year'] : "";
+                                        $q=mysqli_query($con,"select * from exams WHERE Fac_ID = '$Fac_ID' AND Course_ID = '$Course_ID' AND Acad_Year = '$Acad_Year'");
+                                        while($row=mysqli_fetch_array($q)){
+                                            $selected = (isset($_POST['Exam_ID']) && $_POST['Exam_ID'] == $row['Exam_ID']) ? "selected" : "";
+                                            echo "<option value='".$row['Exam_ID']."' ".$selected."> ".$row['Exam_Name']."</option>";
+                                        }
+                                    ?>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold shadow-sm hover-elevate" name="Add" value="View Results">
+                                    <i class="bi bi-funnel me-1"></i> View Results
+                                </button>
                             </div>
                         </div>
-                    <?php endif; ?>
-            <?php
-                }
-            ?>   
+                    </form>
+                    </div>
+                </div>
+                
+                <?php 
+                    if(isset($_POST['Add'])){
+                        $Acad_Year=$_POST['Acad_Year'];
+                        $Exam_ID=$_POST['Exam_ID'];
+                        $query = "SELECT
+                                r.Result_ID, scm.Stud_ID, e.Exam_ID,
+                                r.Total_Marks, r.Marks_Obtained,
+                                COALESCE(r.Status, 'not_attempted') AS Result_Status,
+                                r.Submitted_At,
+                                e.Exam_Name, e.Result_Status AS Exam_Result_Status,
+                                c.Course_Name,  
+                                s.Stud_Name
+                            FROM exams e
+                            JOIN student_course_mapping scm ON e.Course_ID = scm.Course_ID AND e.Fac_ID = scm.Fac_ID AND e.Acad_Year = scm.Acad_Year
+                            JOIN student s ON scm.Stud_ID = s.Stud_ID
+                            JOIN courses c ON e.Course_ID = c.Course_ID
+                            LEFT JOIN results r ON r.Exam_ID = e.Exam_ID AND r.Stud_ID = scm.Stud_ID
+                            WHERE e.Fac_ID = ? AND e.Exam_ID = ? AND e.Acad_Year = ? 
+                            ORDER BY e.Exam_Name, s.Stud_Name";
+                        // echo $query;
+                        // $q=mysqli_query($con, $query);
+                        $stmt = $con->prepare($query);
+                        $stmt->bind_param("sis", $Fac_ID,$Exam_ID,$Acad_Year);
+                        $stmt->execute();
+                        $run = $stmt->get_result();
+                        $results = $run->fetch_all(MYSQLI_ASSOC);
+                        $Exam_Name = $results[0]['Exam_Name'] ?? 'Unknown Exam';
+                        $Exam_Result_Status = $results[0]['Exam_Result_Status'] ?? '';
+                ?>
+                        <?php if (empty($results)): ?>
+                            <div class="text-center py-5 text-secondary card border-0 shadow-sm rounded-4">
+                                <div class="card-body py-5">
+                                    <i class="bi bi-clipboard-x display-3 text-muted d-block mb-3"></i>
+                                    <p class="fs-6 fw-semibold text-muted">No results found for this exam.</p>
+                                </div>
+                            </div>
+                        <?php else: ?>
+                            <div class="card shadow-sm rounded-4 border-0 mb-4 overflow-hidden">
+                                <div class="card-header d-flex align-items-center justify-content-between py-4 px-4 text-white">
+                                    <div>
+                                        <h5 class="mb-1 fw-bold">
+                                            <i class="bi bi-file-earmark-bar-graph me-2"></i><?= htmlspecialchars($Exam_Name) ?>
+                                        </h5>
+                                        <div class="text-white-50 small fw-semibold"><i class="bi bi-people-fill me-1"></i> <?= count($results) ?> submission<?= count($results) == 1 ? '' : 's' ?></div>
+                                    </div>
+                                    <div class="exam-head-actions d-flex gap-2">
+                                        <!-- <span class="badge <?= $Exam_Result_Status ? 'bg-success' : 'bg-secondary' ?> me-3">
+                                            <?= $Exam_Result_Status ? 'Published' : 'Draft' ?>
+                                        </span> -->
+                                        
+                                        <button
+                                            class="btn btn-sm fw-bold px-3 download-btn btn-outline-light rounded-pill hover-elevate"
+                                            data-examid="<?= $Exam_ID ?>"
+                                            data-examname="<?= $Exam_Name ?>">
+                                            <i class="bi bi-download me-1"></i> Export Results
+                                        </button>
+                                        
+                                        <button
+                                            class="btn btn-sm fw-bold px-3 publish-btn rounded-pill hover-elevate <?= $Exam_Result_Status ? 'btn-outline-light btn-do-unpublish' : 'btn-light text-danger btn-do-publish' ?>"
+                                            data-examid="<?= $Exam_ID ?>"
+                                            data-status="<?= $Exam_Result_Status ?>">
+                                            <i class="bi <?= $Exam_Result_Status ? 'bi-eye-slash-fill' : 'bi-megaphone-fill' ?> me-1"></i> <?= $Exam_Result_Status ? 'Unpublish Results' : 'Publish Results' ?>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th class="ps-4 py-3 text-secondary fw-semibold">Student</th>
+                                                    <th class="py-3 text-secondary fw-semibold">Score</th>
+                                                    <th class="py-3 text-secondary fw-semibold">Status</th>
+                                                    <th class="py-3 text-secondary fw-semibold">Submitted</th>
+                                                    <th class="pe-4 py-3 text-secondary fw-semibold text-end">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php foreach ($results as $row):
+                                                    $pct = $row['Total_Marks'] > 0
+                                                        ? round(($row['Marks_Obtained'] / $row['Total_Marks']) * 100, 1)
+                                                        : 0;
+                                                    $tier = $pct >= 75 ? 'high' : ($pct >= 40 ? 'mid' : 'low');
+                                                    $statusKey = strtolower(str_replace(' ', '_', $row['Result_Status']));
+                                                ?>
+                                                    <tr>
+                                                        <td class="ps-4 py-3">
+                                                            <div class="fw-bold text-dark"><?= htmlspecialchars($row['Stud_Name']) ?></div>
+                                                            <div class="text-muted small fw-semibold"><?= htmlspecialchars($row['Stud_ID'] ?? '') ?></div>
+                                                        </td>
+                                                        <td class="py-3">
+                                                            <?php if ($statusKey === 'not_attempted'): ?>
+                                                                <span class="badge bg-light text-secondary border border-secondary-subtle rounded-pill px-3 shadow-sm">N/A</span>
+                                                            <?php else: ?>
+                                                            <div class="d-flex align-items-baseline gap-1 mb-2" style="font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;">
+                                                                <span class="fw-bold text-dark fs-6"><?= htmlspecialchars($row['Marks_Obtained'] ?? 0) ?></span>
+                                                                <span class="text-muted fw-semibold">/ <?= htmlspecialchars($row['Total_Marks'] ?? 0) ?> &middot; <?= $pct ?>%</span>
+                                                            </div>
+                                                            <div class="progress rounded-pill shadow-sm" style="height: 6px; width: 160px; background-color: var(--gray-200);">
+                                                                <?php 
+                                                                    $bgClass = $pct >= 75 ? 'bg-success' : ($pct >= 40 ? 'bg-warning' : 'bg-danger');
+                                                                ?>
+                                                                <div class="progress-bar <?= $bgClass ?> rounded-pill" role="progressbar" style="width: <?= min($pct, 100) ?>%" aria-valuenow="<?= $pct ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                                            </div>
+                                                            <?php endif; ?>
+                                                        </td>
+                                                        <td class="py-3">
+                                                            <?php
+                                                                $badgeClass = 'bg-secondary';
+                                                                if ($statusKey === 'graded') $badgeClass = 'bg-success-subtle text-success border border-success-subtle';
+                                                                elseif ($statusKey === 'pending_review') $badgeClass = 'bg-warning-subtle text-warning-emphasis border border-warning-subtle';
+                                                                elseif ($statusKey === 'published') $badgeClass = 'bg-danger-subtle text-danger border border-danger-subtle';
+                                                                elseif ($statusKey === 'not_attempted') $badgeClass = 'bg-light text-secondary border border-secondary-subtle';
+                                                            ?>
+                                                            <span class="badge rounded-pill <?= $badgeClass ?> px-3 py-2 text-capitalize fw-bold shadow-sm" style="font-size: 0.75rem;">
+                                                                <?= htmlspecialchars(str_replace('_', ' ', $row['Result_Status'])) ?>
+                                                            </span>
+                                                        </td>
+                                                        <td class="text-muted small fw-semibold py-3">
+                                                            <?= $row['Submitted_At'] ? date('d M, g:i A', strtotime($row['Submitted_At'])) : '—' ?>
+                                                        </td>
+                                                        <td class="pe-4 text-end py-3">
+                                                            <?php if ($statusKey === 'not_attempted'): ?>
+                                                                <span class="text-muted fst-italic small"></span>
+                                                            <?php else: ?>
+                                                            <div class="d-flex gap-2 justify-content-end align-items-center">
+                                                                <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill px-3 fw-bold d-inline-flex align-items-center gap-1 view-details hover-elevate"
+                                                                    data-studid="<?= $row['Stud_ID'] ?>"
+                                                                    data-examid="<?= $row['Exam_ID'] ?>">
+                                                                        <i class="bi bi-eye"></i> View
+                                                                </a>
+                                                                <?php if ($statusKey === 'pending_review'): ?>
+                                                                <a href="#" class="btn btn-sm btn-warning rounded-pill px-3 fw-bold shadow-sm text-dark d-inline-flex align-items-center gap-1 enter-marks hover-elevate"
+                                                                    data-studid="<?= $row['Stud_ID'] ?>"
+                                                                    data-examid="<?= $row['Exam_ID'] ?>">
+                                                                        <i class="bi bi-pencil-square"></i> Grade
+                                                                </a>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                            <?php endif; ?>
+                                                        </td>
+                                                    </tr>
+                                                <?php endforeach; ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                <?php
+                    }
+                ?>   
+            </div>
         </div>
+        <style>
+            .hover-elevate {
+                transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            }
+            .hover-elevate:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 0.25rem 0.5rem rgba(0,0,0,0.15) !important;
+            }
+            .bg-danger-subtle {
+                background-color: #f8d7da !important;
+            }
+            .border-danger-subtle {
+                border-color: #f1aeb5 !important;
+            }
+            .bg-success-subtle {
+                background-color: #d1e7dd !important;
+            }
+            .border-success-subtle {
+                border-color: #a3cfbb !important;
+            }
+            .bg-warning-subtle {
+                background-color: #fff3cd !important;
+            }
+            .border-warning-subtle {
+                border-color: #ffe69c !important;
+            }
+        </style>
+    </main>
 
         <!-- Modal -->
         <div class="modal fade" id="resultModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="resultModalLabel" aria-hidden="true">
