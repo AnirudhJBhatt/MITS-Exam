@@ -38,6 +38,7 @@
 	$Course_Code = $course['Course_Code'];
 
 ?>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>

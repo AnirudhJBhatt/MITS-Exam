@@ -237,6 +237,22 @@
                         $correctOpt = in_array($raw, ['A','B','C','D'], true) ? $raw : null;
                         break;
 
+                    case 'multiselect':
+                        $opts = $q['options'] ?? [];
+                        if (is_array($opts) && count($opts)) {
+                            $cleanOpts = array_map(fn($o) => [
+                                'letter' => strtoupper(substr($o['letter'] ?? '', 0, 1)),
+                                'text'   => trim($o['text'] ?? ''),
+                            ], $opts);
+                            $optionsJson = json_encode($cleanOpts);
+                        }
+                        $answers = $q['answers'] ?? [];
+                        if (is_array($answers) && count($answers)) {
+                            $cleanAns = array_filter(array_map('strtoupper', array_map('trim', $answers)), fn($x) => in_array($x, ['A','B','C','D'], true));
+                            $answersJson = json_encode(array_values($cleanAns));
+                        }
+                        break;
+
                     case 'open':
                         $rubric    = trim($q['rubric']     ?? '') ?: null;
                         $wordLimit = isset($q['word_limit']) && $q['word_limit'] !== null
@@ -447,6 +463,21 @@
                 $raw = strtoupper(trim($body['correct_opt'] ?? ''));
                 if (strlen($raw) && ctype_alpha($raw[0])) $correctOpt = $raw[0];
                 break;
+            case 'multiselect':
+                $opts = $body['options'] ?? [];
+                if (is_array($opts) && count($opts)) {
+                    $cleanOpts = array_map(fn($o) => [
+                        'letter' => strtoupper(substr($o['letter'] ?? '', 0, 1)),
+                        'text'   => trim($o['text'] ?? ''),
+                    ], $opts);
+                    $optionsJson = json_encode($cleanOpts, JSON_UNESCAPED_UNICODE);
+                }
+                $ans = $body['answers'] ?? [];
+                if (is_array($ans) && count($ans)) {
+                    $cleanAns = array_filter(array_map('strtoupper', array_map('trim', $ans)), fn($x) => in_array($x, ['A','B','C','D'], true));
+                    $answersJson = json_encode(array_values($cleanAns), JSON_UNESCAPED_UNICODE);
+                }
+                break;
             case 'match':
                 $pairs = $body['pairs'] ?? [];
                 if (is_array($pairs) && count($pairs)) {
@@ -533,6 +564,22 @@
                         }
                         $raw = strtoupper(trim($q['correct_opt'] ?? ''));
                         $correctOpt = in_array($raw, ['A','B','C','D'], true) ? $raw : null;
+                        break;
+
+                    case 'multiselect':
+                        $opts = $q['options'] ?? [];
+                        if (is_array($opts) && count($opts)) {
+                            $cleanOpts = array_map(fn($o) => [
+                                'letter' => strtoupper(substr($o['letter'] ?? '', 0, 1)),
+                                'text'   => trim($o['text'] ?? ''),
+                            ], $opts);
+                            $optionsJson = json_encode($cleanOpts, JSON_UNESCAPED_UNICODE);
+                        }
+                        $answers = $q['answers'] ?? [];
+                        if (is_array($answers) && count($answers)) {
+                            $cleanAns = array_filter(array_map('strtoupper', array_map('trim', $answers)), fn($x) => in_array($x, ['A','B','C','D'], true));
+                            $answersJson = json_encode(array_values($cleanAns), JSON_UNESCAPED_UNICODE);
+                        }
                         break;
 
                     case 'open':
@@ -666,6 +713,27 @@
                         
                         $raw = strtoupper(trim($row[5] ?? ''));
                         $correctOpt = in_array($raw, ['A','B','C','D'], true) ? $raw : null;
+                        
+                        $marks = round((float)($row[6] ?? 1.0), 1);
+                        $co = (int)($row[7] ?? 1);
+                        break;
+
+                    case 'multiselect':
+                        // Columns: Question Text, Option A, Option B, Option C, Option D, Correct Options (A,B), Marks, CO
+                        $opts = [];
+                        $letters = ['A', 'B', 'C', 'D'];
+                        for ($i = 0; $i < 4; $i++) {
+                            $opts[] = [
+                                'letter' => $letters[$i],
+                                'text' => trim($row[$i + 1] ?? '')
+                            ];
+                        }
+                        $optionsJson = json_encode($opts, JSON_UNESCAPED_UNICODE);
+                        
+                        $raw = strtoupper(trim($row[5] ?? ''));
+                        $ansArr = array_map('trim', explode(',', $raw));
+                        $cleanAns = array_filter($ansArr, fn($x) => in_array($x, ['A','B','C','D'], true));
+                        $answersJson = json_encode(array_values($cleanAns), JSON_UNESCAPED_UNICODE);
                         
                         $marks = round((float)($row[6] ?? 1.0), 1);
                         $co = (int)($row[7] ?? 1);
@@ -814,7 +882,7 @@
     /** Whitelist question types */
     function sanitizeType(string $t): string
     {
-        return in_array($t, ['mcq','diagram','match','open','fill'], true) ? $t : '';
+        return in_array($t, ['mcq','multiselect','diagram','match','open','fill'], true) ? $t : '';
     }
 
     /** Convert JS datetime-local string → MySQL DATETIME or null */

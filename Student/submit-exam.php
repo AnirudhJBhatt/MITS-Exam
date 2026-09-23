@@ -100,6 +100,45 @@
     }
 
     /**
+     * Multiselect: partial grading.
+     * Deducts points for incorrect selections to prevent guessing all options.
+     */
+    function gradeMultiselect($question, $studentAnswer) {
+        $maxMarks = (float)$question['Marks'];
+        $accepted = json_decode($question['Answers_JSON'] ?? '[]', true) ?: [];
+        
+        if (!is_array($studentAnswer)) {
+            $studentAnswer = [];
+        }
+        
+        $totalCorrectOptions = count($accepted);
+        if ($totalCorrectOptions === 0) {
+            return ['is_correct' => false, 'marks_awarded' => 0.0];
+        }
+        
+        $correctlySelected = 0;
+        $incorrectlySelected = 0;
+        
+        foreach ($studentAnswer as $ans) {
+            if (in_array($ans, $accepted, true)) {
+                $correctlySelected++;
+            } else {
+                $incorrectlySelected++;
+            }
+        }
+        
+        $netCorrect = max(0, $correctlySelected - $incorrectlySelected);
+        $marksAwarded = round(($netCorrect / $totalCorrectOptions) * $maxMarks, 2);
+        
+        $allCorrect = ($netCorrect === $totalCorrectOptions && $incorrectlySelected === 0);
+        
+        return [
+            'is_correct'    => $allCorrect,
+            'marks_awarded' => $marksAwarded,
+        ];
+    }
+
+    /**
      * Fill: case-insensitive, trimmed match against any accepted answer
      * in Answers_JSON (a JSON array of acceptable strings).
      */
@@ -198,6 +237,9 @@
         switch ($qtype) {
             case 'mcq':
                 $result = gradeMcq($question, $studentAnswer);
+                break;
+            case 'multiselect':
+                $result = gradeMultiselect($question, $studentAnswer);
                 break;
             case 'fill':
                 $result = gradeFill($question, $studentAnswer);

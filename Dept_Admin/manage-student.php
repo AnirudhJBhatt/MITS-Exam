@@ -58,6 +58,7 @@ if (json_last_error() !== JSON_ERROR_NONE) {
 }
 ?>
 
+<!DOCTYPE html>
 <html lang="en">
 
 <head>

@@ -8,6 +8,7 @@
     
     $Dept_ID = $_SESSION['LoginAdmin'];
 ?>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>

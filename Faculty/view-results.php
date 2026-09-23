@@ -16,6 +16,7 @@
 	$Fac_Dept=$row['Fac_Dept'];
     $Fac_Acad_Year=$row['Fac_Acad_Year'];
 ?>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -426,6 +427,7 @@ $query = "SELECT
 	$Fac_Dept=$row['Fac_Dept'];
     $Fac_Acad_Year=$row['Fac_Acad_Year'];
 ?>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -837,6 +839,7 @@ $query = "SELECT
 	$Fac_Dept=$row['Fac_Dept'];
     $Fac_Acad_Year=$row['Fac_Acad_Year'];
 ?>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>

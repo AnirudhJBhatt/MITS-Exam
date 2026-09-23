@@ -10,6 +10,7 @@
     $run = mysqli_query($con, $query);
     $row = mysqli_fetch_array($run);
 ?>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>

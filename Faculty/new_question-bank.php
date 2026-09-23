@@ -49,6 +49,11 @@ $Course_Code = $course['Course_Code'] ?? '';
             color: #0a3622;
         }
 
+        .chip-multiselect {
+            background: #fff3cd;
+            color: #664d03;
+        }
+
         .chip-match {
             background: #e2d9f3;
             color: #432874;
@@ -157,6 +162,9 @@ $Course_Code = $course['Course_Code'] ?? '';
                                     <button type="button" class="btn btn-sm btn-outline-primary type-pill active" data-type="mcq" onclick="setType(this,'mcq')">
                                     MCQ
                                     </button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary type-pill" data-type="multiselect" onclick="setType(this,'multiselect')">
+                                        Multiselect
+                                    </button>
                                     <button type="button" class="btn btn-sm btn-outline-primary type-pill" data-type="match" onclick="setType(this,'match')">
                                         Match the following
                                     </button>
@@ -177,6 +185,7 @@ $Course_Code = $course['Course_Code'] ?? '';
                                             <label class="form-label small text-muted">Question Type for CSV</label>
                                             <select class="form-select form-select" id="csvQuestionType" onchange="updateCsvInstructions()" required>
                                                 <option value="mcq">MCQ</option>
+                                                <option value="multiselect">Multiselect</option>
                                                 <option value="match">Match the following</option>
                                                 <option value="open">Open ended</option>
                                                 <option value="fill">Fill in the blanks</option>
@@ -378,6 +387,7 @@ $Course_Code = $course['Course_Code'] ?? '';
                         <div class="d-flex flex-wrap gap-1" id="bankTypeFilters">
                             <button type="button" class="btn btn-sm btn-primary type-filter-chip" onclick="setBankTypeFilter(this,'')">All</button>
                             <button type="button" class="btn btn-sm btn-outline-secondary type-filter-chip" onclick="setBankTypeFilter(this,'mcq')">MCQ</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary type-filter-chip" onclick="setBankTypeFilter(this,'multiselect')">Multiselect</button>
                             <button type="button" class="btn btn-sm btn-outline-secondary type-filter-chip" onclick="setBankTypeFilter(this,'open')">Open ended</button>
                             <button type="button" class="btn btn-sm btn-outline-secondary type-filter-chip" onclick="setBankTypeFilter(this,'fill')">Fill</button>
                             <button type="button" class="btn btn-sm btn-outline-secondary type-filter-chip" onclick="setBankTypeFilter(this,'match')">Match</button>
@@ -410,10 +420,12 @@ $Course_Code = $course['Course_Code'] ?? '';
             mcq: 'chip-mcq',
             match: 'chip-match',
             open: 'chip-open',
-            fill: 'chip-fill'
+            fill: 'chip-fill',
+            multiselect: 'chip-multiselect'
         };
         const CHIP_LABEL = {
             mcq: 'MCQ',
+            multiselect: 'Multiselect',
             match: 'Match',
             open: 'Open ended',
             fill: 'Fill up'
@@ -461,12 +473,43 @@ $Course_Code = $course['Course_Code'] ?? '';
                             </div>`;
                         });
                         dynamicArea.innerHTML = html;
+                    } else if (q.Question_Type === 'multiselect') {
+                        let opts = q.Options_JSON ? JSON.parse(q.Options_JSON) : [];
+                        let answers = q.Answers_JSON ? JSON.parse(q.Answers_JSON) : [];
+                        let html = '<label class="form-label small text-muted">Options</label>';
+                        ['A','B','C','D'].forEach((l, i) => {
+                            let optText = opts[i] ? opts[i].text : '';
+                            let isCorrect = answers.includes(l) ? 'checked' : '';
+                            html += `
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <input type="checkbox" name="editBankCorrect[]" value="${l}" class="form-check-input mt-0" ${isCorrect}>
+                                <span class="badge bg-white text-dark border">${l}</span>
+                                <math-field id="editBankOpt_${l}" class="flex-grow-1 form-control bg-white">${optText}</math-field>
+                            </div>`;
+                        });
+                        dynamicArea.innerHTML = html;
                     } else if (q.Question_Type === 'fill') {
                         let ans = q.Answers_JSON ? JSON.parse(q.Answers_JSON) : [];
                         let html = '<label class="form-label small text-muted">Answers (enter one per line)</label>';
                         html += `<textarea id="editBankFillAns" class="form-control form-control-sm" rows="3">${ans.join('\n')}</textarea>`;
                         dynamicArea.innerHTML = html;
-                    } else if (q.Question_Type === 'match') {
+                    } else if (q.Question_Type === 'multiselect') {
+    let opts = q.Options_JSON ? JSON.parse(q.Options_JSON) : [];
+    let answers = q.Answers_JSON ? JSON.parse(q.Answers_JSON) : [];
+    let html = '<label class="form-label small text-muted">Options</label>';
+    ['A','B','C','D'].forEach((l, i) => {
+        let optText = opts[i] ? opts[i].text : '';
+        let isCorrect = answers.includes(l) ? 'checked' : '';
+        html += `
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <input type="checkbox" name="editBankCorrect[]" value="${l}" class="form-check-input mt-0" ${isCorrect}>
+            <span class="badge bg-white text-dark border">${l}</span>
+            <math-field id="editBankOpt_${l}" class="flex-grow-1 form-control bg-white">${optText}</math-field>
+        </div>`;
+    });
+    dynamicArea.innerHTML = html;
+} 
+                    else if (q.Question_Type === 'match') {
                         let pairs = q.Pairs_JSON ? JSON.parse(q.Pairs_JSON) : [];
                         let html = '<div class="row g-2">';
                         html += '<div class="col-6"><label class="form-label small text-muted">Column A</label></div>';
@@ -514,6 +557,16 @@ $Course_Code = $course['Course_Code'] ?? '';
                 });
                 const checked = document.querySelector('input[name="editBankCorrect"]:checked');
                 if (checked) payload.correct_opt = checked.value;
+            } else if (type === 'multiselect') {
+                payload.options = [];
+                ['A','B','C','D'].forEach(l => {
+                    const mf = document.getElementById('editBankOpt_' + l);
+                    if (mf) payload.options.push({ letter: l, text: mf.value });
+                });
+                payload.answers = [];
+                document.querySelectorAll('input[name="editBankCorrect[]"]:checked').forEach(chk => {
+                    payload.answers.push(chk.value);
+                });
             } else if (type === 'fill') {
                 const text = document.getElementById('editBankFillAns').value;
                 payload.answers = text.split('\n').map(s => s.trim()).filter(s => s);
@@ -587,6 +640,19 @@ $Course_Code = $course['Course_Code'] ?? '';
                     </div>`).join('')}
                 </div>
                 <p class="text-muted small mt-2 mb-0"><i class="ti ti-info-circle me-1"></i>Select the radio button to mark the correct answer</p>
+                ${getImageAttachmentBlock(qId)}`;
+
+            if (type === 'multiselect') return `
+                <math-field id="qt_${qId}" placeholder="Enter your question here…"></math-field>
+                <div class="mt-2 d-flex flex-column gap-2">
+                    ${['A','B','C','D'].map(l => `
+                    <div class="d-flex align-items-center gap-2">
+                        <input type="checkbox" name="correct_${qId}[]" value="${l}" class="opt-check form-check-input mt-0 flex-shrink-0">
+                        <span class="badge bg-light text-dark border">${l}</span>
+                        <math-field class="opt-input flex-grow-1" id="qo_${qId}_${l}" placeholder="Option ${l}"></math-field>
+                    </div>`).join('')}
+                </div>
+                <p class="text-muted small mt-2 mb-0"><i class="ti ti-info-circle me-1"></i>Select all applicable checkboxes for the correct answers</p>
                 ${getImageAttachmentBlock(qId)}`;
 
             if (type === 'match') return `
@@ -717,7 +783,7 @@ $Course_Code = $course['Course_Code'] ?? '';
 
             document.getElementById('questionList').appendChild(card);
 
-            if (qType === 'mcq' || qType === 'open' || qType === 'fill') {
+            if (qType === 'mcq' || qType === 'multiselect' || qType === 'open' || qType === 'fill') {
                 const uploadArea = card.querySelector('#du_' + qId);
                 if (uploadArea) {
                     const fi = document.createElement('input');
@@ -764,6 +830,19 @@ $Course_Code = $course['Course_Code'] ?? '';
                     const letters = ['A', 'B', 'C', 'D'];
                     const idx = letters.indexOf(data.correct_opt);
                     if (idx >= 0 && radios[idx]) radios[idx].checked = true;
+                }
+            }
+            if (type === 'multiselect' && Array.isArray(data.options)) {
+                data.options.forEach(opt => {
+                    const el = document.getElementById(`qo_${qId}_${opt.letter}`);
+                    if (el) el.value = opt.text || '';
+                });
+                if (Array.isArray(data.answers)) {
+                    const checks = card.querySelectorAll('.opt-check');
+                    const letters = ['A', 'B', 'C', 'D'];
+                    letters.forEach((l, idx) => {
+                        if (data.answers.includes(l) && checks[idx]) checks[idx].checked = true;
+                    });
                 }
             }
             if (type === 'match' && Array.isArray(data.pairs)) {
@@ -895,6 +974,23 @@ $Course_Code = $course['Course_Code'] ?? '';
                 q.options = opts;
                 q.correct_opt = correctOpt;
             }
+            if (type === 'multiselect') {
+                const opts = [];
+                const correctOpts = [];
+                const letters = ['A', 'B', 'C', 'D'];
+                card.querySelectorAll('.d-flex.align-items-center.gap-2').forEach((row, i) => {
+                    const check = row.querySelector('.opt-check');
+                    const input = row.querySelector('.opt-input');
+                    if (!input) return;
+                    opts.push({
+                        letter: letters[i],
+                        text: input.value || ''
+                    });
+                    if (check?.checked) correctOpts.push(letters[i]);
+                });
+                q.options = opts;
+                q.answers = correctOpts;
+            }
             if (type === 'open') {
                 q.rubric = card.querySelector('.open-rubric')?.value || null;
                 const wl = card.querySelector('.word-limit-input')?.value;
@@ -961,6 +1057,17 @@ $Course_Code = $course['Course_Code'] ?? '';
                         return;
                     }
                 }
+                if (card.dataset.type === 'multiselect') {
+                    const filled = Array.from(card.querySelectorAll('.opt-input')).filter(i => i.value.trim()).length;
+                    if (filled < 2) {
+                        card.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                        showToast('Multiselect needs at least 2 options', 'danger');
+                        return;
+                    }
+                }
             }
             
             const payload = {
@@ -1024,7 +1131,23 @@ $Course_Code = $course['Course_Code'] ?? '';
                     </ol>
                     <p class="mb-0 text-secondary" style="font-size:11px;">Example Row: <code>"What is 2+2?","3","4","5","6","B",1,1</code></p>
                 `;
-            } else if (type === 'match') {
+            } else if (type === 'multiselect') {
+                content = `
+                    <p class="mb-1"><strong>Required Columns (in order):</strong></p>
+                    <ol class="mb-2 ps-3">
+                        <li><code>Question Text</code> (Required)</li>
+                        <li><code>Option A</code> (Required)</li>
+                        <li><code>Option B</code> (Required)</li>
+                        <li><code>Option C</code> (Required)</li>
+                        <li><code>Option D</code> (Required)</li>
+                        <li><code>Correct Options</code> (Required: A, B, C, or D, separated by comma)</li>
+                        <li><code>Marks</code> (Optional, defaults to 1)</li>
+                        <li><code>CO</code> (Optional Course Outcome, defaults to 1)</li>
+                    </ol>
+                    <p class="mb-0 text-secondary" style="font-size:11px;">Example Row: <code>"Which of these are even numbers?","1","2","3","4","B,D",1,1</code></p>
+                `;
+            } 
+            else if (type === 'match') {
                 content = `
                     <p class="mb-1"><strong>Required Columns (in order):</strong></p>
                     <ol class="mb-2 ps-3">
@@ -1070,7 +1193,11 @@ $Course_Code = $course['Course_Code'] ?? '';
             if (type === 'mcq') {
                 headers = ['Question Text', 'Option A', 'Option B', 'Option C', 'Option D', 'Correct Option', 'Marks', 'CO'];
                 row = ['What is the capital of France?', 'Paris', 'London', 'Berlin', 'Rome', 'A', '1', '1'];
-            } else if (type === 'match') {
+            } else if (type === 'multiselect') {
+                headers = ['Question Text', 'Option A', 'Option B', 'Option C', 'Option D', 'Correct Options', 'Marks', 'CO'];
+                row = ['Which of these are even numbers?', '1', '2', '3', '4', 'B,D', '1', '1'];
+            } 
+            else if (type === 'match') {
                 headers = ['Question Text', 'Pairs', 'Marks', 'CO'];
                 row = ['Match the following countries and capitals', 'Paris:France|London:UK|Berlin:Germany|Rome:Italy', '1', '1'];
             } else if (type === 'open') {

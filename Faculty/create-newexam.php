@@ -50,6 +50,11 @@ $Course_Code = $course['Course_Code'] ?? '';
             color: #0a3622;
         }
 
+        .chip-multiselect {
+            background: #fff3cd;
+            color: #664d03;
+        }
+
         .chip-match {
             background: #e2d9f3;
             color: #432874;
@@ -194,6 +199,9 @@ $Course_Code = $course['Course_Code'] ?? '';
                                 <button type="button" class="btn btn-sm btn-outline-primary type-pill active" data-type="mcq" onclick="setType(this,'mcq')">
                                 MCQ
                                 </button>
+                                <button type="button" class="btn btn-sm btn-outline-primary type-pill" data-type="multiselect" onclick="setType(this,'multiselect')">
+                                    Multiselect
+                                </button>
                                 <button type="button" class="btn btn-sm btn-outline-primary type-pill" data-type="match" onclick="setType(this,'match')">
                                     Match the following
                                 </button>
@@ -310,6 +318,7 @@ $Course_Code = $course['Course_Code'] ?? '';
                         <div class="d-flex flex-wrap gap-1" id="bankTypeFilters">
                             <button type="button" class="btn btn-sm btn-primary type-filter-chip" onclick="setBankTypeFilter(this,'')">All</button>
                             <button type="button" class="btn btn-sm btn-outline-secondary type-filter-chip" onclick="setBankTypeFilter(this,'mcq')">MCQ</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary type-filter-chip" onclick="setBankTypeFilter(this,'multiselect')">Multiselect</button>
                             <button type="button" class="btn btn-sm btn-outline-secondary type-filter-chip" onclick="setBankTypeFilter(this,'open')">Open ended</button>
                             <button type="button" class="btn btn-sm btn-outline-secondary type-filter-chip" onclick="setBankTypeFilter(this,'fill')">Fill</button>
                             <button type="button" class="btn btn-sm btn-outline-secondary type-filter-chip" onclick="setBankTypeFilter(this,'match')">Match</button>
@@ -340,12 +349,14 @@ $Course_Code = $course['Course_Code'] ?? '';
 
         const CHIP_CLASS = {
             mcq: 'chip-mcq',
+            multiselect: 'chip-multiselect',
             match: 'chip-match',
             open: 'chip-open',
             fill: 'chip-fill'
         };
         const CHIP_LABEL = {
             mcq: 'MCQ',
+            multiselect: 'Multiselect',
             match: 'Match',
             open: 'Open ended',
             fill: 'Fill up'
@@ -410,6 +421,19 @@ $Course_Code = $course['Course_Code'] ?? '';
                     </div>`).join('')}
                 </div>
                 <p class="text-muted small mt-2 mb-0"><i class="ti ti-info-circle me-1"></i>Select the radio button to mark the correct answer</p>
+                ${getImageAttachmentBlock(qId)}`;
+
+            if (type === 'multiselect') return `
+                <math-field id="qt_${qId}" placeholder="Enter your question here…"></math-field>
+                <div class="mt-2 d-flex flex-column gap-2">
+                    ${['A','B','C','D'].map(l => `
+                    <div class="d-flex align-items-center gap-2">
+                        <input type="checkbox" name="correct_${qId}[]" value="${l}" class="opt-check form-check-input mt-0 flex-shrink-0">
+                        <span class="badge bg-light text-dark border">${l}</span>
+                        <math-field class="opt-input flex-grow-1" id="qo_${qId}_${l}" placeholder="Option ${l}"></math-field>
+                    </div>`).join('')}
+                </div>
+                <p class="text-muted small mt-2 mb-0"><i class="ti ti-info-circle me-1"></i>Select all applicable checkboxes for the correct answers</p>
                 ${getImageAttachmentBlock(qId)}`;
 
             if (type === 'match') return `
@@ -547,7 +571,7 @@ $Course_Code = $course['Course_Code'] ?? '';
             const targetListId = isEdit ? 'editQuestionList' : 'questionList';
             document.getElementById(targetListId).appendChild(card);
 
-            if (qType === 'mcq' || qType === 'open' || qType === 'fill') {
+            if (qType === 'mcq' || qType === 'multiselect' || qType === 'open' || qType === 'fill') {
                 const uploadArea = card.querySelector('#du_' + qId);
                 if (uploadArea) {
                     const fi = document.createElement('input');
@@ -594,6 +618,19 @@ $Course_Code = $course['Course_Code'] ?? '';
                     const letters = ['A', 'B', 'C', 'D'];
                     const idx = letters.indexOf(data.correct_opt);
                     if (idx >= 0 && radios[idx]) radios[idx].checked = true;
+                }
+            }
+            if (type === 'multiselect' && Array.isArray(data.options)) {
+                data.options.forEach(opt => {
+                    const el = document.getElementById(`qo_${qId}_${opt.letter}`);
+                    if (el) el.value = opt.text || '';
+                });
+                if (Array.isArray(data.answers)) {
+                    const checks = card.querySelectorAll('.opt-check');
+                    const letters = ['A', 'B', 'C', 'D'];
+                    letters.forEach((l, idx) => {
+                        if (data.answers.includes(l) && checks[idx]) checks[idx].checked = true;
+                    });
                 }
             }
             if (type === 'match' && Array.isArray(data.pairs)) {
@@ -730,6 +767,23 @@ $Course_Code = $course['Course_Code'] ?? '';
                 q.options = opts;
                 q.correct_opt = correctOpt;
             }
+            if (type === 'multiselect') {
+                const opts = [];
+                const correctOpts = [];
+                const letters = ['A', 'B', 'C', 'D'];
+                card.querySelectorAll('.d-flex.align-items-center.gap-2').forEach((row, i) => {
+                    const check = row.querySelector('.opt-check');
+                    const input = row.querySelector('.opt-input');
+                    if (!input) return;
+                    opts.push({
+                        letter: letters[i],
+                        text: input.value || ''
+                    });
+                    if (check?.checked) correctOpts.push(letters[i]);
+                });
+                q.options = opts;
+                q.answers = correctOpts; // Use answers array to store multiselect correct options
+            }
             if (type === 'open') {
                 q.rubric = card.querySelector('.open-rubric')?.value || null;
                 const wl = card.querySelector('.word-limit-input')?.value;
@@ -793,6 +847,17 @@ $Course_Code = $course['Course_Code'] ?? '';
                             block: 'center'
                         });
                         showToast('MCQ needs at least 2 options', 'danger');
+                        return false;
+                    }
+                }
+                if (card.dataset.type === 'multiselect') {
+                    const filled = Array.from(card.querySelectorAll('.opt-input')).filter(i => i.value.trim()).length;
+                    if (filled < 2) {
+                        card.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center'
+                        });
+                        showToast('Multiselect needs at least 2 options', 'danger');
                         return false;
                     }
                 }

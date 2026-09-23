@@ -39,6 +39,7 @@ if (isset($_POST['submit_csv'])) {
 	}
 }
 ?>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>

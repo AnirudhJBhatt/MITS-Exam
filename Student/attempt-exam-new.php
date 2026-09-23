@@ -1360,6 +1360,7 @@ $studentJson   = json_encode($student);
 		const TOTAL = QUESTIONS.length;
 		const TYPE_LABELS = {
 			mcq: 'Multiple Choice',
+			multiselect: 'Multiselect',
 			fill: 'Fill in the Blanks',
 			open: 'Open Ended',
 			match: 'Match the Following'
@@ -1534,6 +1535,15 @@ $studentJson   = json_encode($student);
 		<div class="opt-text math-content">${formatMath(o.text)}</div>
 
       </label>`).join('')}</div>`;
+			} else if (q.Question_Type === 'multiselect') {
+				const opts = JSON.parse(q.Options_JSON || '[]');
+				body = `${buildAttachedImage(q)}<div class="mcq-options">${opts.map(o => `
+      <label class="mcq-opt multiselect-opt" data-opt="${o.letter}">
+        <input type="checkbox" name="c_${q.Question_ID}[]" value="${o.letter}">
+        <div class="opt-letter">${o.letter}</div>
+		<div class="opt-text math-content">${formatMath(o.text)}</div>
+
+      </label>`).join('')}</div><div class="small text-muted mt-2">Select all applicable answers.</div>`;
 			} else if (q.Question_Type === 'fill') {
 				body = ` ${buildAttachedImage(q)} <div class="fill-wrap"> <span class="math-content">${formatMath(q.Question_Text)}</span> </div> <div class="fill-wrap mt-3"> Answer:&nbsp; <input type="text" id="fill-inp" class="fill-input" placeholder="Type your answer…" autocomplete="off" spellcheck="false"> </div>`;
 			} else if (q.Question_Type === 'open') {
@@ -1574,8 +1584,15 @@ $studentJson   = json_encode($student);
 			const saved = state.answers[q.Question_ID];
 			if (saved === undefined || saved === null) return;
 			if (q.Question_Type === 'mcq') {
-				document.querySelectorAll('.mcq-opt').forEach(l => {
+				document.querySelectorAll('.mcq-opt:not(.multiselect-opt)').forEach(l => {
 					if (l.dataset.opt === saved) {
+						l.classList.add('selected');
+						l.querySelector('input').checked = true;
+					}
+				});
+			} else if (q.Question_Type === 'multiselect') {
+				document.querySelectorAll('.multiselect-opt').forEach(l => {
+					if (Array.isArray(saved) && saved.includes(l.dataset.opt)) {
 						l.classList.add('selected');
 						l.querySelector('input').checked = true;
 					}
@@ -1607,12 +1624,25 @@ $studentJson   = json_encode($student);
 		function attachListeners(q) {
 			const qid = q.Question_ID;
 			if (q.Question_Type === 'mcq') {
-				document.querySelectorAll('.mcq-opt').forEach(lbl => lbl.addEventListener('click', () => {
-					document.querySelectorAll('.mcq-opt').forEach(l => l.classList.remove('selected'));
+				document.querySelectorAll('.mcq-opt:not(.multiselect-opt)').forEach(lbl => lbl.addEventListener('click', (e) => {
+					e.preventDefault();
+					document.querySelectorAll('.mcq-opt:not(.multiselect-opt)').forEach(l => l.classList.remove('selected'));
 					lbl.classList.add('selected');
 					lbl.querySelector('input').checked = true;
 					state.answers[qid] = lbl.dataset.opt;
 					setStatus(qid, 'answered');
+				}));
+			} else if (q.Question_Type === 'multiselect') {
+				document.querySelectorAll('.multiselect-opt').forEach(lbl => lbl.addEventListener('click', (e) => {
+					e.preventDefault();
+					const inp = lbl.querySelector('input');
+					inp.checked = !inp.checked;
+					if (inp.checked) lbl.classList.add('selected');
+					else lbl.classList.remove('selected');
+
+					const checkedBoxes = Array.from(document.querySelectorAll(`input[name="c_${qid}[]"]:checked`)).map(i => i.value);
+					state.answers[qid] = checkedBoxes.length > 0 ? checkedBoxes : null;
+					setStatus(qid, checkedBoxes.length > 0 ? 'answered' : 'visited');
 				}));
 			} else if (q.Question_Type === 'fill') {
 				const inp = document.getElementById('fill-inp');
@@ -1693,8 +1723,11 @@ $studentJson   = json_encode($student);
 				qid = q.Question_ID;
 			state.answers[qid] = null;
 			if (q.Question_Type === 'mcq') {
-				document.querySelectorAll('.mcq-opt').forEach(l => l.classList.remove('selected'));
+				document.querySelectorAll('.mcq-opt:not(.multiselect-opt)').forEach(l => l.classList.remove('selected'));
 				document.querySelectorAll(`input[name="r_${qid}"]`).forEach(i => i.checked = false);
+			} else if (q.Question_Type === 'multiselect') {
+				document.querySelectorAll('.multiselect-opt').forEach(l => l.classList.remove('selected'));
+				document.querySelectorAll(`input[name="c_${qid}[]"]`).forEach(i => i.checked = false);
 			} else if (q.Question_Type === 'fill') {
 				const i = document.getElementById('fill-inp');
 				if (i) i.value = '';

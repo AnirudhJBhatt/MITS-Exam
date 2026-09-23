@@ -10,6 +10,7 @@
         return (isset($_POST[$field]) && $_POST[$field] == $value) ? "selected" : "";
     }
 ?>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>

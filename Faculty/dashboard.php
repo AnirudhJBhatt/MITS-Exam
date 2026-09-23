@@ -13,6 +13,7 @@
     $row = mysqli_fetch_array($run);
 	$Fac_Dept=$row['Fac_Dept'];
 ?>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
