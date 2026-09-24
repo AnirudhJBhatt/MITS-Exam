@@ -372,6 +372,23 @@ $Course_Code = $course['Course_Code'] ?? '';
             fill: 'Fill up'
         };
 
+        // Helper to safely set math-field value preserving plain text spaces
+        function setMathValue(el, val) {
+            if (!el || val == null) return;
+            const str = String(val);
+            if (!str) {
+                el.value = '';
+                return;
+            }
+            // If it already contains LaTeX commands or braces, assume it's LaTeX
+            if (str.includes('\\') || str.includes('_') || str.includes('^')) {
+                el.value = str;
+            } else {
+                // Otherwise wrap in \text{} to preserve spaces in MathLive
+                el.value = '\\text{' + str.replace(/[{}]/g, '') + '}';
+            }
+        }
+
         let currentType = 'mcq';
         let questionCounter = 0;
         let questions = [];
@@ -421,40 +438,40 @@ $Course_Code = $course['Course_Code'] ?? '';
         // ── Question templates ───────────────────────────────────────
         function getQuestionTemplate(type, qId) {
             if (type === 'mcq') return `
-                <math-field id="qt_${qId}" placeholder="Enter your question here…"></math-field>
+                <math-field id="qt_${qId}" default-mode="text" placeholder="Enter your question here…"></math-field>
                 <div class="mt-2 d-flex flex-column gap-2">
                     ${['A','B','C','D'].map(l => `
                     <div class="d-flex align-items-center gap-2">
                         <input type="radio" name="correct_${qId}" class="opt-radio form-check-input mt-0 flex-shrink-0">
                         <span class="badge bg-light text-dark border">${l}</span>
-                        <math-field class="opt-input flex-grow-1" id="qo_${qId}_${l}" placeholder="Option ${l}"></math-field>
+                        <math-field class="opt-input flex-grow-1" id="qo_${qId}_${l}" default-mode="text" placeholder="Option ${l}"></math-field>
                     </div>`).join('')}
                 </div>
                 <p class="text-muted small mt-2 mb-0"><i class="ti ti-info-circle me-1"></i>Select the radio button to mark the correct answer</p>
                 ${getImageAttachmentBlock(qId)}`;
 
             if (type === 'multiselect') return `
-                <math-field id="qt_${qId}" placeholder="Enter your question here…"></math-field>
+                <math-field id="qt_${qId}" default-mode="text" placeholder="Enter your question here…"></math-field>
                 <div class="mt-2 d-flex flex-column gap-2">
                     ${['A','B','C','D'].map(l => `
                     <div class="d-flex align-items-center gap-2">
                         <input type="checkbox" name="correct_${qId}[]" value="${l}" class="opt-check form-check-input mt-0 flex-shrink-0">
                         <span class="badge bg-light text-dark border">${l}</span>
-                        <math-field class="opt-input flex-grow-1" id="qo_${qId}_${l}" placeholder="Option ${l}"></math-field>
+                        <math-field class="opt-input flex-grow-1" id="qo_${qId}_${l}" default-mode="text" placeholder="Option ${l}"></math-field>
                     </div>`).join('')}
                 </div>
                 <p class="text-muted small mt-2 mb-0"><i class="ti ti-info-circle me-1"></i>Select all applicable checkboxes for the correct answers</p>
                 ${getImageAttachmentBlock(qId)}`;
 
             if (type === 'match') return `
-                <math-field id="qt_${qId}" placeholder="Match the following items…"></math-field>
+                <math-field id="qt_${qId}" default-mode="text" placeholder="Match the following items…"></math-field>
                 <div class="row g-2 mt-1">
                     <div class="col-6">
                         <div class="text-center small fw-semibold rounded py-1 mb-2 bg-primary bg-opacity-10 text-primary">Column A</div>
                         ${[1,2,3,4].map(i => `
                         <div class="input-group input-group-sm mb-1">
                             <span class="input-group-text">${i}</span>
-                            <math-field class="opt-input form-control" id="qa_${qId}_${i}" placeholder="Item ${i}"></math-field>
+                            <math-field class="opt-input form-control" id="qa_${qId}_${i}" default-mode="text" placeholder="Item ${i}"></math-field>
                         </div>`).join('')}
                     </div>
                     <div class="col-6">
@@ -462,16 +479,16 @@ $Course_Code = $course['Course_Code'] ?? '';
                         ${['a','b','c','d'].map(l => `
                         <div class="input-group input-group-sm mb-1">
                             <span class="input-group-text">${l}</span>
-                            <math-field class="opt-input form-control" id="qb_${qId}_${l}" placeholder="Match ${l}"></math-field>
+                            <math-field class="opt-input form-control" id="qb_${qId}_${l}" default-mode="text" placeholder="Match ${l}"></math-field>
                         </div>`).join('')}
                     </div>
                 </div>`;
 
             if (type === 'open') return `
-                <math-field id="qt_${qId}" placeholder="Enter your open-ended question…" style="min-height:80px"></math-field>
+                <math-field id="qt_${qId}" default-mode="text" placeholder="Enter your open-ended question…" style="min-height:80px"></math-field>
                 <div class="mt-2">
                     <label class="form-label small text-muted">Rubric / marking scheme</label>
-                    <math-field class="open-rubric" placeholder="e.g. 2 marks for definition, 3 marks for explanation…"></math-field>
+                    <math-field class="open-rubric" default-mode="text" placeholder="e.g. 2 marks for definition, 3 marks for explanation…"></math-field>
                 </div>
                 <div class="d-flex align-items-center gap-2 mt-2">
                     <label class="form-label small text-muted mb-0">Word limit</label>
@@ -485,7 +502,7 @@ $Course_Code = $course['Course_Code'] ?? '';
                     <code class="bg-primary bg-opacity-10 text-primary rounded px-1">___</code>
                     for each blank
                 </p>
-                <math-field id="qt_${qId}"
+                <math-field id="qt_${qId}" default-mode="text"
                     placeholder="e.g. The chemical formula for water is ___ and it consists of ___ atoms."
                     oninput="updateFillPreview(this,'${qId}')"></math-field>
                 <div id="fp_${qId}" class="bg-light border rounded p-2 mt-2 small text-muted" style="display:none;line-height:2"></div>
@@ -606,7 +623,7 @@ $Course_Code = $course['Course_Code'] ?? '';
             }
 
             const qt = document.getElementById('qt_' + qId);
-            if (qt && text) qt.value = text;
+            if (qt && text) setMathValue(qt, text);
             if (extraData) prefillQuestion(card, qType, qId, extraData);
 
             updateCount(isEdit);
@@ -621,7 +638,7 @@ $Course_Code = $course['Course_Code'] ?? '';
             if (type === 'mcq' && Array.isArray(data.options)) {
                 data.options.forEach(opt => {
                     const el = document.getElementById(`qo_${qId}_${opt.letter}`);
-                    if (el) el.value = opt.text || '';
+                    if (el) setMathValue(el, opt.text || '');
                 });
                 if (data.correct_opt) {
                     const radios = card.querySelectorAll('.opt-radio');
@@ -633,7 +650,7 @@ $Course_Code = $course['Course_Code'] ?? '';
             if (type === 'multiselect' && Array.isArray(data.options)) {
                 data.options.forEach(opt => {
                     const el = document.getElementById(`qo_${qId}_${opt.letter}`);
-                    if (el) el.value = opt.text || '';
+                    if (el) setMathValue(el, opt.text || '');
                 });
                 if (Array.isArray(data.answers)) {
                     const checks = card.querySelectorAll('.opt-check');
@@ -648,14 +665,14 @@ $Course_Code = $course['Course_Code'] ?? '';
                 data.pairs.forEach((pair, i) => {
                     const aEl = document.getElementById(`qa_${qId}_${i + 1}`);
                     const bEl = document.getElementById(`qb_${qId}_${cols[i]}`);
-                    if (aEl) aEl.value = pair.a || '';
-                    if (bEl) bEl.value = pair.b || '';
+                    if (aEl) setMathValue(aEl, pair.a || '');
+                    if (bEl) setMathValue(bEl, pair.b || '');
                 });
             }
             if (type === 'open') {
                 const r = card.querySelector('.open-rubric');
                 const wl = card.querySelector('.word-limit-input');
-                if (r && data.rubric) r.value = data.rubric;
+                if (r && data.rubric) setMathValue(r, data.rubric);
                 if (wl && data.word_limit) wl.value = data.word_limit;
             }
             if (type === 'fill' && Array.isArray(data.answers)) {
