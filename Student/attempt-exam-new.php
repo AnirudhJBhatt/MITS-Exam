@@ -1380,7 +1380,30 @@ $studentJson   = json_encode($student);
 		/* ── FULLSCREEN ─────────────────────────────────── */
 		document.getElementById('btn-enter-fs').addEventListener('click', () => {
 			const el = document.documentElement;
-			(el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen).call(el);
+			const requestFs = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+			
+			if (requestFs) {
+				try {
+					let promise = requestFs.call(el);
+					if (promise !== undefined) {
+						promise.then(() => {
+							if (!state.examActive) startExam();
+						}).catch(err => {
+							console.warn("Fullscreen request failed:", err);
+							if (!state.examActive) startExam();
+						});
+					} else {
+						setTimeout(() => {
+							if (!state.examActive) startExam();
+						}, 500);
+					}
+				} catch (e) {
+					console.warn("Fullscreen request error:", e);
+					if (!state.examActive) startExam();
+				}
+			} else {
+				if (!state.examActive) startExam();
+			}
 		});
 		document.addEventListener('fullscreenchange', onFsChange);
 		document.addEventListener('webkitfullscreenchange', onFsChange);
@@ -1388,13 +1411,38 @@ $studentJson   = json_encode($student);
 		function onFsChange() {
 			const inFs = !!document.fullscreenElement || !!document.webkitFullscreenElement;
 			if (!state.examActive && inFs) startExam();
-			else if (state.examActive && !inFs) document.getElementById('fs-warning').classList.add('show');
+			else if (state.examActive && !inFs) {
+				const requestFs = document.documentElement.requestFullscreen || document.documentElement.webkitRequestFullscreen || document.documentElement.mozRequestFullScreen || document.documentElement.msRequestFullscreen;
+				if (requestFs) {
+					document.getElementById('fs-warning').classList.add('show');
+				}
+			}
 		}
 
 		function reEnterFullscreen() {
-			document.getElementById('fs-warning').classList.remove('show');
 			const el = document.documentElement;
-			(el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen).call(el);
+			const requestFs = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+			
+			if (requestFs) {
+				try {
+					let promise = requestFs.call(el);
+					if (promise !== undefined) {
+						promise.then(() => {
+							document.getElementById('fs-warning').classList.remove('show');
+						}).catch(err => {
+							console.warn("Fullscreen request failed:", err);
+							document.getElementById('fs-warning').classList.remove('show');
+						});
+					} else {
+						document.getElementById('fs-warning').classList.remove('show');
+					}
+				} catch (e) {
+					console.warn("Fullscreen request error:", e);
+					document.getElementById('fs-warning').classList.remove('show');
+				}
+			} else {
+				document.getElementById('fs-warning').classList.remove('show');
+			}
 		}
 
 		function startExam() {
