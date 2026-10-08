@@ -3,63 +3,63 @@
     <ul class="nav flex-column mb-auto w-100 px-3 gap-3">
         <li class="nav-item">
             <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 sidebar-link <?= ($current_page == 'dashboard.php') ? 'active bg-danger text-white fw-bold shadow-sm' : 'text-white-50'; ?>"
-            href="../Dept_Admin/dashboard.php">
+            href="../DeptAdmin/dashboard.php">
                 <i class="bi bi-grid-1x2-fill fs-5"></i><span class="sidebar-text">Dashboard</span>
             </a>
         </li>
 
     <li class="nav-item">
         <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 sidebar-link <?= ($current_page == 'manage-student.php') ? 'active bg-danger text-white fw-bold shadow-sm' : 'text-white-50'; ?>"
-           href="../Dept_Admin/manage-student.php">
+           href="../DeptAdmin/manage-student.php">
             <i class="bi bi-people-fill fs-5"></i><span class="sidebar-text"> Manage Students</span>
         </a>
     </li>
 
     <li class="nav-item">
         <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 sidebar-link <?= ($current_page == 'manage-faculty.php') ? 'active bg-danger text-white fw-bold shadow-sm' : 'text-white-50'; ?>"
-           href="../Dept_Admin/manage-faculty.php">
+           href="../DeptAdmin/manage-faculty.php">
             <i class="bi bi-person-vcard-fill fs-5"></i><span class="sidebar-text"> Manage Faculty</span>
         </a>
     </li>
 
     <li class="nav-item">
         <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 sidebar-link <?= ($current_page == 'manage-programmes.php') ? 'active bg-danger text-white fw-bold shadow-sm' : 'text-white-50'; ?>"
-           href="../Dept_Admin/manage-programmes.php">
+           href="../DeptAdmin/manage-programmes.php">
             <i class="bi bi-mortarboard-fill fs-5"></i><span class="sidebar-text"> Manage Programmes</span>
         </a>
     </li>
 
     <li class="nav-item">
         <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 sidebar-link <?= ($current_page == 'manage-courses.php') ? 'active bg-danger text-white fw-bold shadow-sm' : 'text-white-50'; ?>"
-           href="../Dept_Admin/manage-courses.php">
+           href="../DeptAdmin/manage-courses.php">
             <i class="bi bi-book-fill fs-5"></i><span class="sidebar-text"> Manage Courses</span>
         </a>
     </li>
 
     <li class="nav-item">
         <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 sidebar-link <?= ($current_page == 'map-courses.php') ? 'active bg-danger text-white fw-bold shadow-sm' : 'text-white-50'; ?>"
-           href="../Dept_Admin/map-courses.php">
+           href="../DeptAdmin/map-courses.php">
             <i class="bi bi-diagram-2-fill fs-5"></i><span class="sidebar-text"> Course Mapping</span>
         </a>
     </li>
 
     <li class="nav-item">
         <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 sidebar-link <?= ($current_page == 'view-exams.php') ? 'active bg-danger text-white fw-bold shadow-sm' : 'text-white-50'; ?>"
-           href="../Dept_Admin/view-exams.php">
+           href="../DeptAdmin/view-exams.php">
             <i class="bi bi-file-earmark-text-fill fs-5"></i><span class="sidebar-text"> View Exams</span>
         </a>
     </li>
 
     <li class="nav-item">
         <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 sidebar-link <?= ($current_page == 'view-results.php') ? 'active bg-danger text-white fw-bold shadow-sm' : 'text-white-50'; ?>"
-           href="../Dept_Admin/view-results.php">
+           href="../DeptAdmin/view-results.php">
             <i class="bi bi-bar-chart-fill fs-5"></i><span class="sidebar-text"> View Results</span>
         </a>
     </li>
 
     <li class="nav-item">
         <a class="nav-link d-flex align-items-center gap-3 px-3 py-2 rounded-3 sidebar-link <?= ($current_page == 'settings.php') ? 'active bg-danger text-white fw-bold shadow-sm' : 'text-white-50'; ?>"
-           href="../Dept_Admin/settings.php">
+           href="../DeptAdmin/settings.php">
             <i class="bi bi-gear-fill fs-5"></i><span class="sidebar-text"> Settings</span>
         </a>
     </li>

@@ -33,7 +33,7 @@
                     break;
                 case "DeptAdmin":
                     $_SESSION['LoginDeptAdmin'] = $row["ID"];
-                    header('Location: ./Dept_Admin/dashboard.php');
+                    header('Location: ./DeptAdmin/dashboard.php');
                     break;
             }
             exit();

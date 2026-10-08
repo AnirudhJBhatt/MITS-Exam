@@ -26,8 +26,8 @@
         $run = mysqli_query($con, $query);
         $res = mysqli_fetch_array($run);
         $username = $res['Dept_Name'];
-        $profileurl = "../Dept_Admin/profile.php";
-        $settingsurl = "../Dept_Admin/settings.php";
+        $profileurl = "../DeptAdmin/profile.php";
+        $settingsurl = "../DeptAdmin/settings.php";
     }
 ?>
 <!DOCTYPE html>
