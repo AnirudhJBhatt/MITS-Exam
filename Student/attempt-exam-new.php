@@ -2033,7 +2033,7 @@ $studentJson   = json_encode($student);
 					/\\text|\\_|\\^|\^|_|\\begin|\\frac|\\sqrt|\\sum|\\int|\\alpha|\\beta|\\gamma|\\pi|\\theta|\\sin|\\cos|\\tan|\\log|\\lim|\\matrix|\\pmatrix|\\bmatrix/;
 
 				if (latexPattern.test(text)) {
-					text = `\\[${text}\\]`;
+					text = `\\(${text}\\)`;
 				}
 			}
 
@@ -2061,7 +2061,7 @@ $studentJson   = json_encode($student);
 							display: true
 						}
 					],
-
+					ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code", "option", "math-field"],
 					throwOnError: false,
 					strict: false,
 
