@@ -40,7 +40,7 @@
         case 'bank_questions':
             handleBankQuestions();
             break;
-                case 'get_bank_question':
+        case 'get_bank_question':
             handleGetBankQuestion();
             break;
         case 'update_bank_question':
@@ -371,7 +371,7 @@
             $rows[] = $row;
         }
         // return query also
-        jsonSuccess(['questions' => $rows]);
+        jsonSuccess(['questions' => $rows, 'query' => $sql]);
     }
 
 

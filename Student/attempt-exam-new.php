@@ -116,6 +116,7 @@ $studentJson   = json_encode($student);
 	<link
 		href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
 		rel="stylesheet">
+	<script defer src="https://unpkg.com/mathlive"></script>
 	<link rel="stylesheet"
 		href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
 
@@ -1593,7 +1594,12 @@ $studentJson   = json_encode($student);
 
       </label>`).join('')}</div><div class="small text-muted mt-2">Select all applicable answers.</div>`;
 			} else if (q.Question_Type === 'fill') {
-				body = ` ${buildAttachedImage(q)} <div class="fill-wrap"> <span class="math-content">${formatMath(q.Question_Text)}</span> </div> <div class="fill-wrap mt-3"> Answer:&nbsp; <input type="text" id="fill-inp" class="fill-input" placeholder="Type your answer…" autocomplete="off" spellcheck="false"> </div>`;
+				const answers = JSON.parse(q.Answers_JSON || '[]');
+				const numBlanks = Math.max(1, answers.length);
+				const inputsHTML = Array.from({length: numBlanks}).map((_, i) => 
+					`<div class="mb-2 w-100"><math-field default-mode="text" class="math-fill-input" data-idx="${i}" style="width:100%; min-height:42px; border:1px solid #dee2e6; border-radius:6px; padding:6px 10px; font-size:1rem;" placeholder="Answer ${i + 1}"></math-field></div>`
+				).join('');
+				body = ` ${buildAttachedImage(q)} <div class="fill-wrap"> <span class="math-content">${formatMath(q.Question_Text)}</span> </div> <div class="fill-wrap mt-3 d-flex flex-column align-items-start" style="width:100%"> <div class="fw-bold mb-2">Answer(s):</div> <div class="w-100"> ${inputsHTML} </div> </div>`;
 			} else if (q.Question_Type === 'open') {
 				const wl = q.Word_Limit || 300; body = ` ${buildAttachedImage(q)} <div class="math-content mb-3"> ${formatMath(q.Question_Text)} </div> <textarea class="open-textarea" id="open-ta" data-wl="${wl}" placeholder="Write your answer here…" rows="7"></textarea> <div class="word-counter" id="open-wc"> 0 / ${wl} words </div>`;
 			} else if (q.Question_Type === 'match') {
@@ -1646,8 +1652,14 @@ $studentJson   = json_encode($student);
 					}
 				});
 			} else if (q.Question_Type === 'fill') {
-				const inp = document.getElementById('fill-inp');
-				if (inp) inp.value = saved;
+				const inputs = document.querySelectorAll('.math-fill-input');
+				if (Array.isArray(saved)) {
+					inputs.forEach((inp, i) => {
+						if (saved[i] !== undefined) inp.value = saved[i];
+					});
+				} else if (saved !== undefined && inputs[0]) {
+					inputs[0].value = saved; // backwards compatibility
+				}
 			} else if (q.Question_Type === 'open') {
 				const ta = document.getElementById('open-ta');
 				if (ta) {
@@ -1693,10 +1705,14 @@ $studentJson   = json_encode($student);
 					setStatus(qid, checkedBoxes.length > 0 ? 'answered' : 'visited');
 				}));
 			} else if (q.Question_Type === 'fill') {
-				const inp = document.getElementById('fill-inp');
-				if (inp) inp.addEventListener('input', () => {
-					state.answers[qid] = inp.value.trim();
-					setStatus(qid, inp.value.trim() ? 'answered' : 'visited');
+				const inputs = document.querySelectorAll('.math-fill-input');
+				inputs.forEach(inp => {
+					inp.addEventListener('input', () => {
+						const vals = Array.from(inputs).map(el => (el.value || '').trim());
+						state.answers[qid] = vals;
+						const isAnswered = vals.some(v => v !== '');
+						setStatus(qid, isAnswered ? 'answered' : 'visited');
+					});
 				});
 			} else if (q.Question_Type === 'open') {
 				const ta = document.getElementById('open-ta');
@@ -2014,7 +2030,7 @@ $studentJson   = json_encode($student);
 
 				// Detect common LaTeX commands/environments
 				const latexPattern =
-					/\\begin|\\frac|\\sqrt|\\sum|\\int|\\alpha|\\beta|\\gamma|\\pi|\\theta|\\sin|\\cos|\\tan|\\log|\\lim|\\matrix|\\pmatrix|\\bmatrix/;
+					/\\text|\\_|\\^|\^|_|\\begin|\\frac|\\sqrt|\\sum|\\int|\\alpha|\\beta|\\gamma|\\pi|\\theta|\\sin|\\cos|\\tan|\\log|\\lim|\\matrix|\\pmatrix|\\bmatrix/;
 
 				if (latexPattern.test(text)) {
 					text = `\\[${text}\\]`;

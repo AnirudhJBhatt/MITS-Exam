@@ -380,12 +380,26 @@ $Course_Code = $course['Course_Code'] ?? '';
                 el.value = '';
                 return;
             }
-            // If it already contains LaTeX commands or braces, assume it's LaTeX
+            if (el.tagName && (el.tagName.toLowerCase() === 'textarea' || el.tagName.toLowerCase() === 'input')) {
+                let plain = str;
+                if (plain.startsWith('\\text{') && plain.endsWith('}')) {
+                    plain = plain.slice(6, -1);
+                }
+                el.value = plain;
+                if (typeof updateFillPreview === 'function' && el.id.startsWith('qt_')) {
+                    updateFillPreview(el, el.id.replace('qt_', ''));
+                }
+                return;
+            }
+            
+            // For math-field elements
             if (str.includes('\\') || str.includes('_') || str.includes('^')) {
                 el.value = str;
             } else {
-                // Otherwise wrap in \text{} to preserve spaces in MathLive
                 el.value = '\\text{' + str.replace(/[{}]/g, '') + '}';
+            }
+            if (typeof updateFillPreview === 'function' && el.id.startsWith('qt_')) {
+                updateFillPreview(el, el.id.replace('qt_', ''));
             }
         }
 
@@ -524,25 +538,34 @@ $Course_Code = $course['Course_Code'] ?? '';
                 fp.style.display = 'none';
                 return;
             }
-            const blanks = (val.match(/___/g) || []).length;
+            const blankRegex = /_{3,}|(\\_){3,}/g;
+            const blanks = (val.match(blankRegex) || []).length;
             if (!blanks) {
                 fp.style.display = 'none';
                 ansDiv.innerHTML = '';
                 return;
             }
             fp.style.display = 'block';
-            fp.innerHTML = val.replace(/___/g, `<span class="badge bg-primary bg-opacity-10 text-primary border border-primary px-2">blank</span>`);
-            const existing = ansDiv.querySelectorAll('input').length;
+            
+            let displayVal = val.replace(blankRegex, '\\text{[[BLANK]]}');
+            try {
+                if (typeof katex !== 'undefined') {
+                    displayVal = katex.renderToString(displayVal, { throwOnError: false, displayMode: false });
+                }
+            } catch (e) { }
+            
+            fp.innerHTML = displayVal.replace(/\[\[BLANK\]\]/g, `<span class="badge bg-primary bg-opacity-10 text-primary border border-primary px-2">blank</span>`);
+            
+            const existing = ansDiv.querySelectorAll('math-field').length;
             if (existing < blanks) {
                 for (let i = existing; i < blanks; i++) {
-                    const inp = document.createElement('input');
-                    inp.className = 'form-control form-control-sm';
-                    inp.type = 'text';
-                    inp.placeholder = `Answer for blank ${i + 1}`;
-                    ansDiv.appendChild(inp);
+                    const mf = document.createElement('math-field');
+                    mf.setAttribute('default-mode', 'text');
+                    mf.setAttribute('placeholder', `Answer for blank ${i + 1}`);
+                    ansDiv.appendChild(mf);
                 }
             } else {
-                while (ansDiv.querySelectorAll('input').length > blanks)
+                while (ansDiv.querySelectorAll('math-field').length > blanks)
                     ansDiv.removeChild(ansDiv.lastChild);
             }
         }
@@ -677,9 +700,9 @@ $Course_Code = $course['Course_Code'] ?? '';
             }
             if (type === 'fill' && Array.isArray(data.answers)) {
                 setTimeout(() => {
-                    const inputs = document.getElementById('fill_ans_' + qId)?.querySelectorAll('input') || [];
+                    const inputs = document.getElementById('fill_ans_' + qId)?.querySelectorAll('math-field') || [];
                     data.answers.forEach((ans, i) => {
-                        if (inputs[i]) inputs[i].value = ans;
+                        if (inputs[i]) setMathValue(inputs[i], ans);
                     });
                 }, 150);
             }
@@ -767,7 +790,7 @@ $Course_Code = $course['Course_Code'] ?? '';
             const type = card.dataset.type;
             const qId = card.dataset.qid;
             const qtEl = document.getElementById('qt_' + qId);
-            const questionText = qtEl ? (qtEl.value || '') : '';
+            let questionText = qtEl ? (qtEl.value || '') : '';
             const marks = parseFloat(document.getElementById('marks_' + qId)?.value || 1);
             const co = parseInt(document.getElementById('co_' + qId)?.value || 1, 10);
             const q = {
@@ -818,7 +841,7 @@ $Course_Code = $course['Course_Code'] ?? '';
             }
             if (type === 'fill') {
                 const ansDiv = document.getElementById('fill_ans_' + qId);
-                q.answers = ansDiv ? Array.from(ansDiv.querySelectorAll('input')).map(i => i.value) : [];
+                q.answers = ansDiv ? Array.from(ansDiv.querySelectorAll('math-field')).map(i => i.value) : [];
             }
             if (type === 'match') {
                 const aEls = card.querySelectorAll('[id^="qa_"]');
@@ -1007,6 +1030,7 @@ $Course_Code = $course['Course_Code'] ?? '';
                     return;
                 }
                 bankData = data.questions;
+                console.log(bankData);
                 renderBankList(bankData);
             } catch {
                 list.innerHTML = '<p class="text-center text-danger py-4 mb-0">Network error</p>';

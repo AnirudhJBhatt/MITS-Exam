@@ -27,16 +27,16 @@
     try {
         // SMTP settings
         $mail->isSMTP();
-        $mail->Host       = $ENV['SMTP_HOST'];
+        $mail->Host       = $_ENV['SMTP_HOST'];
         $mail->SMTPAuth   = true;
-        $mail->Username   = $ENV['SMTP_USER']; 
-        $mail->Password   = $ENV['SMTP_PASS']; // App password
-        $mail->SMTPSecure = ($ENV['SMTP_SECURE'] === 'ssl') ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = $ENV['SMTP_PORT'];
+        $mail->Username   = $_ENV['SMTP_USER']; 
+        $mail->Password   = $_ENV['SMTP_PASS']; // App password
+        $mail->SMTPSecure = ($_ENV['SMTP_SECURE'] === 'ssl') ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = $_ENV['SMTP_PORT'];
 
 
         // Sender & recipient
-        $mail->setFrom($ENV['SMTP_FROM_EMAIL'], $ENV['SMTP_FROM_NAME']);
+        $mail->setFrom($_ENV['SMTP_FROM_EMAIL'], $_ENV['SMTP_FROM_NAME']);
         $mail->addAddress($email);
 
         // Content
