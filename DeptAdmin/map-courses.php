@@ -92,10 +92,22 @@
 ?>
 
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-    <title>Admin - Map Courses</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dept Admin - Course Mapping</title>
+    <!-- Fonts and Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../Common/style.css">
 </head>
 
 <body>
@@ -104,59 +116,66 @@
     <?php include '../Common/deptadmin-sidebar.php'; ?>
 
     <main>
-        <div class="dashboard-header d-flex justify-content-between align-items-center">
-            <h4 class="fw-bold">Course Mapping</h4>
-            <a href="sync-student-courses.php" class="btn btn-outline-primary">
-                <i class="bi bi-arrow-repeat"></i> Sync Student Mappings
-            </a>
-        </div>
-
-        <div class="sub-main">
-
-            <!-- FILTER FORM -->
-            <form method="POST" class="row g-3 align-items-end">
-                <div class="col-md-3">
-                    <label>Academic Year</label>
-                    <select name="Acad_Year" class="form-control">
-                        <option value="">Select Year</option>
-                        <?php 
-                            $ayquery = mysqli_query($con, "SELECT * FROM academic_year ORDER BY AY_Name");
-                            while($ay = mysqli_fetch_assoc($ayquery)){
-                                echo "<option value='".$ay['AY_Name']."' ".selected('Acad_Year',$ay['AY_Name']).">".$ay['AY_Name']."</option>";
-                            }
-                        ?>
-                    </select>
+        <div class="container-fluid py-4">
+            <div class="dashboard-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                <div>
+                    <h4 class="mb-1">Course Mapping</h4>
+                    <p class="text-muted mb-0">Assign faculty members to specific courses and synchronize data.</p>
                 </div>
+                <a href="sync-student-courses.php" class="btn btn-outline-primary rounded-pill px-4 fw-bold shadow-sm hover-elevate">
+                    <i class="ti ti-refresh me-2"></i>Sync Student Mappings
+                </a>
+            </div>
 
-                <div class="col-md-3">
-                    <label>Semester</label>
-                    <select name="Filter_Semester" class="form-control">
-                        <option value="">Select Semester</option>
-                        <?php 
-                            for($i=1;$i<=8;$i++){
-                                echo "<option value='$i' ".selected('Filter_Semester',$i).">S$i</option>";
-                            }
-                        ?>
-                    </select>
+            <div class="card shadow-sm border-0 rounded-4 mb-4 hover-elevate">
+                <div class="card-header bg-white border-bottom-0 py-3 px-4">
+                    <h6 class="text-uppercase fw-bold text-success mb-0"><i class="ti ti-filter me-2"></i>Filter Courses</h6>
                 </div>
+                <div class="card-body px-4 pb-4">
+                    <!-- FILTER FORM -->
+                    <form method="POST" class="row g-3 align-items-end bg-light p-3 rounded-4 mb-4">
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-secondary mb-1">Academic Year</label>
+                            <select name="Acad_Year" class="form-select shadow-none border-secondary-subtle">
+                                <option value="">-- Select Year --</option>
+                                <?php 
+                                    $ayquery = mysqli_query($con, "SELECT * FROM academic_year ORDER BY AY_Name");
+                                    while($ay = mysqli_fetch_assoc($ayquery)){
+                                        echo "<option value='".$ay['AY_Name']."' ".selected('Acad_Year',$ay['AY_Name']).">".$ay['AY_Name']."</option>";
+                                    }
+                                ?>
+                            </select>
+                        </div>
 
-                <div class="col-md-3">
-                    <label>Programme</label>
-                    <select name="Prog_ID" class="form-control">
-                        <option value="">-- Select Programme --</option>
-                        <?php
-                            $pquery = mysqli_query($con, "SELECT * FROM programmes WHERE Dept_ID='$Dept_ID'");
-                            while($p = mysqli_fetch_assoc($pquery)){
-                                echo "<option value='".$p['Prog_ID']."' ".selected('Prog_ID',$p['Prog_ID']).">".$p['Prog_Name']."</option>";
-                            }
-                        ?>
-                    </select>
-                </div>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-secondary mb-1">Semester</label>
+                            <select name="Filter_Semester" class="form-select shadow-none border-secondary-subtle">
+                                <option value="">-- Select Semester --</option>
+                                <?php 
+                                    for($i=1;$i<=8;$i++){
+                                        echo "<option value='$i' ".selected('Filter_Semester',$i).">S$i</option>";
+                                    }
+                                ?>
+                            </select>
+                        </div>
 
-                <div class="col-md-3">
-                    <button type="submit" name="Filter_Courses" class="btn btn-success">Show Courses</button>
-                </div>
-            </form>
+                        <div class="col-md-3">
+                            <label class="form-label small fw-bold text-secondary mb-1">Programme</label>
+                            <select name="Prog_ID" class="form-select shadow-none border-secondary-subtle">
+                                <option value="">-- Select Programme --</option>
+                                <?php
+                                    $pquery = mysqli_query($con, "SELECT * FROM programmes WHERE Dept_ID='$Dept_ID'");
+                                    while($p = mysqli_fetch_assoc($pquery)){
+                                        echo "<option value='".$p['Prog_ID']."' ".selected('Prog_ID',$p['Prog_ID']).">".$p['Prog_Name']."</option>";
+                                    }
+                                ?>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <button type="submit" name="Filter_Courses" class="btn btn-success rounded-pill fw-bold w-100 shadow-sm"><i class="ti ti-search me-1"></i>Show Courses</button>
+                        </div>
+                    </form>
 
             <?php
                 if(isset($_POST['Filter_Courses'])):
@@ -175,14 +194,18 @@
 
             <form method="POST">
                 <input type="hidden" name="Acad_Year" value="<?= $Acad_Year ?>">
-
-                <table class="w-100 table table-bordered border-dark table-hover text-center mt-3">
-                    <tr class="table-dark text-white">
-                        <th>SL No</th>
-                        <th>Course Code</th>
-                        <th>Course Name</th>
-                        <th>Faculty</th>
-                    </tr>
+                
+                <div class="table-responsive border rounded-4">
+                    <table class="table table-hover align-middle mb-0 text-center">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="py-3 text-secondary fw-semibold">SL No</th>
+                                <th class="py-3 text-secondary fw-semibold">Course Code</th>
+                                <th class="py-3 text-secondary fw-semibold text-start ps-5">Course Name</th>
+                                <th class="py-3 text-secondary fw-semibold text-start">Faculty Mapping</th>
+                            </tr>
+                        </thead>
+                        <tbody>
 
                     <?php 
                     $sl=1;
@@ -200,16 +223,16 @@
                     ?>
 
                     <tr>
-                        <td>
+                        <td class="text-muted fw-bold" style="width: 8%;">
                             <?= $sl++ ?>
                         </td>
-                        <td>
+                        <td class="fw-semibold text-dark" style="width: 15%;">
                             <?= $c['Course_Code'] ?>
                         </td>
-                        <td>
+                        <td class="text-start ps-5" style="width: 35%;">
                             <?= $c['Course_Name'] ?>
                         </td>
-                        <td>
+                        <td class="text-start pe-4">
 
                             <div id="faculty-container-<?= $c['Course_ID'] ?>">
 
@@ -218,56 +241,62 @@
                                         foreach($mappedFaculty as $mf){
                                         ?>
                                         <div class="faculty-row d-flex mb-2">
-                                            <select name="Fac_ID[<?= $c['Course_ID'] ?>][]" class="form-control faculty-select"
-                                            data-course="<?= $c['Course_ID'] ?>">
-                                        <option value="">-- Select Faculty --</option>
-                                        <?php
-                                            $fRun = mysqli_query($con,"SELECT * FROM faculty ORDER BY Fac_Name");
-                                            while($f = mysqli_fetch_assoc($fRun)){
-                                            $sel = ($f['Fac_ID']==$mf) ? "selected" : "";
-                                            echo "<option value='".$f['Fac_ID']."' $sel>".$f['Fac_ID']." - ".$f['Fac_Name']."</option>";
-                                            }
-                                        ?>
-                                    </select>
-                                    <button type="button" 
-                                        class="btn btn-danger btn-sm ms-2"
-                                        onclick="deleteFaculty(this, '<?= $c['Course_ID'] ?>', '<?= $mf ?? '' ?>', '<?= $Acad_Year ?>')">
-                                        ✖
-                                    </button>
+                                            <div class="flex-grow-1">
+                                                <select name="Fac_ID[<?= $c['Course_ID'] ?>][]" class="form-select shadow-none border-secondary-subtle faculty-select"
+                                                data-course="<?= $c['Course_ID'] ?>">
+                                            <option value="">-- Select Faculty --</option>
+                                            <?php
+                                                $fRun = mysqli_query($con,"SELECT * FROM faculty ORDER BY Fac_Name");
+                                                while($f = mysqli_fetch_assoc($fRun)){
+                                                $sel = ($f['Fac_ID']==$mf) ? "selected" : "";
+                                                echo "<option value='".$f['Fac_ID']."' $sel>".$f['Fac_ID']." - ".$f['Fac_Name']."</option>";
+                                                }
+                                            ?>
+                                                </select>
+                                            </div>
+                                        <button type="button" 
+                                            class="btn btn-outline-danger btn-sm ms-2 rounded-circle shadow-sm" style="width: 38px; height: 38px; flex-shrink: 0;"
+                                            onclick="deleteFaculty(this, '<?= $c['Course_ID'] ?>', '<?= $mf ?? '' ?>', '<?= $Acad_Year ?>')" title="Remove">
+                                            <i class="ti ti-x"></i>
+                                        </button>
+                                    </div>
+                                    <?php } } else { ?>
+                                    <div class="faculty-row d-flex mb-2">
+                                        <div class="flex-grow-1">
+                                            <select name="Fac_ID[<?= $c['Course_ID'] ?>][]" class="form-select shadow-none border-secondary-subtle faculty-select"
+                                                data-course="<?= $c['Course_ID'] ?>">
+                                                <option value="">-- Select Faculty --</option>
+                                                <?php
+                                                    $fRun = mysqli_query($con,"SELECT * FROM faculty ORDER BY Fac_Name");
+                                                    while($f = mysqli_fetch_assoc($fRun)){
+                                                        echo "<option value='".$f['Fac_ID']."'>".$f['Fac_ID']." - ".$f['Fac_Name']."</option>";
+                                                    }
+                                                ?>
+                                            </select>
+                                        </div>
+                                        <button type="button" class="btn btn-outline-danger btn-sm ms-2 rounded-circle shadow-sm" style="width: 38px; height: 38px; flex-shrink: 0;"
+                                            onclick="removeFaculty(this)" title="Remove"><i class="ti ti-x"></i></button>
+                                    </div>
+                                    <?php } ?>
+
                                 </div>
-                                <?php } } else { ?>
-                                <div class="faculty-row d-flex mb-2">
-                                    <select name="Fac_ID[<?= $c['Course_ID'] ?>][]" class="form-control faculty-select"
-                                        data-course="<?= $c['Course_ID'] ?>">
-                                        <option value="">-- Select Faculty --</option>
-                                        <?php
-                                            $fRun = mysqli_query($con,"SELECT * FROM faculty ORDER BY Fac_Name");
-                                            while($f = mysqli_fetch_assoc($fRun)){
-                                                echo "<option value='".$f['Fac_ID']."'>".$f['Fac_ID']." - ".$f['Fac_Name']."</option>";
-                                            }
-                                        ?>
-                                    </select>
-                                    <button type="button" class="btn btn-danger btn-sm ms-2"
-                                        onclick="removeFaculty(this)">✖</button>
-                                </div>
-                                <?php } ?>
 
-                            </div>
+                                <button type="button" class="btn btn-outline-success btn-sm mt-1 rounded-pill px-3 fw-bold"
+                                    onclick="addFaculty(<?= $c['Course_ID'] ?>)">
+                                    <i class="ti ti-plus me-1"></i> Add Faculty
+                                </button>
 
-                            <button type="button" class="btn btn-success btn-sm mt-2"
-                                onclick="addFaculty(<?= $c['Course_ID'] ?>)">
-                                + Add Faculty
-                            </button>
+                            </td>
+                        </tr>
 
-                        </td>
-                    </tr>
+                        <?php endwhile; ?>
+                        </tbody>
+                    </table>
+                </div>
 
-                    <?php endwhile; ?>
-                </table>
-
-                <div class="text-center">
-                    <button type="submit" name="Save_Mappings" class="btn btn-primary">
-                        Save Mappings
+                <div class="text-end mt-4 mb-2">
+                    <button type="submit" name="Save_Mappings" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm">
+                        <i class="ti ti-device-floppy me-2"></i>Save All Mappings
                     </button>
                 </div>
 
@@ -275,6 +304,8 @@
 
             <?php endif; ?>
 
+                </div>
+            </div>
         </div>
     </main>
 
@@ -291,7 +322,10 @@
 
     <script>
         $(document).ready(function () {
-            $('.faculty-select').select2({ width: '100%' });
+            $('.faculty-select').select2({ 
+                width: '100%',
+                theme: 'bootstrap-5'
+            });
         });
 
         function addFaculty(courseId) {
@@ -299,22 +333,27 @@
 
             let newRow = `
     <div class="faculty-row d-flex mb-2">
-        <select name="Fac_ID[${courseId}][]" 
-                class="form-control faculty-select"
-                data-course="${courseId}">
-            <option value="">-- Select Faculty --</option>
-            <?php
-            $fRunJS = mysqli_query($con,"SELECT * FROM faculty ORDER BY Fac_Name");
-            while($f=mysqli_fetch_assoc($fRunJS)){
-                echo "<option value='".$f['Fac_ID']."'>".$f['Fac_ID']." - ".$f['Fac_Name']."</option>";
-            }
-            ?>
-        </select>
-        <button type="button" class="btn btn-danger btn-sm ms-2" onclick="removeFaculty(this)">✖</button>
+        <div class="flex-grow-1">
+            <select name="Fac_ID[${courseId}][]" 
+                    class="form-select shadow-none border-secondary-subtle faculty-select"
+                    data-course="${courseId}">
+                <option value="">-- Select Faculty --</option>
+                <?php
+                $fRunJS = mysqli_query($con,"SELECT * FROM faculty ORDER BY Fac_Name");
+                while($f=mysqli_fetch_assoc($fRunJS)){
+                    echo "<option value='".$f['Fac_ID']."'>".$f['Fac_ID']." - ".$f['Fac_Name']."</option>";
+                }
+                ?>
+            </select>
+        </div>
+        <button type="button" class="btn btn-outline-danger btn-sm ms-2 rounded-circle shadow-sm" style="width: 38px; height: 38px; flex-shrink: 0;" onclick="removeFaculty(this)"><i class="ti ti-x"></i></button>
     </div>`;
 
             container.append(newRow);
-            container.find('.faculty-select').select2({ width: '100%' });
+            container.find('.faculty-select').select2({ 
+                width: '100%',
+                theme: 'bootstrap-5'
+            });
         }
 
         function removeFaculty(btn) {

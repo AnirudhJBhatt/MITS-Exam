@@ -2019,6 +2019,12 @@ $studentJson   = json_encode($student);
 			// Escape HTML first
 			text = esc(text);
 
+			// Auto-fix \text{} wrapping the entire string
+			const textWrapMatch = text.match(/^\s*\\text\s*\{([\s\S]*)\}\s*$/);
+			if (textWrapMatch) {
+				text = textWrapMatch[1];
+			}
+
 			// If already contains latex delimiters, keep as-is
 			const hasDelimiter =
 				text.includes('\\(') ||

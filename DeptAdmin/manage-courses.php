@@ -49,7 +49,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Manage Courses</title>
+    <title>Dept Admin - Manage Courses</title>
+    <!-- Fonts and Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="../Common/style.css">
 </head>
 
 <body>
@@ -57,21 +65,27 @@
     <?php include '../Common/deptadmin-sidebar.php'; ?>
     
     <main>
-        <div class="dashboard-header d-flex justify-content-start align-items-center">
-            <h4 class="mb-0 fw-bold">Manage Courses</h4>
-        </div>
-        <div class="card shadow-sm mb-4 mt-4">
-            <div class="card-header text-white fw-semibold" style="background-color: #D1202D;">
-                Add Courses(CSV)
-            </div> 
-            <div class="card-body">
+        <div class="container-fluid py-4">
+            <div class="dashboard-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                <div>
+                    <h4 class="mb-1">Manage Courses</h4>
+                    <p class="text-muted mb-0">Upload and manage courses for your department.</p>
+                </div>
+            </div>
+            
+            <div class="card shadow-sm border-0 rounded-4 mb-4 hover-elevate">
+                <div class="card-header bg-white border-bottom-0 py-3 px-4">
+                    <h6 class="text-uppercase fw-bold text-primary mb-0"><i class="ti ti-file-upload me-2"></i>Add Courses (CSV)</h6>
+                </div>
+            <div class="card-body px-4 pb-4">
                 <div class="row">
-					<div class="col-md-12 container-fluid">
+					<div class="col-md-12">
 					    <form method="POST" enctype="multipart/form-data">
-						    <div class="row mt-3">
+						    <div class="row g-3 align-items-center mt-1">
 							    <div class="col-md-4">
-								    <select name="Stud_Branch" class="form-control" required>
-									<option value="" selected disabled>Select Programme</option>
+                                    <label class="form-label small fw-bold text-secondary mb-1">Select Programme</label>
+								    <select name="Stud_Branch" class="form-select shadow-none border-secondary-subtle" required>
+									<option value="" selected disabled>-- Select --</option>
 									    <?php
 										    $pgquery ="SELECT * FROM programmes WHERE Dept_ID='$Dept_ID' ORDER BY Prog_Name DESC";
 											$pgrun = mysqli_query($con, $pgquery);
@@ -81,14 +95,17 @@
 										?>                        
 									</select>
 								</div>
-								<div class="col-md-4">
-									<input type="file" class="form-control" name="csv_file" accept=".csv" required>
+								<div class="col-md-5">
+                                    <label class="form-label small fw-bold text-secondary mb-1">Upload CSV</label>
+									<input type="file" class="form-control shadow-none border-secondary-subtle" name="csv_file" accept=".csv" required>
 								</div>
-								<div class="col-md-4">
-									<input type="submit" class="btn btn-primary" name="Add" value="Upload CSV">
+								<div class="col-md-3 mt-4 pt-2">
+									<button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold w-100" name="Add"><i class="ti ti-upload me-1"></i>Upload CSV</button>
 								</div>
 							</div>
-							<p class="text-muted mt-2">Click here to download template <a href="../Templates/Courses_Template.csv" download>Download Template</a></p>
+							<div class="mt-3">
+                                <a href="../Templates/Courses_Template.csv" class="btn btn-sm btn-outline-secondary rounded-pill px-3" download><i class="ti ti-download me-1"></i>Download CSV Template</a>
+                            </div>
 						</form>
 					</div>
 				</div>
@@ -125,26 +142,32 @@
 							?>
 										<form method="POST">
 											<input type="hidden" name="json_data" value='<?= json_encode($courses, JSON_HEX_APOS | JSON_HEX_QUOT) ?>'>
-											<table class="w-100 table table-bordered border-dark table-hover text-center" cellpadding="5">
-												<tr class="table-dark text-white">
-													<th>SL No</th>
-													<th>Course Code</th>
-													<th>Course Name</th>
-													<th>Year</th>
-													<th>Semester</th>
-												</tr>
-												<?php foreach ($courses as $i => $course): ?>
-													<tr>
-														<td><?= $i + 1 ?></td>
-														<td><?= htmlspecialchars($course['Course_Code']) ?></td>
-														<td><?= htmlspecialchars($course['Course_Name']) ?></td>
-														<td><?= htmlspecialchars($course['Course_Year']) ?></td>
-														<td><?= htmlspecialchars($course['Semester']) ?></td>
-													</tr>
-												<?php endforeach; ?>
-											</table>
-											<div class="text-center mb-5">
-												<input type="submit" name="submit_csv" value="Add Courses" class="btn btn-success">
+											<div class="table-responsive rounded-3 border mt-4">
+                                                <table class="table table-hover align-middle mb-0 text-center">
+                                                    <thead class="table-light">
+                                                        <tr>
+                                                            <th class="py-3 text-secondary fw-semibold">SL No</th>
+                                                            <th class="py-3 text-secondary fw-semibold">Course Code</th>
+                                                            <th class="py-3 text-secondary fw-semibold">Course Name</th>
+                                                            <th class="py-3 text-secondary fw-semibold">Year</th>
+                                                            <th class="py-3 text-secondary fw-semibold">Semester</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <?php foreach ($courses as $i => $course): ?>
+                                                            <tr>
+                                                                <td class="text-muted fw-bold"><?= $i + 1 ?></td>
+                                                                <td class="fw-semibold text-dark"><?= htmlspecialchars($course['Course_Code']) ?></td>
+                                                                <td><?= htmlspecialchars($course['Course_Name']) ?></td>
+                                                                <td><?= htmlspecialchars($course['Course_Year']) ?></td>
+                                                                <td><span class="badge bg-secondary rounded-pill">S<?= htmlspecialchars($course['Semester']) ?></span></td>
+                                                            </tr>
+                                                        <?php endforeach; ?>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+											<div class="text-end mt-4 mb-2">
+												<button type="submit" name="submit_csv" class="btn btn-success rounded-pill px-4 fw-bold shadow"><i class="ti ti-check me-2"></i>Confirm & Add Courses</button>
 											</div>
 										</form>
 							<?php
@@ -158,17 +181,17 @@
             </div>
         </div>
 
-        <div class="card shadow-sm mb-4 mt-4">
-            <div class="card-header text-white fw-semibold" style="background-color: #D1202D;">
-                Search Courses
+        <div class="card shadow-sm border-0 rounded-4 mb-4 hover-elevate">
+            <div class="card-header bg-white border-bottom-0 py-3 px-4">
+                <h6 class="text-uppercase fw-bold text-success mb-0"><i class="ti ti-search me-2"></i>Search Courses</h6>
             </div> 
-            <div class="card-body">
+            <div class="card-body px-4 pb-4">
                 <!-- Search -->
-                <form method="POST" class="row g-3 align-items-end">
+                <form method="POST" class="row g-3 align-items-end bg-light p-3 rounded-4 mb-4">
                     <!-- Search Box -->
                     <div class="col-md-3">
-                        <label for="">Programme</label>
-                        <select name="Prog_ID" class="form-control">
+                        <label class="form-label small fw-bold text-secondary mb-1">Programme</label>
+                        <select name="Prog_ID" class="form-select shadow-none border-secondary-subtle">
                             <option value="">-- Select Programme --</option>
                             <?php
                                 $progQuery = "SELECT * FROM programmes WHERE Dept_ID='$Dept_ID' ORDER BY Prog_Name ASC";
@@ -182,17 +205,17 @@
                     </div>
 
                     <div class="col-md-3">
-                        <label for="">Course Name / Code</label>
+                        <label class="form-label small fw-bold text-secondary mb-1">Course Name / Code</label>
                         <input type="text" name="Search_Course" 
-                            class="form-control" placeholder="Search Course Name / Code" value="<?php 
+                            class="form-control shadow-none border-secondary-subtle" placeholder="Search..." value="<?php 
                                 echo isset($_POST['Search_Course']) ? $_POST['Search_Course'] : ''; ?>">
                     </div>
 
                     <!-- Year Filter -->
-                    <div class="col-md-3">
-                        <label for="">Year</label>
-                        <select name="Filter_Year" class="form-control">
-                            <option value="">-- Select Year --</option>
+                    <div class="col-md-2">
+                        <label class="form-label small fw-bold text-secondary mb-1">Year</label>
+                        <select name="Filter_Year" class="form-select shadow-none border-secondary-subtle">
+                            <option value="">-- All --</option>
                             <option value="1"  <?= selected('Filter_Year', '1') ?>>1st Year</option>
                             <option value="2" <?= selected('Filter_Year', '2') ?>>2nd Year</option>
                             <option value="3" <?= selected('Filter_Year', '3') ?>>3rd Year</option>
@@ -201,10 +224,10 @@
                     </div>
 
                     <!-- Semester Filter -->
-                    <div class="col-md-3">
-                        <label for="">Semester</label>
-                        <select name="Filter_Semester" class="form-control">
-                            <option value="">Semester</option>
+                    <div class="col-md-2">
+                        <label class="form-label small fw-bold text-secondary mb-1">Semester</label>
+                        <select name="Filter_Semester" class="form-select shadow-none border-secondary-subtle">
+                            <option value="">-- All --</option>
                             <?php 
                                 for($i=1;$i<=8;$i++){
                                     echo "<option value='$i' ".selected('Filter_Semester',"$i").">S$i</option>";
@@ -214,7 +237,7 @@
                     </div>
 
                     <div class="col-md-2">
-                        <button type="submit" name="Search" class="btn btn-success w-100">Search</button>
+                        <button type="submit" name="Search" class="btn btn-success rounded-pill fw-bold w-100 shadow-sm"><i class="ti ti-search me-1"></i>Search</button>
                     </div>
                 </form>
                 <div class="row mt-4">
@@ -264,42 +287,45 @@
                         ?>
 
 
-                        <table class="table table-bordered table-hover text-center border-dark mt-3">
-                            <tr class="table-dark text-white">
-                                <th>SL No</th>
-                                <th>Course Code</th>
-                                <th>Course Name</th>
-                                <th>Year</th>
-                                <th>Semester</th>
-                                <th>Credits</th>
-                                <th>Action</th>
-                            </tr>
+                        <div class="table-responsive border rounded-4 mt-2">
+                            <table class="table table-hover align-middle mb-0 text-center">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="py-3 text-secondary fw-semibold">SL No</th>
+                                        <th class="py-3 text-secondary fw-semibold">Course Code</th>
+                                        <th class="py-3 text-secondary fw-semibold">Course Name</th>
+                                        <th class="py-3 text-secondary fw-semibold">Year</th>
+                                        <th class="py-3 text-secondary fw-semibold">Semester</th>
+                                        <th class="py-3 text-secondary fw-semibold">Credits</th>
+                                        <th class="py-3 text-secondary fw-semibold">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                <?php 
+                                    $sl = 1;
+                                    while ($row = mysqli_fetch_assoc($run)) {
+                                ?>
+                                <tr>
+                                    <td class="text-muted fw-bold"><?php echo $sl++; ?></td>
+                                    <td class="fw-semibold text-dark"><?php echo $row['Course_Code']; ?></td>
+                                    <td><?php echo $row['Course_Name']; ?></td>
+                                    <td><?php echo $row['Course_Year']; ?></td>
+                                    <td><span class="badge bg-secondary rounded-pill">S<?php echo $row['Semester']; ?></span></td>
+                                    <td><span class="badge bg-info bg-opacity-10 text-info rounded-pill px-3"><?php echo $row['Credits']; ?></span></td>
 
-                            <?php 
-                                $sl = 1;
-                                while ($row = mysqli_fetch_assoc($run)) {
-                            ?>
-                            <tr>
-                                <td><?php echo $sl++; ?></td>
-                                <td><?php echo $row['Course_Code']; ?></td>
-                                <td><?php echo $row['Course_Name']; ?></td>
-                                <td><?php echo $row['Course_Year']; ?></td>
-                                <td><?php echo $row['Semester']; ?></td>
-                                <td><?php echo $row['Credits']; ?></td>
+                                    <td>
+                                        <a href="edit-course.php?Course_ID=<?php echo $row['Course_ID']; ?>" 
+                                        class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold"><i class="ti ti-edit me-1"></i>Edit</a>
 
-                                <td>
-                                    <a href="edit-course.php?Course_ID=<?php echo $row['Course_ID']; ?>" 
-                                    class="btn btn-sm btn-primary">Edit</a>
-
-                                    <a href="delete-course.php?Course_ID=<?php echo $row['Course_ID']; ?>" 
-                                    class="btn btn-sm btn-danger"
-                                    onclick="return confirm('Delete this course?');">
-                                    Delete
-                                    </a>
-                                </td>
-                            </tr>
-                            <?php } ?>
-                        </table>
+                                        <a href="delete-course.php?Course_ID=<?php echo $row['Course_ID']; ?>" 
+                                        class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-semibold ms-1"
+                                        onclick="return confirm('Delete this course?');"><i class="ti ti-trash me-1"></i>Delete</a>
+                                    </td>
+                                </tr>
+                                <?php } ?>
+                                </tbody>
+                            </table>
+                        </div>
 
                         <?php 
                                 } // end else
@@ -311,6 +337,7 @@
         </div>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <?php include '../Common/footer.php'; ?>
 </body>
 </html>
