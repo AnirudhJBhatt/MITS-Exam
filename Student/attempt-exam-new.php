@@ -2019,10 +2019,12 @@ $studentJson   = json_encode($student);
 			// Escape HTML first
 			text = esc(text);
 
+			let forceMath = false;
 			// Auto-fix \text{} wrapping the entire string
 			const textWrapMatch = text.match(/^\s*\\text\s*\{([\s\S]*)\}\s*$/);
 			if (textWrapMatch) {
 				text = textWrapMatch[1];
+				forceMath = true;
 			}
 
 			// If already contains latex delimiters, keep as-is
@@ -2032,11 +2034,12 @@ $studentJson   = json_encode($student);
 				text.includes('$$');
 
 			// Auto-wrap raw LaTeX environments
-			if (!hasDelimiter) {
-
+			if (forceMath && !hasDelimiter) {
+				text = `\\(${text}\\)`;
+			} else if (!hasDelimiter) {
 				// Detect common LaTeX commands/environments
 				const latexPattern =
-					/\\text|\\_|\\^|\^|_|\\begin|\\frac|\\sqrt|\\sum|\\int|\\alpha|\\beta|\\gamma|\\pi|\\theta|\\sin|\\cos|\\tan|\\log|\\lim|\\matrix|\\pmatrix|\\bmatrix/;
+					/\\text|\\_|\\^|\^|_|\\begin|\\frac|\\sqrt|\\sum|\\int|\\oint|\\alpha|\\beta|\\gamma|\\pi|\\theta|\\sin|\\cos|\\tan|\\log|\\lim|\\matrix|\\pmatrix|\\bmatrix|\\infty|\\pm|\\equiv|\\approx|\\leq|\\geq|\\times|\\div|\\partial|\\nabla|\\Rightarrow|\\rightarrow|\\to/;
 
 				if (latexPattern.test(text)) {
 					text = `\\(${text}\\)`;
