@@ -117,16 +117,6 @@ $studentJson   = json_encode($student);
 		href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap"
 		rel="stylesheet">
 	<script defer src="https://unpkg.com/mathlive"></script>
-	<link rel="stylesheet"
-		href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-
-	<script defer
-		src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js">
-	</script>
-
-	<script defer
-		src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js">
-	</script>
 	<style>
 		:root {
 			--red-900: #7f0000;
@@ -2027,56 +2017,32 @@ $studentJson   = json_encode($student);
 				forceMath = true;
 			}
 
-			// If already contains latex delimiters, keep as-is
 			const hasDelimiter =
 				text.includes('\\(') ||
 				text.includes('\\[') ||
 				text.includes('$$');
 
-			// Auto-wrap raw LaTeX environments
 			if (forceMath && !hasDelimiter) {
-				text = `\\(${text}\\)`;
+				return `<math-field read-only style="border:none; background:transparent; padding:0; display:inline-block; font-size: 1.1em; outline: none;">${text}</math-field>`;
 			} else if (!hasDelimiter) {
-				// Detect common LaTeX commands/environments
 				const latexPattern =
 					/\\text|\\_|\\^|\^|_|\\begin|\\frac|\\sqrt|\\sum|\\int|\\oint|\\alpha|\\beta|\\gamma|\\pi|\\theta|\\sin|\\cos|\\tan|\\log|\\lim|\\matrix|\\pmatrix|\\bmatrix|\\infty|\\pm|\\equiv|\\approx|\\leq|\\geq|\\times|\\div|\\partial|\\nabla|\\Rightarrow|\\rightarrow|\\to/;
 
 				if (latexPattern.test(text)) {
-					text = `\\(${text}\\)`;
+					return `<math-field read-only style="border:none; background:transparent; padding:0; display:inline-block; font-size: 1.1em; outline: none;">${text}</math-field>`;
 				}
 			}
+
+			// Replace standard LaTeX delimiters with math-fields
+			text = text.replace(/\$\$([\s\S]*?)\$\$/g, '<math-field read-only style="border:none; background:transparent; padding:0; display:block; font-size: 1.1em; text-align:center; outline: none;">$1</math-field>');
+			text = text.replace(/\\\(([\s\S]*?)\\\)/g, '<math-field read-only style="border:none; background:transparent; padding:0; display:inline-block; font-size: 1.1em; outline: none;">$1</math-field>');
+			text = text.replace(/\\\[([\s\S]*?)\\\]/g, '<math-field read-only style="border:none; background:transparent; padding:0; display:block; font-size: 1.1em; text-align:center; outline: none;">$1</math-field>');
 
 			return `<div class="math-content">${text}</div>`;
 		}
 
 		function renderMath(container = document.body) {
-
-			if (typeof renderMathInElement !== 'undefined') {
-
-				renderMathInElement(container, {
-					delimiters: [{
-							left: "$$",
-							right: "$$",
-							display: true
-						},
-						{
-							left: "\\(",
-							right: "\\)",
-							display: false
-						},
-						{
-							left: "\\[",
-							right: "\\]",
-							display: true
-						}
-					],
-					ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code", "option", "math-field"],
-					throwOnError: false,
-					strict: false,
-
-					trust: true
-				});
-			}
+			// No-op since we render mathlive directly using math-field elements
 		}
 	</script>
 </body>
