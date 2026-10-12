@@ -116,22 +116,19 @@
     <?php include '../Common/deptadmin-sidebar.php'; ?>
 
     <main>
-        <div class="container-fluid py-4">
-            <div class="dashboard-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
-                <div>
-                    <h4 class="mb-1">Course Mapping</h4>
-                    <p class="text-muted mb-0">Assign faculty members to specific courses and synchronize data.</p>
-                </div>
-                <a href="sync-student-courses.php" class="btn btn-outline-primary rounded-pill px-4 fw-bold shadow-sm hover-elevate">
+        <div class="dashboard-header">
+            <h4 class="mb-1">Course Mapping</h4>
+        </div>
+                <!-- <a href="sync-student-courses.php" class="btn btn-outline-primary rounded-pill px-4 fw-bold shadow-sm hover-elevate">
                     <i class="ti ti-refresh me-2"></i>Sync Student Mappings
-                </a>
+                </a> -->
             </div>
 
             <div class="card shadow-sm border-0 rounded-4 mb-4 hover-elevate">
-                <div class="card-header bg-white border-bottom-0 py-3 px-4">
-                    <h6 class="text-uppercase fw-bold text-success mb-0"><i class="ti ti-filter me-2"></i>Filter Courses</h6>
+                <div class="card-header bg-light border-0 py-3 px-4">
+                    <h6 class="mb-0 fw-bold text-uppercase"><i class="ti ti-filter me-2"></i>Filter Courses</h6>
                 </div>
-                <div class="card-body px-4 pb-4">
+                <div class="card-body px-4 py-3">
                     <!-- FILTER FORM -->
                     <form method="POST" class="row g-3 align-items-end bg-light p-3 rounded-4 mb-4">
                         <div class="col-md-3">
@@ -173,7 +170,7 @@
                         </div>
 
                         <div class="col-md-3">
-                            <button type="submit" name="Filter_Courses" class="btn btn-success rounded-pill fw-bold w-100 shadow-sm"><i class="ti ti-search me-1"></i>Show Courses</button>
+                            <button type="submit" name="Filter_Courses" class="btn btn-success fw-bold w-100 shadow-sm"><i class="ti ti-search me-1"></i>Show Courses</button>
                         </div>
                     </form>
 
@@ -295,7 +292,7 @@
                 </div>
 
                 <div class="text-end mt-4 mb-2">
-                    <button type="submit" name="Save_Mappings" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm">
+                    <button type="submit" name="Save_Mappings" class="btn btn-primary px-5 fw-bold shadow-sm">
                         <i class="ti ti-device-floppy me-2"></i>Save All Mappings
                     </button>
                 </div>

@@ -58,8 +58,8 @@
                 <div class="row justify-content-center">
                     <div class="col-md-8 col-lg-6">
                         <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-                            <div class="card-header bg-white border-bottom-0 py-3 px-4">
-                                <h6 class="text-uppercase fw-bold mb-0" style="letter-spacing: 0.5px;">
+                            <div class="card-header bg-light border-0 py-3 px-4">
+                                <h6 class="mb-0 fw-bold text-uppercase" style="letter-spacing: 0.5px;">
                                     <i class="bi bi-shield-lock me-2"></i>Update Password
                                 </h6>
                             </div>

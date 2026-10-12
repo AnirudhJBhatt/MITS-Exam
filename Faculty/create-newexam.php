@@ -149,10 +149,10 @@ $Course_Code = $course['Course_Code'] ?? '';
 
                         <!-- Exam details card -->
                         <div class="card border-0 shadow-sm mb-4 rounded-4">
-                            <div class="card-header bg-white border-bottom-0 py-3 px-4">
-                                <h6 class="text-uppercase fw-bold mb-0" style="letter-spacing: 0.5px;"><i class="bi bi-info-circle-fill me-2"></i>Exam Details</h6>
+                            <div class="card-header bg-light border-0 py-3 px-4">
+                                <h6 class="mb-0 fw-bold text-uppercase" style="letter-spacing: 0.5px;"><i class="bi bi-info-circle-fill me-2"></i>Exam Details</h6>
                             </div>
-                            <div class="card-body px-4 pb-4">
+                            <div class="card-body px-4 py-3">
                                 <div class="row g-4 mb-4">
                                     <div class="col-md-3">
                                         <label class="form-label small fw-bold text-secondary mb-1">Exam Name <span class="text-danger">*</span></label>
@@ -201,23 +201,23 @@ $Course_Code = $course['Course_Code'] ?? '';
 
                         <!-- Questions card -->
                         <div class="card border-0 shadow-sm rounded-4 mb-4">
-                            <div class="card-header bg-white border-bottom-0 py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                            <div class="card-header bg-light border-0 py-3 px-4 d-flex align-items-center justify-content-between flex-wrap gap-2">
                                 <div class="d-flex align-items-center gap-3">
-                                    <h6 class="text-uppercase fw-bold mb-0" style="letter-spacing: 0.5px;"><i class="bi bi-card-text me-2"></i>Questions</h6>
+                                    <h6 class="mb-0 fw-bold text-uppercase" style="letter-spacing: 0.5px;"><i class="bi bi-card-text me-2"></i>Questions</h6>
                                     <span class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 fw-bold border border-primary-subtle" id="qnCountBadge">0 questions</span>
                                 </div>
                                 <button type="button" class="btn btn-sm btn-outline-success fw-bold rounded-pill px-3" onclick="openQBank()">
                                     <i class="bi bi-cloud-arrow-down me-1"></i> Add from bank
                                 </button>
                             </div>
-                            <div class="card-body px-4 pb-4">
+                            <div class="card-body px-4 py-3">
                                 <div id="questionList" class="mb-4"></div>
 
                                 <div class="d-flex align-items-center gap-3 mt-4 bg-light p-4 rounded-3 border text-center justify-content-center flex-wrap" style="border-style: dashed !important; border-width: 2px !important;">
-                                    <button type="button" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm" onclick="addQuestion()">
+                                    <button type="button" class="btn btn-primary px-4 fw-bold shadow-sm" onclick="addQuestion()">
                                         <i class="bi bi-plus-lg me-1"></i> Add Question Manually
                                     </button>
-                                    <button type="button" class="btn btn-success rounded-pill px-4 fw-bold shadow-sm" onclick="openQBank()">
+                                    <button type="button" class="btn btn-success px-4 fw-bold shadow-sm" onclick="openQBank()">
                                         <i class="bi bi-cloud-arrow-down me-1"></i> Browse Question Bank
                                     </button>
                                 </div>
@@ -234,10 +234,10 @@ $Course_Code = $course['Course_Code'] ?? '';
                     <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab" tabindex="0">
                         <!-- Exam Search Card -->
                         <div class="card border-0 shadow-sm rounded-4 mb-3 mt-1">
-                            <div class="card-header bg-white border-bottom-0 py-3 px-4">
-                                <h6 class="text-uppercase fw-bold mb-0" style="letter-spacing: 0.5px;"><i class="bi bi-search me-2"></i>Exam Search</h6>
+                            <div class="card-header bg-light border-0 py-3 px-4">
+                                <h6 class="mb-0 fw-bold text-uppercase" style="letter-spacing: 0.5px;"><i class="bi bi-search me-2"></i>Exam Search</h6>
                             </div>
-                            <div class="card-body px-4 pb-4">
+                            <div class="card-body px-4 py-3">
                                 <div class="table-responsive rounded-3 border">
                                     <table class="table table-hover align-middle mb-0">
                                         <thead class="table-light">

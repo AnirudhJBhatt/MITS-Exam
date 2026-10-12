@@ -152,10 +152,10 @@
 
             <div class="sub-main pb-5">
                 <div class="card border-0 shadow-sm rounded-4 mb-4">
-                    <div class="card-header bg-white border-bottom-0 py-3 px-4">
-                        <h6 class="text-uppercase fw-bold mb-0" style="letter-spacing: 0.5px;"><i class="bi bi-search me-2"></i>Exam Search</h6>
+                    <div class="card-header bg-light border-0 py-3 px-4">
+                        <h6 class="mb-0 fw-bold text-uppercase" style="letter-spacing: 0.5px;"><i class="bi bi-search me-2"></i>Exam Search</h6>
                     </div>
-                    <div class="card-body px-4 pb-4">
+                    <div class="card-body px-4 py-3">
                         
                     <form method="POST" enctype="multipart/form-data">
                         <div class="row g-4 mb-3 align-items-end">

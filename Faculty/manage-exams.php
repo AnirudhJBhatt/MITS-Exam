@@ -74,7 +74,7 @@
 							</div>
 							<h5 class="fw-bold mb-3 text-dark">Exams</h5>
 							<p class="text-muted small mb-4">Create, view, and manage examinations for this course.</p>
-							<a href="create-newexam.php?Course_ID=<?php echo urlencode($Course_ID); ?>" class="btn btn-primary rounded-pill px-4 fw-semibold mt-auto w-100">
+							<a href="create-newexam.php?Course_ID=<?php echo urlencode($Course_ID); ?>" class="btn btn-primary px-4 fw-semibold mt-auto w-100">
 								Create Exam
 							</a>
 						</div>
@@ -90,7 +90,7 @@
 							</div>
 							<h5 class="fw-bold mb-3 text-dark">Question Bank</h5>
 							<p class="text-muted small mb-4">Create and manage the repository of questions.</p>
-							<a href="new_question-bank.php?Course_ID=<?php echo urlencode($Course_ID); ?>" class="btn btn-success rounded-pill px-4 fw-semibold mt-auto w-100">
+							<a href="new_question-bank.php?Course_ID=<?php echo urlencode($Course_ID); ?>" class="btn btn-success px-4 fw-semibold mt-auto w-100">
 								View Question Bank
 							</a>
 						</div>

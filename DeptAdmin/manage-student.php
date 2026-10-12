@@ -79,23 +79,19 @@ if (json_last_error() !== JSON_ERROR_NONE) {
 	<?php include '../Common/deptadmin-sidebar.php'; ?>
 
 	<main>
-        <div class="container-fluid py-4">
-            <div class="dashboard-header d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
-                <div>
-                    <h4 class="mb-1">Manage Students</h4>
-                    <p class="text-muted mb-0">Upload and manage student enrollments for your department.</p>
-                </div>
-            </div>
+        
+        <div class="dashboard-header">
+            <h4 class="mb-0 fw-bold">Manage Students</h4>
+        </div>
 
-			<div class="card shadow-sm border-0 rounded-4 mb-4 hover-elevate">
-				<div class="card-header bg-white border-bottom-0 py-3 px-4">
-					<h6 class="text-uppercase fw-bold text-primary mb-0"><i class="ti ti-file-upload me-2"></i>Upload Students (CSV)</h6>
+			<div class="card shadow-sm border-0 mb-5">
+				<div class="card-header bg-light border-0 py-3 px-4">
+					<h6 class="mb-0 fw-bold text-uppercase"><i class="ti ti-file-upload me-2"></i>Upload Students (CSV)</h6>
 				</div>
-				<div class="card-body px-4 pb-4">	
+				<div class="card-body px-4 py-3">	
 					<div class="row">
 						<div class="col-md-12">
-							<form method="POST" enctype="multipart/form-data">
-								<div class="row g-3 align-items-center mt-1">
+							<form method="POST" enctype="multipart/form-data" class="row g-3 align-items-end">
 									<div class="col-md-4">
                                         <label class="form-label small fw-bold text-secondary mb-1">Select Programme</label>
 										<select name="Stud_Branch" class="form-select shadow-none border-secondary-subtle" required>
@@ -114,10 +110,9 @@ if (json_last_error() !== JSON_ERROR_NONE) {
 										<input type="file" class="form-control shadow-none border-secondary-subtle" name="csv_file" accept=".csv" required>
 									</div>
 									<div class="col-md-3 mt-4 pt-2">
-										<button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold w-100" name="Add"><i class="ti ti-upload me-1"></i>Upload CSV</button>
+										<button type="submit" class="btn btn-primary px-4 fw-bold w-100" name="Add"><i class="ti ti-upload me-1"></i>Upload CSV</button>
 									</div>
-								</div>
-                                <div class="mt-3">
+                                <div class="col-md-12">
                                     <a href="../Templates/Student Template.csv" class="btn btn-sm btn-outline-secondary rounded-pill px-3" download><i class="ti ti-download me-1"></i>Download CSV Template</a>
                                 </div>
 							</form>
@@ -181,7 +176,7 @@ if (json_last_error() !== JSON_ERROR_NONE) {
                                                 </table>
                                             </div>
 											<div class="text-end mt-4 mb-2">
-												<button type="submit" name="submit_csv" class="btn btn-success rounded-pill px-4 fw-bold shadow"><i class="ti ti-check me-2"></i>Confirm & Add Students</button>
+												<button type="submit" name="submit_csv" class="btn btn-success px-4 fw-bold shadow"><i class="ti ti-check me-2"></i>Confirm & Add Students</button>
 											</div>
 										</form>
 							<?php
@@ -195,16 +190,15 @@ if (json_last_error() !== JSON_ERROR_NONE) {
 				</div>
 			</div>
 			<div class="card shadow-sm border-0 rounded-4 mb-4 hover-elevate">
-				<div class="card-header bg-white border-bottom-0 py-3 px-4">
-					<h6 class="text-uppercase fw-bold text-success mb-0"><i class="ti ti-users me-2"></i>Existing Students</h6>
+				<div class="card-header bg-light border-0 py-3 px-4">
+					<h6 class="mb-0 fw-bold text-uppercase"><i class="ti ti-users me-2"></i>Existing Students</h6>
 				</div>
-				<div class="card-body px-4 pb-4">	
+				<div class="card-body px-4 py-3">	
 					<div class="row">
 						<div class="col-md-12">
-							<form method="POST" class="bg-light p-3 rounded-4 mb-4">
-								<div class="row g-3 align-items-end">
-									<div class="col-md-4">
-										<label class="form-label small fw-bold text-secondary mb-1">Select Programme</label>
+							<form method="POST" class="row g-3 align-items-end">
+								<div class="col-md-4">
+									<label class="form-label small fw-bold text-secondary mb-1">Select Programme</label>
 										<select name="Prog_ID" class="form-select shadow-none border-secondary-subtle" required>
 										<option value="">-- All Programmes --</option>
 											<?php
@@ -230,14 +224,14 @@ if (json_last_error() !== JSON_ERROR_NONE) {
 										</select>
 									</div>
 									<div class="col-md-2">
-										<button type="submit" name="Submit" class="btn btn-success rounded-pill fw-bold w-100 shadow-sm"><i class="ti ti-search me-1"></i>Search</button>
+										<button type="submit" name="Submit" class="btn btn-success fw-bold w-100 shadow-sm"><i class="ti ti-search me-1"></i>Search</button>
 									</div>
 								</div>			
 							</form>
 						</div>
 					</div>
 					<div class="row">
-						<div class="col-md-12">
+						<div class="col-md-12 ">
 						<?php	
 							if (isset($_POST['Submit'])) {
 								$Prog_ID = $_POST['Prog_ID'];
@@ -295,7 +289,6 @@ if (json_last_error() !== JSON_ERROR_NONE) {
 					</div>
 				</div>
 			</div>
-        </div>
 	</main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

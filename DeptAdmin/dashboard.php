@@ -19,7 +19,7 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="../Common/style.css">  x
+    <link rel="stylesheet" href="../Common/style.css">
 </head>
 <body>
     <!-- NAVBAR -->
@@ -29,15 +29,11 @@
 
     <!-- MAIN CONTENT -->
     <main>
-        <div class="container-fluid py-4">
-            <div class="dashboard-header d-flex justify-content-between align-items-center mb-5 pb-3 border-bottom">
-                <div>
-                    <h2 class="mb-1">Department Dashboard</h2>
-                    <p class="text-muted mb-0">Overview of department activities and statistics.</p>
-                </div>
-            </div>
+        <div class="dashboard-header">
+            <h4 class="mb-0 fw-bold">Dashboard</h4>
+        </div>
 
-            <!-- Dashboard Cards -->
+        <!-- Dashboard Cards -->
             <div class="row g-4">
                 <div class="col-md-6 col-lg-3">
                     <div class="card p-4 text-center shadow-sm border-0 rounded-4 hover-elevate bg-white h-100">
@@ -139,8 +135,6 @@
                     </div>
                 </div>
             </div>
-            
-        </div>
     </main>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
