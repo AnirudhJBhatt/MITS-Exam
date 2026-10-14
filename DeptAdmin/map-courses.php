@@ -130,7 +130,7 @@
                 </div>
                 <div class="card-body px-4 py-3">
                     <!-- FILTER FORM -->
-                    <form method="POST" class="row g-3 align-items-end bg-light p-3 rounded-4 mb-4">
+                    <form method="POST" class="row g-3 align-items-end">
                         <div class="col-md-3">
                             <label class="form-label small fw-bold text-secondary mb-1">Academic Year</label>
                             <select name="Acad_Year" class="form-select shadow-none border-secondary-subtle">
@@ -189,7 +189,7 @@
 
                 ?>
 
-            <form method="POST">
+            <form method="POST" class="mt-3">
                 <input type="hidden" name="Acad_Year" value="<?= $Acad_Year ?>">
                 
                 <div class="table-responsive border rounded-4">
@@ -208,10 +208,7 @@
                     $sl=1;
                     while($c = mysqli_fetch_assoc($course_query)):
 
-                    $mapQuery = mysqli_query($con,
-                        "SELECT Fac_ID FROM course_mapping 
-                        WHERE Course_ID='".$c['Course_ID']."' 
-                        AND Acad_Year='$Acad_Year'");
+                    $mapQuery = mysqli_query($con, "SELECT Fac_ID FROM course_mapping WHERE Course_ID='".$c['Course_ID']."' AND Acad_Year='$Acad_Year'");
 
                     $mappedFaculty = [];
                     while($m = mysqli_fetch_assoc($mapQuery)){
@@ -220,17 +217,10 @@
                     ?>
 
                     <tr>
-                        <td class="text-muted fw-bold" style="width: 8%;">
-                            <?= $sl++ ?>
-                        </td>
-                        <td class="fw-semibold text-dark" style="width: 15%;">
-                            <?= $c['Course_Code'] ?>
-                        </td>
-                        <td class="text-start ps-5" style="width: 35%;">
-                            <?= $c['Course_Name'] ?>
-                        </td>
+                        <td class="text-muted fw-bold" style="width: 8%;"><?= $sl++ ?></td>
+                        <td class="fw-semibold text-dark" style="width: 15%;"><?= $c['Course_Code'] ?></td>
+                        <td class="text-start ps-5" style="width: 35%;"><?= $c['Course_Name'] ?></td>
                         <td class="text-start pe-4">
-
                             <div id="faculty-container-<?= $c['Course_ID'] ?>">
 
                                 <?php

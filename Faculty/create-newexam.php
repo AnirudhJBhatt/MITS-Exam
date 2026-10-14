@@ -386,8 +386,11 @@ $Course_Code = $course['Course_Code'] ?? '';
                     plain = plain.slice(6, -1);
                 }
                 el.value = plain;
-                if (typeof updateFillPreview === 'function' && el.id.startsWith('qt_')) {
-                    updateFillPreview(el, el.id.replace('qt_', ''));
+                if (typeof updateFillPreview === 'function' && el.id && el.id.startsWith('qt_')) {
+                    const qId = el.id.replace('qt_', '');
+                    if (document.getElementById('fp_' + qId) || document.getElementById('fill_ans_' + qId)) {
+                        updateFillPreview(el, qId);
+                    }
                 }
                 return;
             }
@@ -398,8 +401,11 @@ $Course_Code = $course['Course_Code'] ?? '';
             } else {
                 el.value = '\\text{' + str.replace(/[{}]/g, '') + '}';
             }
-            if (typeof updateFillPreview === 'function' && el.id.startsWith('qt_')) {
-                updateFillPreview(el, el.id.replace('qt_', ''));
+            if (typeof updateFillPreview === 'function' && el.id && el.id.startsWith('qt_')) {
+                const qId = el.id.replace('qt_', '');
+                if (document.getElementById('fp_' + qId) || document.getElementById('fill_ans_' + qId)) {
+                    updateFillPreview(el, qId);
+                }
             }
         }
 
@@ -531,9 +537,12 @@ $Course_Code = $course['Course_Code'] ?? '';
 
         // ── Fill preview ─────────────────────────────────────────────
         function updateFillPreview(ta, qId) {
-            const val = ta.value;
+            if (!ta) return;
             const fp = document.getElementById('fp_' + qId);
             const ansDiv = document.getElementById('fill_ans_' + qId);
+            if (!fp || !ansDiv) return;
+
+            const val = ta.value;
             if (!val) {
                 fp.style.display = 'none';
                 return;

@@ -77,43 +77,35 @@
             <div class="card-body px-4 py-3">
                 <div class="row">
                     <div class="col-md-12">
-                        <form method="POST" enctype="multipart/form-data">
-                            <div class="row g-3 align-items-center mt-1">
-                                <div class="col-md-4">
-                                    <label class="form-label small fw-bold text-secondary mb-1">Select
-                                        Programme</label>
-                                    <select name="Stud_Branch" class="form-select shadow-none border-secondary-subtle"
-                                        required>
-                                        <option value="" selected disabled>-- Select --</option>
-                                        <?php
-										    $pgquery ="SELECT * FROM programmes WHERE Dept_ID='$Dept_ID' ORDER BY Prog_Name DESC";
-											$pgrun = mysqli_query($con, $pgquery);
-											while ($pgrow = mysqli_fetch_array($pgrun)) {
-											    echo "<option value='" . $pgrow['Prog_ID'] . "'>" . $pgrow['Prog_Name'] . "</option>";
-											}
-										?>
-                                    </select>
-                                </div>
-                                <div class="col-md-5">
-                                    <label class="form-label small fw-bold text-secondary mb-1">Upload CSV</label>
-                                    <input type="file" class="form-control shadow-none border-secondary-subtle"
-                                        name="csv_file" accept=".csv" required>
-                                </div>
-                                <div class="col-md-3 mt-4 pt-2">
-                                    <button type="submit" class="btn btn-primary px-4 fw-bold w-100"
-                                        name="Add"><i class="ti ti-upload me-1"></i>Upload CSV</button>
-                                </div>
+                        <form method="POST" enctype="multipart/form-data" class="row g-3 align-items-end">
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold text-secondary mb-1">Select Programme</label>
+                                <select name="Stud_Branch" class="form-select shadow-none border-secondary-subtle" required>
+                                    <option value="" selected disabled>-- Select --</option>
+                                    <?php
+										$pgquery ="SELECT * FROM programmes WHERE Dept_ID='$Dept_ID' ORDER BY Prog_Name DESC";
+										$pgrun = mysqli_query($con, $pgquery);
+										while ($pgrow = mysqli_fetch_array($pgrun)) {
+											echo "<option value='" . $pgrow['Prog_ID'] . "'>" . $pgrow['Prog_Name'] . "</option>";
+										}
+									?>
+                                </select>
                             </div>
-                            <div class="mt-3">
-                                <a href="../Templates/Courses_Template.csv"
-                                    class="btn btn-sm btn-outline-secondary rounded-pill px-3" download><i
-                                        class="ti ti-download me-1"></i>Download CSV Template</a>
+                            <div class="col-md-5">
+                                <label class="form-label small fw-bold text-secondary mb-1">Upload CSV</label>
+                                <input type="file" class="form-control shadow-none border-secondary-subtle" name="csv_file" accept=".csv" required>
+                            </div>
+                            <div class="col-md-3">
+                                <button type="submit" class="btn btn-primary px-4 fw-bold w-100" name="Add"><i class="ti ti-upload me-1"></i>Upload CSV</button>
+                            </div>
+                            <div class="col-md-12">
+                                <a href="../Templates/Courses_Template.csv" class="btn btn-sm btn-outline-secondary rounded-pill px-4" download><i class="ti ti-download me-1"></i>Download CSV Template</a>
                             </div>
                         </form>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-12 container-fluid">
+                    <div class="col-md-12">
                         <?php
 							if (isset($_POST['Add'])) {
 								$courses = [];
@@ -144,8 +136,7 @@
 								if (!empty($courses)) {
 							?>
                         <form method="POST">
-                            <input type="hidden" name="json_data"
-                                value='<?= json_encode($courses, JSON_HEX_APOS | JSON_HEX_QUOT) ?>'>
+                            <input type="hidden" name="json_data" value='<?= json_encode($courses, JSON_HEX_APOS | JSON_HEX_QUOT) ?>'>
                             <div class="table-responsive rounded-3 border mt-4">
                                 <table class="table table-hover align-middle mb-0 text-center">
                                     <thead class="table-light">
@@ -203,7 +194,7 @@
             </div>
             <div class="card-body px-4 py-3">
                 <!-- Search -->
-                <form method="POST" class="row g-3 align-items-end bg-light p-3 rounded-4 mb-4">
+                <form method="POST" class="row g-3 align-items-end">
                     <!-- Search Box -->
                     <div class="col-md-3">
                         <label class="form-label small fw-bold text-secondary mb-1">Programme</label>
@@ -219,39 +210,6 @@
                             ?>
                         </select>
                     </div>
-
-                    <div class="col-md-3">
-                        <label class="form-label small fw-bold text-secondary mb-1">Course Name / Code</label>
-                        <input type="text" name="Search_Course" class="form-control shadow-none border-secondary-subtle"
-                            placeholder="Search..." value="<?php 
-                                echo isset($_POST['Search_Course']) ? $_POST['Search_Course'] : ''; ?>">
-                    </div>
-
-                    <!-- Year Filter -->
-                    <div class="col-md-2">
-                        <label class="form-label small fw-bold text-secondary mb-1">Year</label>
-                        <select name="Filter_Year" class="form-select shadow-none border-secondary-subtle">
-                            <option value="">-- All --</option>
-                            <option value="1" <?=selected('Filter_Year', '1' ) ?>>1st Year</option>
-                            <option value="2" <?=selected('Filter_Year', '2' ) ?>>2nd Year</option>
-                            <option value="3" <?=selected('Filter_Year', '3' ) ?>>3rd Year</option>
-                            <option value="4" <?=selected('Filter_Year', '4' ) ?>>4th Year</option>
-                        </select>
-                    </div>
-
-                    <!-- Semester Filter -->
-                    <div class="col-md-2">
-                        <label class="form-label small fw-bold text-secondary mb-1">Semester</label>
-                        <select name="Filter_Semester" class="form-select shadow-none border-secondary-subtle">
-                            <option value="">-- All --</option>
-                            <?php 
-                                for($i=1;$i<=8;$i++){
-                                    echo "<option value='$i' ".selected('Filter_Semester',"$i").">S$i</option>";
-                                }
-                            ?>
-                        </select>
-                    </div>
-
                     <div class="col-md-2">
                         <button type="submit" name="Search"
                             class="btn btn-success fw-bold w-100 shadow-sm"><i
@@ -261,52 +219,77 @@
                 <div class="row mt-4">
                     <div class="col-md-12">
                         <?php  
-                            if (isset($_POST['Search'])) {
-
-                                $conditions = [];
-                                $search = mysqli_real_escape_string($con, $_POST['Search_Course']);
-                                $year = $_POST['Filter_Year'];
-                                $semester = $_POST['Filter_Semester'];
-                                // Text Search
-                                if (!empty($search)) {
-                                    $conditions[] = "(Course_Name LIKE '%$search%' OR Course_Code LIKE '%$search%')";
-                                }
-                                // Programme Filter
-                                if (!empty($_POST['Prog_ID'])) {
-                                    $prog_id = $_POST['Prog_ID'];
-                                    $conditions[] = "Prog_ID = '$prog_id'";
-                                }
-                                // Year Filter
-                                if (!empty($year)) {
-                                    $conditions[] = "Course_Year = '$year'";
-                                }
-                                // Semester Filter
-                                if (!empty($semester)) {
-                                    $conditions[] = "Semester = '$semester'";
-                                }
-                                // Always include department
-                                $conditions[] = "Dept_ID = '$Dept_ID'";
-
-                                // Build final query
-                                $whereSQL = "WHERE " . implode(" AND ", $conditions);
-
-                                $query = "
-                                    SELECT * FROM courses
-                                    $whereSQL 
-                                    ORDER BY Course_Year, Semester, Course_Name
-                                ";
-
+                            if (isset($_POST['Search'])) {  
+                                $prog_id = mysqli_real_escape_string($con, $_POST['Prog_ID']);
+                                $query = "SELECT * FROM courses WHERE Dept_ID = '$Dept_ID' AND Prog_ID = '$prog_id' ORDER BY Course_Year, Semester, Course_Name";
                                 $run = mysqli_query($con, $query);
 
                                 if (mysqli_num_rows($run) == 0) {
                                     echo "<p class='mt-3 text-danger text-center'>No matching courses found.</p>";
                                 } 
                                 else {
+                                    $courses = [];
+                                    $availableYears = [];
+                                    $availableSemesters = [];
+                                    while ($row = mysqli_fetch_assoc($run)) {
+                                        $courses[] = $row;
+                                        $y = (string)$row['Course_Year'];
+                                        $s = (string)$row['Semester'];
+                                        if ($y !== '' && !in_array($y, $availableYears, true)) {
+                                            $availableYears[] = $y;
+                                        }
+                                        if ($s !== '' && !in_array($s, $availableSemesters, true)) {
+                                            $availableSemesters[] = $s;
+                                        }
+                                    }
+                                    sort($availableYears, SORT_NUMERIC);
+                                    sort($availableSemesters, SORT_NUMERIC);
                         ?>
-
+                        <!-- 3 JS Filters: Course Name, Year & Semester -->
+                        <div class="card bg-light border-0 rounded-4 p-3 mb-3">
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-5">
+                                    <label class="form-label small fw-bold text-secondary mb-1">
+                                        <i class="ti ti-search me-1"></i>Filter by Course Name / Code
+                                    </label>
+                                    <input type="text" id="filterCourseName" class="form-control shadow-none border-secondary-subtle bg-white" placeholder="Type course name or code...">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-bold text-secondary mb-1">
+                                        <i class="ti ti-calendar me-1"></i>Filter by Year
+                                    </label>
+                                    <select id="filterYear" class="form-select shadow-none border-secondary-subtle bg-white">
+                                        <option value="">-- All Years --</option>
+                                        <?php 
+                                            $yearLabels = [1 => '1st Year', 2 => '2nd Year', 3 => '3rd Year', 4 => '4th Year'];
+                                            foreach ($availableYears as $y): 
+                                                $label = isset($yearLabels[$y]) ? $yearLabels[$y] : "Year $y";
+                                        ?>
+                                            <option value="<?php echo htmlspecialchars($y); ?>"><?php echo $label; ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-bold text-secondary mb-1">
+                                        <i class="ti ti-books me-1"></i>Filter by Semester
+                                    </label>
+                                    <select id="filterSemester" class="form-select shadow-none border-secondary-subtle bg-white">
+                                        <option value="">-- All Semesters --</option>
+                                        <?php foreach ($availableSemesters as $s): ?>
+                                            <option value="<?php echo htmlspecialchars($s); ?>">S<?php echo htmlspecialchars($s); ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-1">
+                                    <button type="button" id="resetFilters" class="btn btn-outline-secondary fw-semibold w-100 shadow-sm" title="Reset Filters">
+                                        <i class="ti ti-refresh"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="table-responsive border rounded-4 mt-2">
-                            <table class="table table-hover align-middle mb-0 text-center">
+                            <table class="table table-hover align-middle mb-0 text-center" id="coursesTable">
                                 <thead class="table-light">
                                     <tr>
                                         <th class="py-3 text-secondary fw-semibold">SL No</th>
@@ -321,40 +304,30 @@
                                 <tbody>
                                     <?php 
                                     $sl = 1;
-                                    while ($row = mysqli_fetch_assoc($run)) {
+                                    foreach ($courses as $row) {
                                 ?>
-                                    <tr>
-                                        <td class="text-muted fw-bold">
-                                            <?php echo $sl++; ?>
-                                        </td>
-                                        <td class="fw-semibold text-dark">
-                                            <?php echo $row['Course_Code']; ?>
-                                        </td>
+                                    <tr class="course-row" 
+                                        data-name="<?php echo htmlspecialchars(strtolower($row['Course_Name'])); ?>" 
+                                        data-code="<?php echo htmlspecialchars(strtolower($row['Course_Code'])); ?>" 
+                                        data-year="<?php echo htmlspecialchars($row['Course_Year']); ?>" 
+                                        data-semester="<?php echo htmlspecialchars($row['Semester']); ?>">
+                                        <td class="text-muted fw-bold sl-no"><?php echo $sl++; ?></td>
+                                        <td class="fw-semibold text-dark"><?php echo $row['Course_Code']; ?></td>
+                                        <td><?php echo $row['Course_Name']; ?></td>
+                                        <td><?php echo $row['Course_Year']; ?></td>
+                                        <td><span class="badge bg-secondary rounded-pill">S<?php echo $row['Semester']; ?></span></td>
+                                        <td><span class="badge bg-info bg-opacity-10 text-info rounded-pill px-3"><?php echo $row['Credits']; ?></span></td>
                                         <td>
-                                            <?php echo $row['Course_Name']; ?>
-                                        </td>
-                                        <td>
-                                            <?php echo $row['Course_Year']; ?>
-                                        </td>
-                                        <td><span class="badge bg-secondary rounded-pill">S
-                                                <?php echo $row['Semester']; ?>
-                                            </span></td>
-                                        <td><span class="badge bg-info bg-opacity-10 text-info rounded-pill px-3">
-                                                <?php echo $row['Credits']; ?>
-                                            </span></td>
-
-                                        <td>
-                                            <a href="edit-course.php?Course_ID=<?php echo $row['Course_ID']; ?>"
-                                                class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-semibold"><i
-                                                    class="ti ti-edit me-1"></i>Edit</a>
-
-                                            <a href="delete-course.php?Course_ID=<?php echo $row['Course_ID']; ?>"
-                                                class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-semibold ms-1"
-                                                onclick="return confirm('Delete this course?');"><i
-                                                    class="ti ti-trash me-1"></i>Delete</a>
+                                            <a href="edit-course.php?Course_ID=<?php echo $row['Course_ID']; ?>" class="btn btn-sm btn-outline-warning rounded-pill px-3 fw-semibold"><i class="ti ti-edit me-1"></i></a>
+                                            <a href="delete-course.php?Course_ID=<?php echo $row['Course_ID']; ?>" class="btn btn-sm btn-outline-danger rounded-pill px-3 fw-semibold ms-1" onclick="return confirm('Delete this course?');"><i class="ti ti-trash me-1"></i></a>
                                         </td>
                                     </tr>
                                     <?php } ?>
+                                    <tr id="noResultsRow" style="display: none;">
+                                        <td colspan="7" class="text-muted py-4 text-center">
+                                            <i class="ti ti-mood-empty fs-3 d-block mb-1"></i>No courses match the selected filters.
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -369,6 +342,136 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const courseInput = document.getElementById('filterCourseName');
+        const yearSelect = document.getElementById('filterYear');
+        const semesterSelect = document.getElementById('filterSemester');
+        const resetBtn = document.getElementById('resetFilters');
+        const rows = document.querySelectorAll('.course-row');
+        const noResultsRow = document.getElementById('noResultsRow');
+
+        if (!rows.length) return;
+
+        // Cache all available semester options rendered from server
+        const allSemesterOptions = semesterSelect ? Array.from(semesterSelect.options).map(opt => ({
+            value: opt.value,
+            text: opt.text
+        })) : [];
+
+        function updateAvailableSemesters() {
+            if (!semesterSelect || !yearSelect) return;
+            const selectedYear = yearSelect.value.trim();
+            const currentSem = semesterSelect.value.trim();
+
+            if (!selectedYear) {
+                semesterSelect.innerHTML = '';
+                allSemesterOptions.forEach(opt => {
+                    const el = document.createElement('option');
+                    el.value = opt.value;
+                    el.textContent = opt.text;
+                    if (opt.value === currentSem) el.selected = true;
+                    semesterSelect.appendChild(el);
+                });
+                return;
+            }
+
+            const availableSemsForYear = new Set();
+            rows.forEach(r => {
+                if (r.getAttribute('data-year') === selectedYear) {
+                    availableSemsForYear.add(r.getAttribute('data-semester'));
+                }
+            });
+
+            semesterSelect.innerHTML = '';
+            let keepCurrentSem = false;
+            allSemesterOptions.forEach(opt => {
+                if (opt.value === '' || availableSemsForYear.has(opt.value)) {
+                    const el = document.createElement('option');
+                    el.value = opt.value;
+                    el.textContent = opt.text;
+                    if (opt.value === currentSem) {
+                        el.selected = true;
+                        keepCurrentSem = true;
+                    }
+                    semesterSelect.appendChild(el);
+                }
+            });
+
+            if (!keepCurrentSem) {
+                semesterSelect.value = '';
+            }
+        }
+
+        function applyFilters() {
+            const courseTerm = (courseInput ? courseInput.value : '').toLowerCase().trim();
+            const selectedYear = (yearSelect ? yearSelect.value : '').trim();
+            const selectedSem = (semesterSelect ? semesterSelect.value : '').trim();
+
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const name = row.getAttribute('data-name') || '';
+                const code = row.getAttribute('data-code') || '';
+                const year = row.getAttribute('data-year') || '';
+                const semester = row.getAttribute('data-semester') || '';
+
+                const matchesName = !courseTerm || name.includes(courseTerm) || code.includes(courseTerm);
+                const matchesYear = !selectedYear || year === selectedYear;
+                const matchesSem = !selectedSem || semester === selectedSem;
+
+                if (matchesName && matchesYear && matchesSem) {
+                    row.style.display = '';
+                    visibleCount++;
+                    const slCell = row.querySelector('.sl-no');
+                    if (slCell) {
+                        slCell.textContent = visibleCount;
+                    }
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            if (noResultsRow) {
+                noResultsRow.style.display = (visibleCount === 0) ? '' : 'none';
+            }
+        }
+
+        if (courseInput) {
+            courseInput.addEventListener('input', applyFilters);
+            courseInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') e.preventDefault();
+            });
+        }
+        if (yearSelect) {
+            yearSelect.addEventListener('change', function () {
+                updateAvailableSemesters();
+                applyFilters();
+            });
+        }
+        if (semesterSelect) {
+            semesterSelect.addEventListener('change', applyFilters);
+        }
+
+        if (resetBtn) {
+            resetBtn.addEventListener('click', function () {
+                if (courseInput) courseInput.value = '';
+                if (yearSelect) yearSelect.value = '';
+                if (semesterSelect) {
+                    semesterSelect.innerHTML = '';
+                    allSemesterOptions.forEach(opt => {
+                        const el = document.createElement('option');
+                        el.value = opt.value;
+                        el.textContent = opt.text;
+                        semesterSelect.appendChild(el);
+                    });
+                    semesterSelect.value = '';
+                }
+                applyFilters();
+            });
+        }
+    });
+    </script>
     <?php include '../Common/footer.php'; ?>
 </body>
 

@@ -441,9 +441,12 @@ if(!$Edit_Exam_ID) { echo '<script>alert("No Exam Selected"); window.location="d
 
         // ── Fill preview ─────────────────────────────────────────────
         function updateFillPreview(ta, qId) {
-            const val = ta.value;
+            if (!ta) return;
             const fp = document.getElementById('fp_' + qId);
             const ansDiv = document.getElementById('fill_ans_' + qId);
+            if (!fp || !ansDiv) return;
+
+            const val = ta.value;
             if (!val) {
                 fp.style.display = 'none';
                 return;

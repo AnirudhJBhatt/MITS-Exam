@@ -720,9 +720,12 @@ $Course_Code = $course['Course_Code'] ?? '';
 
         // ── Fill preview ─────────────────────────────────────────────
         function updateFillPreview(ta, qId) {
-            const val = ta.value;
+            if (!ta) return;
             const fp = document.getElementById('fp_' + qId);
             const ansDiv = document.getElementById('fill_ans_' + qId);
+            if (!fp || !ansDiv) return;
+
+            const val = ta.value;
             if (!val) {
                 fp.style.display = 'none';
                 return;

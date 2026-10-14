@@ -66,32 +66,29 @@ if (isset($_POST['submit_csv'])) {
         <div class="dashboard-header">
 			<h4 class="mb-0 fw-bold">Manage Faculty</h4>
 		</div>
-
-			<div class="card shadow-sm border-0 rounded-4 mb-4 hover-elevate">
-				<div class="card-header bg-light border-0 py-3 px-4">
-					<h6 class="mb-0 fw-bold text-uppercase"><i class="ti ti-file-upload me-2"></i>Upload Faculty (CSV)</h6>
-				</div>
-				<div class="card-body px-4 py-3">	
-					<div class="row">
-						<div class="col-md-12">
-							<form method="POST" enctype="multipart/form-data">
-								<div class="row g-3 align-items-center mt-1">
-									<div class="col-md-5">
-                                        <label class="form-label small fw-bold text-secondary mb-1">Upload CSV</label>
-										<input type="file" class="form-control shadow-none border-secondary-subtle" name="csv_file" accept=".csv" required>
-									</div>
-									<div class="col-md-3 mt-4 pt-2">
-										<button type="submit" class="btn btn-primary px-4 fw-bold w-100" name="Add"><i class="ti ti-upload me-1"></i>Upload CSV</button>
-									</div>
-								</div>
-                                <div class="mt-3">
-                                    <a href="../Templates/Faculty_Template.csv" class="btn btn-sm btn-outline-secondary rounded-pill px-3" download><i class="ti ti-download me-1"></i>Download CSV Template</a>
-                                </div>
-							</form>
-						</div>
+		<div class="card shadow-sm border-0 rounded-4 mb-4 hover-elevate">
+			<div class="card-header border-0 py-3 px-4">
+				<h6 class="mb-0 fw-bold text-uppercase"><i class="ti ti-file-upload me-2"></i>Upload Faculty (CSV)</h6>
+			</div>
+			<div class="card-body px-4 py-3">	
+				<div class="row">
+					<div class="col-md-12">
+						<form method="POST" enctype="multipart/form-data" class="row g-3 align-items-end">
+							<div class="col-md-5">
+                                <label class="form-label small fw-bold text-secondary mb-1">Upload CSV</label>
+								<input type="file" class="form-control shadow-none border-secondary-subtle" name="csv_file" accept=".csv" required>
+							</div>
+							<div class="col-md-3">
+								<button type="submit" class="btn btn-primary px-4 fw-bold w-100" name="Add"><i class="ti ti-upload me-1"></i>Upload CSV</button>
+							</div>
+                            <div class="col-md-12">
+                                <a href="../Templates/Faculty_Template.csv" class="btn btn-sm btn-outline-secondary rounded-pill px-4" download><i class="ti ti-download me-1"></i>Download CSV Template</a>
+                            </div>
+						</form>
 					</div>
-					<div class="row">
-						<div class="col-md-12 container-fluid">
+				</div>
+				<div class="row">
+					<div class="col-md-12 container-fluid">
 						<?php
 							if (isset($_POST['Add'])) {
 								$faculties = [];
@@ -157,23 +154,21 @@ if (isset($_POST['submit_csv'])) {
 				</div>
 			</div>
 			<div class="card shadow-sm border-0 rounded-4 mb-4 hover-elevate">
-				<div class="card-header bg-light border-0 py-3 px-4">
+				<div class="card-header border-0 py-3 px-4">
 					<h6 class="mb-0 fw-bold text-uppercase"><i class="ti ti-users me-2"></i>Existing Faculty</h6>
 				</div>
 				<div class="card-body px-4 py-3">	
 					<div class="row">
                         <div class="col-md-12">
                             <!-- Search Form -->
-                            <form method="POST" class="bg-light p-3 rounded-4 mb-4">
-                                <div class="row g-3 align-items-end">
-                                    <div class="col-md-4">
-                                        <label class="form-label small fw-bold text-secondary mb-1">Faculty Name</label>
-                                        <input type="text" name="Fac_Name" class="form-control shadow-none border-secondary-subtle" placeholder="Search by name..."
-                                            value="<?php echo isset($_POST['Fac_Name']) ? $_POST['Fac_Name'] : ''; ?>">
-                                    </div>
-                                    <div class="col-md-2">
-                                        <button type="submit" name="Submit" class="btn btn-success fw-bold w-100 shadow-sm"><i class="ti ti-search me-1"></i>Search</button>
-                                    </div>
+                            <form method="POST" class="row g-3 align-items-end">
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-bold text-secondary mb-1">Faculty Name</label>
+                                    <input type="text" name="Fac_Name" class="form-control shadow-none border-secondary-subtle" placeholder="Search by name..."
+                                        value="<?php echo isset($_POST['Fac_Name']) ? $_POST['Fac_Name'] : ''; ?>">
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="submit" name="Submit" class="btn btn-success fw-bold w-100 shadow-sm"><i class="ti ti-search me-1"></i>Search</button>
                                 </div>
                             </form>
                         </div>

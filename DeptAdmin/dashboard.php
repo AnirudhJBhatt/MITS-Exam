@@ -88,11 +88,11 @@
                 </div>
             </div>
             
-            <div class="row g-4 mt-4">
+            <!-- <div class="row g-4 mt-4">
                 <div class="col-lg-8">
                     <div class="card shadow-sm border-0 rounded-4 h-100">
-                        <div class="card-header bg-white border-0 pt-4 pb-0 px-4">
-                            <h5 class="fw-bold"><i class="ti ti-bell text-primary me-2"></i>Recent Activity</h5>
+                        <div class="card-header bg-light border-0 py-3 px-4">
+                            <h6 class="mb-0 fw-bold text-uppercase"><i class="ti ti-bell me-2"></i>Recent Activity</h6>
                         </div>
                         <div class="card-body p-4">
                             <div class="d-flex align-items-start mb-4 pb-3 border-bottom">
@@ -124,7 +124,7 @@
                 </div>
                 <div class="col-lg-4">
                     <div class="card shadow-sm border-0 rounded-4 h-100 bg-primary text-white position-relative overflow-hidden">
-                        <!-- Decorative background circle -->
+                        Decorative background circle
                         <div class="position-absolute rounded-circle bg-white opacity-10" style="width: 200px; height: 200px; top: -50px; right: -50px;"></div>
                         <div class="card-body p-4 d-flex flex-column justify-content-center align-items-center text-center position-relative z-1">
                             <i class="ti ti-report-analytics display-2 mb-3 text-white opacity-75"></i>
@@ -134,7 +134,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
     </main>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
