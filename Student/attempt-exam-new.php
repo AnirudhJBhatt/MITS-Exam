@@ -2003,43 +2003,49 @@ $studentJson   = json_encode($student);
 			return `${Math.floor(sec / 60)}m ${sec % 60}s`;
 		}
 
-		function formatMath(text) {
-			if (!text) return '';
+		// true only if the string is ONE \text{ ... } block (braces balanced)
+function unwrapSingleText(s) {
+	const m = s.match(/^\s*\\text\s*\{/);
+	if (!m) return null;
+	let depth = 1, i = m[0].length;
+	for (; i < s.length && depth > 0; i++) {
+		if (s[i] === '{') depth++;
+		else if (s[i] === '}') depth--;
+	}
+	if (depth !== 0 || s.slice(i).trim() !== '') return null; // text continues after the block
+	return s.slice(m[0].length, i - 1);
+}
 
-			// Escape HTML first
-			text = esc(text);
+function formatMath(text) {
+	if (!text) return '';
+	text = esc(text);
 
-			let forceMath = false;
-			// Auto-fix \text{} wrapping the entire string
-			const textWrapMatch = text.match(/^\s*\\text\s*\{([\s\S]*)\}\s*$/);
-			if (textWrapMatch) {
-				text = textWrapMatch[1];
-				forceMath = true;
-			}
+	const inner = unwrapSingleText(text);
+	if (inner !== null) {
+		const hasDelimiter = /\\\(|\\\[|\$\$/.test(inner);
+		const hasLatex = /\\[a-zA-Z]+|[\^_]/.test(inner);
 
-			const hasDelimiter =
-				text.includes('\\(') ||
-				text.includes('\\[') ||
-				text.includes('$$');
+		if (hasDelimiter) return formatMath(inner);          // text with \( ... \) inside
+		if (!hasLatex) return `<span class="plain-text">${inner}</span>`; // pure text: normal font, wraps, keeps spaces
+		// text containing raw latex commands: keep \text{} so MathLive renders it upright
+		return `<math-field read-only style="border:none; background:transparent; padding:0; display:inline-block; font-size:1.1em; outline:none;">${text}</math-field>`;
+	}
 
-			if (forceMath && !hasDelimiter) {
-				return `<math-field read-only style="border:none; background:transparent; padding:0; display:inline-block; font-size: 1.1em; outline: none;">${text}</math-field>`;
-			} else if (!hasDelimiter) {
-				const latexPattern =
-					/\\text|\\_|\\^|\^|_|\\begin|\\frac|\\sqrt|\\sum|\\int|\\oint|\\alpha|\\beta|\\gamma|\\pi|\\theta|\\sin|\\cos|\\tan|\\log|\\lim|\\matrix|\\pmatrix|\\bmatrix|\\infty|\\pm|\\equiv|\\approx|\\leq|\\geq|\\times|\\div|\\partial|\\nabla|\\Rightarrow|\\rightarrow|\\to/;
+	const hasDelimiter = text.includes('\\(') || text.includes('\\[') || text.includes('$$');
 
-				if (latexPattern.test(text)) {
-					return `<math-field read-only style="border:none; background:transparent; padding:0; display:inline-block; font-size: 1.1em; outline: none;">${text}</math-field>`;
-				}
-			}
-
-			// Replace standard LaTeX delimiters with math-fields
-			text = text.replace(/\$\$([\s\S]*?)\$\$/g, '<math-field read-only style="border:none; background:transparent; padding:0; display:block; font-size: 1.1em; text-align:center; outline: none;">$1</math-field>');
-			text = text.replace(/\\\(([\s\S]*?)\\\)/g, '<math-field read-only style="border:none; background:transparent; padding:0; display:inline-block; font-size: 1.1em; outline: none;">$1</math-field>');
-			text = text.replace(/\\\[([\s\S]*?)\\\]/g, '<math-field read-only style="border:none; background:transparent; padding:0; display:block; font-size: 1.1em; text-align:center; outline: none;">$1</math-field>');
-
-			return `<div class="math-content">${text}</div>`;
+	if (!hasDelimiter) {
+		const latexPattern = /\\text|\\_|\\^|\^|_|\\begin|\\frac|\\sqrt|\\sum|\\int|\\oint|\\alpha|\\beta|\\gamma|\\pi|\\theta|\\sin|\\cos|\\tan|\\log|\\lim|\\matrix|\\pmatrix|\\bmatrix|\\infty|\\pm|\\equiv|\\approx|\\leq|\\geq|\\times|\\div|\\partial|\\nabla|\\Rightarrow|\\rightarrow|\\to/;
+		if (latexPattern.test(text)) {
+			return `<math-field read-only style="border:none; background:transparent; padding:0; display:inline-block; font-size:1.1em; outline:none;">${text}</math-field>`;
 		}
+	}
+
+	text = text.replace(/\$\$([\s\S]*?)\$\$/g, '<math-field read-only style="border:none; background:transparent; padding:0; display:block; font-size:1.1em; text-align:center; outline:none;">$1</math-field>');
+	text = text.replace(/\\\(([\s\S]*?)\\\)/g, '<math-field read-only style="border:none; background:transparent; padding:0; display:inline-block; font-size:1.1em; outline:none;">$1</math-field>');
+	text = text.replace(/\\\[([\s\S]*?)\\\]/g, '<math-field read-only style="border:none; background:transparent; padding:0; display:block; font-size:1.1em; text-align:center; outline:none;">$1</math-field>');
+
+	return `<div class="math-content">${text}</div>`;
+}
 
 		function renderMath(container = document.body) {
 			// No-op since we render mathlive directly using math-field elements
