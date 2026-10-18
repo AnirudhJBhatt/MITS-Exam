@@ -96,48 +96,66 @@ include '../Common/deptadmin-sidebar.php';
     </div>
 
     <!-- Live Departmental KPI Stat Cards -->
+
     <div class="row g-4 mb-4">
         <div class="col-sm-6 col-xl-3">
-            <div class="card stat-card hover-elevate h-100">
-                <div class="stat-icon bg-primary bg-opacity-10 text-primary">
-                    <i class="bi bi-people-fill"></i>
+            <div class="card border-0 shadow-sm p-3 h-100">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-primary-subtle text-primary p-3 me-3">
+                        <i class="bi bi-people-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted small">Total Students</span>
+                        <h4 class="fw-bold mb-0"><?= number_format($totalStudents) ?></h4>
+                    </div>
                 </div>
-                <div class="stat-value text-dark"><?= number_format($totalStudents) ?></div>
-                <div class="stat-label">Department Students</div>
+            </div>
+        </div>
+        
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm p-3 h-100">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-primary-subtle text-primary p-3 me-3">
+                        <i class="bi bi-person-video3 fs-4"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted small">Total Faculty</span>
+                        <h4 class="fw-bold mb-0"><?= number_format($totalFaculty) ?></h4>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="col-sm-6 col-xl-3">
-            <div class="card stat-card hover-elevate h-100">
-                <div class="stat-icon bg-success bg-opacity-10 text-success">
-                    <i class="bi bi-person-video3"></i>
+            <div class="card border-0 shadow-sm p-3 h-100">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-primary-subtle text-primary p-3 me-3">
+                        <i class="bi bi-journal-bookmark-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted small">Active Courses</span>
+                        <h4 class="fw-bold mb-0"><?= number_format($totalCourses) ?></h4>
+                    </div>
                 </div>
-                <div class="stat-value text-dark"><?= number_format($totalFaculty) ?></div>
-                <div class="stat-label">Faculty Members</div>
             </div>
         </div>
-
+        
         <div class="col-sm-6 col-xl-3">
-            <div class="card stat-card hover-elevate h-100">
-                <div class="stat-icon bg-warning bg-opacity-10 text-warning">
-                    <i class="bi bi-journal-bookmark-fill"></i>
+            <div class="card border-0 shadow-sm p-3 h-100">
+                <div class="d-flex align-items-center">
+                    <div class="rounded-circle bg-primary-subtle text-primary p-3 me-3">
+                        <i class="bi bi-file-earmark-check-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted small">Published Assessments</span>
+                        <h4 class="fw-bold mb-0"><?= number_format($totalExams) ?></h4>
+                    </div>
                 </div>
-                <div class="stat-value text-dark"><?= number_format($totalCourses) ?></div>
-                <div class="stat-label">Active Courses</div>
             </div>
         </div>
-
-        <div class="col-sm-6 col-xl-3">
-            <div class="card stat-card hover-elevate h-100">
-                <div class="stat-icon bg-danger bg-opacity-10 text-danger">
-                    <i class="bi bi-file-earmark-check-fill"></i>
-                </div>
-                <div class="stat-value text-dark"><?= number_format($totalExams) ?></div>
-                <div class="stat-label">Published Assessments</div>
-            </div>
-        </div>
+        
     </div>
-
+    
     <!-- Quick Departmental Actions -->
     <div class="card p-4 border-0 shadow-sm rounded-4 mb-4">
         <h5 class="fw-bold mb-3 text-dark">Quick Administrative Actions</h5>

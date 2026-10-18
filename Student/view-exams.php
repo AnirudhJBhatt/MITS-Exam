@@ -76,7 +76,7 @@ foreach ($exams as $ex) {
             </div>
             <!-- Filter Pills -->
             <div class="btn-group shadow-sm rounded-pill" role="group" id="filterPills">
-                <button type="button" class="btn btn-danger btn-sm px-3 filter-btn active" data-filter="all">
+                <button type="button" class="btn btn-danger btn-sm px-3 filter-btn" data-filter="all">
                     All <span class="badge bg-white text-danger ms-1"><?= $counts['all'] ?></span>
                 </button>
                 <button type="button" class="btn btn-outline-danger btn-sm px-3 filter-btn" data-filter="ongoing">
@@ -248,8 +248,8 @@ foreach ($exams as $ex) {
         $(document).ready(function () {
             // Filter pills logic
             $('.filter-btn').on('click', function () {
-                $('.filter-btn').removeClass('active btn-danger').addClass('btn-outline-danger');
-                $(this).addClass('active btn-danger').removeClass('btn-outline-danger');
+                $('.filter-btn').removeClass('btn-danger').addClass('btn-outline-danger');
+                $(this).addClass('btn-danger').removeClass('btn-outline-danger');
 
                 var filter = $(this).data('filter');
                 if (filter === 'all') {

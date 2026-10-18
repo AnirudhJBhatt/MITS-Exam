@@ -66,13 +66,14 @@ include '../Common/faculty-sidebar.php';
 <main>
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
         <div>
-            <h4 class="fw-bold mb-1" style="color: var(--mits-primary);">Enrolled Students</h4>
-            <p class="text-muted mb-0 small">Review examinee rosters and candidate details enrolled in your teaching subjects</p>
+            <h3 class="fw-bold mb-1 text-dark">
+                <i class="bi bi-people text-danger me-2"></i>Enrolled Students
+            </h3>
         </div>
         <?php if (!empty($students)): ?>
             <div>
                 <button class="btn btn-outline-secondary" onclick="exportTableToCSV('Student_Cohort_<?= e($selectedCourse) ?>.csv')">
-                    <i class="bi bi-download me-1"></i> Export Roster CSV
+                    <i class="bi bi-download me-1"></i> Export Students CSV
                 </button>
             </div>
         <?php endif; ?>

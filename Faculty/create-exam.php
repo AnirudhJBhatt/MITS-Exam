@@ -77,25 +77,26 @@ $Course_Code = $course['Course_Code'] ?? '';
 
     <main>
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
-        <div>
-            <h4 class="fw-bold mb-1" style="color: var(--mits-primary);">Examinations & Assessment Manager</h4>
-            <p class="text-muted mb-0 small">Schedule timed computer-based tests, publish windows, and download formatted question papers</p>
+            <div>
+                <h3 class="fw-bold mb-1 text-dark">
+                    <i class="bi bi-pencil-square text-danger me-2"></i>Create Assessment
+                </h3>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-outline-danger" onclick="window.history.back()">
+                    <i class="bi bi-arrow-left me-1"></i> Back
+                </button>
+                <a href="question-bank.php" class="btn btn-outline-secondary">
+                    <i class="bi bi-folder-check me-1"></i> Question Bank
+                </a>
+            </div>
         </div>
-        <div class="d-flex gap-2">
-            <a href="question-bank.php" class="btn btn-outline-secondary">
-                <i class="bi bi-folder-check me-1"></i> Question Bank
-            </a>
-            <a href="manage-exams.php" class="btn btn-outline-secondary">
-                <i class="bi bi-journal-plus me-1"></i> Manage Exams
-            </a>
-        </div>
-    </div>
 
         <div class="sub-main">
             <!-- Exam details card -->
             <div class="card border-0 shadow-sm mb-3">
-                <div class="card-header bg-white border-bottom py-2">
-                    <h5 class="mb-0 fw-semibold">Create exam</h5>
+                <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="text-uppercase small fw-semibold mb-0">Create exam</h5>
                 </div>
                 <div class="card-body">
                     <div class="row g-3 mb-3">
@@ -143,14 +144,14 @@ $Course_Code = $course['Course_Code'] ?? '';
 
             <!-- Questions card -->
             <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-bottom py-2 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div class="card-header bg-white border-bottom py-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
                     <div class="d-flex align-items-center gap-2">
-                        <span class="text-uppercase small fw-semibold text-muted">Questions</span>
+                        <span class="text-uppercase small fw-semibold text-white">Questions</span>
                         <span class="badge bg-light text-secondary border" id="qnCountBadge">0 questions</span>
                     </div>
-                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="openQBank()">
-                        Add from question bank
-                    </button>
+                        <!-- <button type="button" class="btn btn-sm btn-outline-secondary" onclick="openQBank()">
+                            Add from question bank
+                        </button> -->
                 </div>
                 <div class="card-body">
                     <div id="questionList"></div>
@@ -173,7 +174,7 @@ $Course_Code = $course['Course_Code'] ?? '';
                         <i class="ti ti-device-floppy me-1"></i>Save draft
                     </button> -->
                     <button class="btn btn-primary" id="btnPublish" onclick="saveExam('published')">
-                        <i class="ti ti-send me-1"></i>Publish exam
+                        <i class="bi bi-cursor-fill me-1"></i>Publish exam
                     </button>
                 </div>
 

@@ -57,7 +57,9 @@ include '../Common/faculty-sidebar.php';
 <main>
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
         <div>
-            <h4 class="fw-bold mb-1" style="color: var(--mits-primary);">My Allocated Courses</h4>
+            <h3 class="fw-bold mb-1 text-dark">
+                <i class="bi bi-book-half text-danger me-2"></i>My Allocated Courses
+            </h3>
         </div>
         <div class="d-flex gap-2">
             <a href="create-exam.php" class="btn btn-primary">

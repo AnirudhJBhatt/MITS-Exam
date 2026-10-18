@@ -82,8 +82,9 @@ include '../Common/faculty-sidebar.php';
 <main>
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
         <div>
-            <h4 class="fw-bold mb-1" style="color: var(--mits-primary);">Account Security & Profile</h4>
-            <p class="text-muted mb-0 small">Manage your faculty credentials and review registered institutional information</p>
+            <h3 class="fw-bold mb-1 text-dark">
+                <i class="bi bi-gear-fill text-danger me-2"></i>Account Settings & Security
+            </h3>
         </div>
     </div>
 

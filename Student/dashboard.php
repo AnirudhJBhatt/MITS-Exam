@@ -106,26 +106,27 @@ $recentSubmissions = $recentSubStmt->fetchAll();
 
     <main>
         <!-- Hero Header -->
-        <!-- <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-            <div>
-                <h3 class="fw-bold text-dark">
-                    <i class="bi bi-house-door-fill text-danger me-2"></i>Dashboard
-                </h3>
-            </div>
-            <div>
-                <a href="view-exams.php" class="btn btn-danger px-3 py-2 fw-semibold shadow-sm rounded-pill">
-                    <i class="bi bi-file-earmark-text me-1"></i> View All Assessments
-                </a>
-            </div>
-        </div> -->
-
         <div class="card border-0 shadow-sm mb-4 bg-white overflow-hidden">
             <div class="card-body p-4 d-flex flex-wrap justify-content-between align-items-center gap-3">
                 <div>
-                    <h3 class="fw-bold mb-1 text-dark"><i class="bi bi-house-door-fill text-danger me-2"></i>Dashboard</h3>
+                    <span class="badge bg-danger-subtle text-danger px-3 py-1 rounded-pill mb-2 fw-semibold">
+                        <i class="bi bi-mortarboard-fill me-1"></i> Student Portal
+                    </span>
+                    <h3 class="fw-bold mb-1 text-dark">Welcome back, <?= e($student['Stud_Name']) ?></h3>
+                    <p class="text-muted mb-0 small">
+                        Department: <strong><?= e($student['Dept_Name']) ?></strong> | Admission No: <code><?= e($student['Stud_ID']) ?></code>
+                    </p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="view-results.php" class="btn btn-outline-primary">
+                        <i class="bi bi-journal-text me-1"></i>View Results
+                    </a>
+                    <a href="view-exams.php" class="btn btn-primary">
+                        <i class="bi bi-journal-bookmark-fill me-1"></i>View Exams
+                    </a>
                 </div>
             </div>
-        </div>
+        </div>  
 
 
         <!-- 4 Metric Cards -->
@@ -247,7 +248,7 @@ $recentSubmissions = $recentSubStmt->fetchAll();
                             </div>
                             <div class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
                                 <span class="text-muted small">Programme</span>
-                                <span class="fw-semibold text-dark"><?= e($student['Stud_Prog'] . ' - ' . ($student['Prog_Name'] ?? '')) ?></span>
+                                <span class="fw-semibold text-dark"><?=  ($student['Prog_Name'] ?? 'N/A') ?></span>
                             </div>
                             <div class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
                                 <span class="text-muted small">Current Semester</span>

@@ -121,7 +121,7 @@ if (isset($_SESSION["LoginAdmin"])) {
             <div class="dropdown">
                 <button class="btn btn-light bg-transparent border-0 d-flex align-items-center gap-2 rounded-pill px-2 py-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                     <div class="rounded-circle bg-danger-subtle text-danger d-flex align-items-center justify-content-center fw-bold" style="width: 36px; height: 36px; font-size: 0.95rem;">
-                        <?= strtoupper(substr(htmlspecialchars($username, ENT_QUOTES, 'UTF-8'), 0, 1)) ?>
+                       <?= strtoupper(substr(htmlspecialchars($username, ENT_QUOTES, 'UTF-8'), 0, 1) ) ?>
                     </div>
                     <span class="fw-semibold text-dark d-none d-sm-inline fs-6"><?= htmlspecialchars($username, ENT_QUOTES, 'UTF-8') ?></span>
                     <i class="bi bi-chevron-down text-muted small"></i>

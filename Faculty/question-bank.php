@@ -674,10 +674,14 @@ include '../Common/faculty-sidebar.php';
 <main>
     <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
         <div>
-            <h4 class="fw-bold mb-1" style="color: var(--mits-primary);">Faculty Question Repository</h4>
-            <p class="text-muted mb-0 small">Course-mapped question bank with MathLive LaTeX equation authoring and Bloom's/CO classification</p>
+            <h3 class="fw-bold mb-1 text-dark">
+                <i class="bi bi-folder-check text-danger me-2"></i>Question Bank
+            </h3>
         </div>
         <div class="d-flex gap-2">
+            <button class="btn btn-outline-danger" onclick="window.history.back()">
+                <i class="bi bi-arrow-left me-1"></i> Back
+            </button>
             <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#importCsvModal">
                 <i class="bi bi-file-earmark-arrow-up me-1"></i> Import CSV
             </button>
