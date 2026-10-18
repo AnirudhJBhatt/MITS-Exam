@@ -1,191 +1,223 @@
-<?php  
-	session_start();
-	if (!$_SESSION["LoginFaculty"]){
-		echo '<script> alert("Your Are Not Authorize Person For This link");</script>';
-        echo '<script>window.location="../index.php"</script>';
-	}
-
-	require_once "../Connection/connection.php";
-
-    $Fac_ID=$_SESSION['LoginFaculty'];
-	$query = "SELECT * FROM `faculty` WHERE `Fac_ID` = '$Fac_ID' ";
-    $run = mysqli_query($con, $query);
-    $row = mysqli_fetch_array($run);
-	$Fac_Dept=$row['Fac_Dept'];
-	$Fac_Acad_Year=$row['Acad_Year'];
-?>
-
 <?php
+/**
+ * MITS Exam Portal - Faculty Enrolled Students
+ * Parameterized queries, course-based enrollment filtering, live search, and roster export
+ */
+require_once "../Connection/connection.php";
+require_once "../Common/auth.php";
+require_once "../Common/csrf.php";
 
+check_role('Faculty');
+
+$fac_id = $_SESSION['LoginFaculty'] ?? $_SESSION['user_id'] ?? '';
+
+// Fetch assigned courses
+$stmtCourses = $pdo->prepare("
+    SELECT c.Course_ID, c.Course_Code, c.Course_Name, c.Semester, cm.Acad_Year 
+    FROM course_mapping cm
+    JOIN courses c ON cm.Course_ID = c.Course_ID
+    WHERE cm.Fac_ID = ?
+    ORDER BY c.Course_Name ASC
+");
+$stmtCourses->execute([$fac_id]);
+$courses = $stmtCourses->fetchAll(PDO::FETCH_ASSOC);
+
+$selectedCourse = $_GET['course'] ?? ($courses[0]['Course_ID'] ?? '');
+
+$students = [];
+$courseInfo = null;
+
+if ($selectedCourse !== '') {
+    // Fetch course details
+    $cStmt = $pdo->prepare("SELECT * FROM courses WHERE Course_ID = ? LIMIT 1");
+    $cStmt->execute([$selectedCourse]);
+    $courseInfo = $cStmt->fetch(PDO::FETCH_ASSOC);
+
+    // Fetch enrolled students
+    $stmtStud = $pdo->prepare("
+        SELECT s.Stud_ID, s.Stud_Name, s.Stud_Email, s.Stud_Dept, s.Stud_Year, s.Curr_AY, d.Dept_Name
+        FROM student_course_mapping scm
+        JOIN student s ON scm.Stud_ID = s.Stud_ID
+        LEFT JOIN department d ON s.Stud_Dept = d.Dept_ID
+        WHERE scm.Course_ID = ?
+        ORDER BY s.Stud_Name ASC
+    ");
+    $stmtStud->execute([$selectedCourse]);
+    $students = $stmtStud->fetchAll(PDO::FETCH_ASSOC);
+
+    // Fallback if student_course_mapping is empty, check students by branch & semester
+    if (empty($students) && $courseInfo) {
+        $stmtFb = $pdo->prepare("
+            SELECT s.Stud_ID, s.Stud_Name, s.Stud_Email, s.Stud_Dept, s.Stud_Year, s.Curr_AY, d.Dept_Name
+            FROM student s
+            LEFT JOIN department d ON s.Stud_Dept = d.Dept_ID
+            WHERE s.Stud_Dept = ? AND s.Stud_Sem = ?
+            ORDER BY s.Stud_Name ASC
+        ");
+        $stmtFb->execute([$courseInfo['Dept_ID'], $courseInfo['Semester']]);
+        $students = $stmtFb->fetchAll(PDO::FETCH_ASSOC);
+    }
+}
+
+include '../Common/header.php';
+include '../Common/faculty-sidebar.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
+<main>
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+        <div>
+            <h4 class="fw-bold mb-1" style="color: var(--mits-primary);">Enrolled Students</h4>
+            <p class="text-muted mb-0 small">Review examinee rosters and candidate details enrolled in your teaching subjects</p>
+        </div>
+        <?php if (!empty($students)): ?>
+            <div>
+                <button class="btn btn-outline-secondary" onclick="exportTableToCSV('Student_Cohort_<?= e($selectedCourse) ?>.csv')">
+                    <i class="bi bi-download me-1"></i> Export Roster CSV
+                </button>
+            </div>
+        <?php endif; ?>
+    </div>
 
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Faculty - Manage Students</title>
-	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
+    <!-- Filter Card -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-3">
+            <form method="GET" class="row g-3 align-items-end">
+                <div class="col-md-8">
+                    <label class="form-label fw-semibold small text-muted">Select Subject / Course</label>
+                    <select name="course" class="form-select" onchange="this.form.submit()">
+                        <option value="">-- Choose Course --</option>
+                        <?php foreach ($courses as $c): ?>
+                            <option value="<?= e($c['Course_ID']) ?>" <?= $selectedCourse == $c['Course_ID'] ? 'selected' : '' ?>>
+                                <?= e($c['Course_Code'] ? $c['Course_Code'] . ' - ' : '') ?><?= e($c['Course_Name']) ?> (Semester S<?= e($c['Semester']) ?>)
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
 
-<body>
-	<?php include '../Common/header.php'; ?>
-	<?php include '../Common/faculty-sidebar.php'; ?>
+                <div class="col-md-4">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-people me-1"></i> View Students
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-	<main>
+    <!-- Student List Card -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3 d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <div>
+                <h6 class="fw-bold mb-0">
+                    <i class="bi bi-person-lines-fill me-2"></i>Enrolled Students (<?= count($students) ?>)
+                    <?php if ($courseInfo): ?>
+                        <small class="text-white"><?= e($courseInfo['Course_Code']) ?> &bull; <?= e($courseInfo['Course_Name']) ?></small>
+                    <?php endif; ?>
+                </h6>
+            </div>
+            <div class="input-group input-group-sm" style="max-width: 250px;">
+                <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" id="studSearchInput" class="form-control border-start-0" placeholder="Live filter students...">
+            </div>
+        </div>
 
-		<div class="container-fluid">
-			<!-- Header -->
-			<div class="dashboard-header mb-4 d-flex justify-content-between align-items-center border-bottom pb-3">
-				<div>
-					<h4 class="mb-0 fw-bold">View Students</h4>
-				</div>
-			</div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0" id="studentTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-3" style="width: 50px;">#</th>
+                            <th style="width: 140px;">ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Department</th>
+                            <th class="text-center" style="width: 120px;">Batch</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($students)): ?>
+                            <tr>
+                                <td colspan="7" class="text-center py-5 text-muted">
+                                    <i class="bi bi-person-x fs-2 d-block mb-2 text-secondary"></i>
+                                    No students are currently enrolled in this subject.
+                                </td>
+                            </tr>
+                        <?php else: ?>
+                            <?php foreach ($students as $idx => $s): ?>
+                                <tr>
+                                    <td class="ps-3 text-muted"><?= $idx + 1 ?></td>
+                                    <td><span class="badge bg-light text-dark border font-monospace"><?= e($s['Stud_ID']) ?></span></td>
+                                    <td class="fw-semibold text-dark"><?= e($s['Stud_Name']) ?></td>
+                                    <td>
+                                        <a href="mailto:<?= e($s['Stud_Email']) ?>" class="text-decoration-none">
+                                            <?= e($s['Stud_Email'] ?: '-') ?>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary-subtle text-secondary">
+                                            <?= e($s['Dept_Name'] ?: $s['Stud_Dept']) ?>
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-light text-dark border font-monospace">
+                                            <?= e($s['Stud_Year']) ?>
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge bg-info-subtle text-info-emphasis px-2 py-1 rounded-pill">
+                                            <?= e($s['Curr_AY'] ?: 'Active') ?>
+                                        </span>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
 
-			<div class="sub-main">
-				<!-- Filter Card -->
-				<div class="card shadow-sm border-0 mb-5">
-					<div class="card-header bg-light border-0 py-3 px-4">
-						<h6 class="mb-0 fw-bold text-uppercase">Filter Students</h6>
-					</div>
-					<div class="card-body px-4 py-3">
-						<form method="POST" class="row g-3 align-items-end">
-							<div class="col-md-3">
-								<label class="form-label text-muted small fw-bold mb-1">Academic Year</label>
-								<select class="form-select shadow-none border-secondary-subtle" name="Acad_Year" required onchange="this.form.submit();">
-									<option value="">Select Year</option>
-									<?php
-										$ayquery = mysqli_query($con, "SELECT * FROM academic_year ORDER BY AY_Name");
-										while($ay = mysqli_fetch_assoc($ayquery)){
-											$selected = (isset($_POST['Acad_Year']) && $_POST['Acad_Year'] == $ay['AY_Name']) ? 'selected' : '';
-											echo "<option value='".$ay['AY_Name']."' ".$selected.">".$ay['AY_Name']."</option>";
-										}
-									?>
-								</select>
-							</div>
-							<div class="col-md-3">
-								<label class="form-label text-muted small fw-bold mb-1">Programme</label>
-								<select name="Prog_ID" class="form-select shadow-none border-secondary-subtle" required onchange="this.form.submit();">
-									<option value="">Select Programme</option>
-									<?php
-										$Acad_Year = isset($_POST['Acad_Year']) ? mysqli_real_escape_string($con, $_POST['Acad_Year']) : '';
-										$query = "SELECT DISTINCT p.Prog_ID, p.Prog_Name
-													FROM course_mapping m
-													JOIN courses c ON m.Course_ID = c.Course_ID
-													JOIN programmes p ON c.Prog_ID = p.Prog_ID
-													WHERE m.Fac_ID = '$Fac_ID'
-													AND m.Acad_Year = '$Acad_Year'";
-										$run = mysqli_query($con, $query);
-										while($row = mysqli_fetch_array($run)) {
-											$selected = (isset($_POST['Prog_ID']) && $_POST['Prog_ID'] == $row['Prog_ID']) ? 'selected' : '';
-											echo "<option value='{$row['Prog_ID']}' $selected>{$row['Prog_Name']}</option>";
-										}
-									?>
-								</select>
-							</div>
-							<div class="col-md-3">
-								<label class="form-label text-muted small fw-bold mb-1">Semester</label>
-								<select name="Semester" class="form-select shadow-none border-secondary-subtle" required>
-									<option value="">Select Semester</option>
-									<?php
-										if (isset($_POST['Prog_ID']) && $_POST['Prog_ID'] != '') {
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('studSearchInput');
+    const table = document.getElementById('studentTable');
+    if (searchInput && table) {
+        searchInput.addEventListener('keyup', function() {
+            const query = this.value.toLowerCase().trim();
+            const rows = table.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(query) ? '' : 'none';
+            });
+        });
+    }
+});
 
-											$Prog_ID = mysqli_real_escape_string($con, $_POST['Prog_ID']);
+function exportTableToCSV(filename) {
+    const table = document.getElementById('studentTable');
+    let csv = [];
+    const rows = table.querySelectorAll('tr');
+    
+    for (let i = 0; i < rows.length; i++) {
+        if (rows[i].style.display === 'none') continue;
+        let row = [], cols = rows[i].querySelectorAll('td, th');
+        for (let j = 0; j < cols.length; j++) {
+            let data = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, ' ').replace(/(\s\s+)/g, ' ').trim();
+            data = data.replace(/"/g, '""');
+            row.push('"' + data + '"');
+        }
+        csv.push(row.join(','));
+    }
 
-											$semQuery = "SELECT DISTINCT c.Semester
-												FROM course_mapping m
-												JOIN courses c ON m.Course_ID = c.Course_ID
-												WHERE m.Fac_ID = '$Fac_ID'
-												AND m.Acad_Year = '$Fac_Acad_Year'
-												AND c.Prog_ID = '$Prog_ID'
-												ORDER BY c.Semester
-											";
+    const csvFile = new Blob([csv.join('\n')], { type: 'text/csv' });
+    const downloadLink = document.createElement('a');
+    downloadLink.download = filename;
+    downloadLink.href = window.URL.createObjectURL(csvFile);
+    downloadLink.style.display = 'none';
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+}
+</script>
 
-											$semRun = mysqli_query($con, $semQuery);
-
-											while ($row = mysqli_fetch_assoc($semRun)) {
-												$sem = $row['Semester'];
-												$selected = (isset($_POST['Semester']) && $_POST['Semester'] == $sem) ? 'selected' : '';
-												echo "<option value='$sem' $selected>S$sem</option>";
-											}
-										}
-									?>
-								</select>
-							</div>
-							<div class="col-md-3 d-grid">
-								<button type="submit" name="Submit" class="btn btn-primary shadow-sm fw-bold">View Students</button>
-							</div>
-						</form>
-					</div>
-				</div>
-				
-				<!-- Results Section -->
-				<div class="row">
-					<div class="col-md-12 container-fluid">
-					<?php	
-						if (isset($_POST['Submit'])) {
-							$Acad_Year = mysqli_real_escape_string($con, $_POST['Acad_Year']);
-							$Prog_ID = mysqli_real_escape_string($con, $_POST['Prog_ID']);
-							$Semester = mysqli_real_escape_string($con, $_POST['Semester']);
-							$query = "SELECT * FROM student WHERE Stud_Branch='$Prog_ID' AND Stud_Sem='$Semester' AND Curr_AY='$Acad_Year' ORDER BY Stud_Name ASC;";
-							$run = mysqli_query($con, $query);
-							if (mysqli_num_rows($run) == 0) {
-								echo "<div class='alert alert-info shadow-sm border-0 d-flex align-items-center gap-2'><i class='bi bi-info-circle-fill'></i> No students found for the selected batch.</div>";
-							}
-							else {
-					?>	
-						<div class="card shadow-sm border-0">
-							<div class="card-header border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
-								<h6 class="mb-0 fw-bold"><i class="bi bi-people-fill me-2"></i>Student List</h6>
-								<span class="badge bg-white text-dark rounded-pill"><?php echo mysqli_num_rows($run); ?> Students</span>
-							</div>
-							<div class="card-body">
-								<div class="table-responsive">
-									<table class="table table-hover align-middle mb-0 text-center">
-										<thead class="table-light">
-											<tr>
-												<th class="py-3 text-secondary fw-semibold">SL No</th>
-												<th class="py-3 text-secondary fw-semibold">Student ID</th>
-												<th class="py-3 text-secondary fw-semibold">Name</th>
-												<th class="py-3 text-secondary fw-semibold">Branch</th>
-												<th class="py-3 text-secondary fw-semibold">Year</th>
-											</tr>
-										</thead>
-										<tbody>
-											<?php
-												$Sl=1;
-												while($row=mysqli_fetch_array($run)) {
-											?>
-											<tr>
-												<td class="text-muted fw-bold"><?php echo $Sl++; ?></td>
-												<td class="fw-semibold"><?php echo $row['Stud_ID']; ?></td>
-												<td class="fw-bold text-dark text-start px-4"><?php echo $row['Stud_Name']; ?></td>
-												<td><span class="badge bg-light text-dark border"><?php echo $row['Stud_Dept']; ?></span></td>
-												<td class="text-muted fw-semibold"><?php echo $row['Stud_Year']; ?></td>
-											</tr>
-											<?php
-												}
-											?>
-										</tbody>
-									</table>
-								</div>
-							</div>
-						</div>
-					<?php
-							}
-						}
-					?>
-					</div>
-				</div>
-			</div>
-		</div>
-	</main>
-	<?php include '../Common/footer.php'; ?>
-</body>
-
-</html>
-
-
-
-            
+<?php include '../Common/footer.php'; ?>

@@ -1,27 +1,36 @@
 <?php
-session_start();
-if (!$_SESSION["LoginFaculty"]) {
-    echo '<script>alert("You Are Not An Authorized Person For This Link");</script>';
-    echo '<script>window.location="../index.php"</script>';
+require_once "../Connection/connection.php";
+require_once "../Common/auth.php";
+
+check_role('Faculty');
+
+$Fac_ID = $_SESSION['LoginFaculty'] ?? $_SESSION['user_id'] ?? '';
+$Edit_Exam_ID = $_GET['Exam_ID'] ?? null;
+$Course_ID = $_GET['Course_ID'] ?? null;
+
+if (!$Edit_Exam_ID) {
+    header("Location: manage-exams.php");
+    exit;
 }
 
-require_once "../Connection/connection.php";
+// Fetch faculty academic year
+$qStmt = $pdo->prepare("SELECT Acad_Year FROM faculty WHERE Fac_ID = ? LIMIT 1");
+$qStmt->execute([$Fac_ID]);
+$Acad_Year = $qStmt->fetchColumn() ?: '2024-2025';
 
-// $con = mysqli_connect("localhost", "root", "", "exam_db");
+// If Course_ID is missing, resolve it from exam header
+if (!$Course_ID) {
+    $eStmt = $pdo->prepare("SELECT Course_ID FROM exams WHERE Exam_ID = ? LIMIT 1");
+    $eStmt->execute([$Edit_Exam_ID]);
+    $Course_ID = $eStmt->fetchColumn();
+}
 
-$Fac_ID    = $_SESSION['LoginFaculty'];
-$Course_ID = $_GET['Course_ID'] ?? "123";
+$cStmt = $pdo->prepare("SELECT * FROM courses WHERE Course_ID = ? LIMIT 1");
+$cStmt->execute([$Course_ID]);
+$course = $cStmt->fetch(PDO::FETCH_ASSOC);
 
-$q   = mysqli_query($con, "SELECT * FROM `faculty` WHERE `Fac_ID` = '$Fac_ID'");
-$row = mysqli_fetch_array($q);
-$Acad_Year = $row['Acad_Year'];
-
-$cq     = mysqli_query($con, "SELECT * FROM `courses` WHERE `Course_ID` = '$Course_ID'");
-$course = mysqli_fetch_array($cq);
 $Course_Name = $course['Course_Name'] ?? '';
 $Course_Code = $course['Course_Code'] ?? '';
-$Edit_Exam_ID = $_GET['Exam_ID'] ?? null;
-if(!$Edit_Exam_ID) { echo '<script>alert("No Exam Selected"); window.location="dashboard.php";</script>'; exit; }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -36,15 +45,17 @@ if(!$Edit_Exam_ID) { echo '<script>alert("No Exam Selected"); window.location="d
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="../Common/style.css">
 
     <style>
         /* Only what Bootstrap cannot do */
-        .type-pill.active {
-            background: #e7f1ff;
-            border-color: #0d6efd;
-            color: #0a58ca;
-            font-weight: 500;
+        .type-pill.active,
+        .edit-type-pill.active {
+            background: #fdf2f2;
+            border-color: #d1202d;
+            color: #d1202d;
+            font-weight: 600;
         }
 
         .chip-mcq {
@@ -71,30 +82,61 @@ if(!$Edit_Exam_ID) { echo '<script>alert("No Exam Selected"); window.location="d
             background: #fff3cd;
             color: #664d03;
         }
-        
 
         .image-upload {
-            border: 2px dashed #dee2e6;
+            border: 2px dashed #ced4da;
             cursor: pointer;
             transition: .15s;
+            background: #ffffff;
         }
 
         .image-upload:hover {
-            border-color: #0d6efd;
-            background: #f0f4ff;
+            border-color: #d1202d;
+            background: #fff5f5;
         }
 
         math-field {
             width: 100%;
             min-height: 42px;
-            border: 1px solid #dee2e6;
+            border: 1px solid #ced4da;
             border-radius: .375rem;
             padding: 6px 10px;
-            font-size: 14px;
+            font-size: 15px;
+            background: #fff;
+            display: block;
+            transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+        }
+
+        math-field:focus-within {
+            outline: none;
+            border-color: #d1202d;
+            box-shadow: 0 0 0 0.25rem rgba(209, 32, 45, 0.2);
+        }
+
+        math-field::part(virtual-keyboard-toggle) {
+            color: #d1202d;
+        }
+
+        :root {
+            --keyboard-zindex: 2200;
+        }
+
+        .ML__keyboard, div.MLK__backdrop, .MLK__container, div[role="dialog"].ML__keyboard {
+            z-index: 2200 !important;
+        }
+
+        .math-quick-bar button:hover {
+            background-color: #e2e8f0;
         }
 
         .qn-card {
-            transition: opacity .2s, transform .2s;
+            border-radius: 0.75rem;
+            border: 1px solid #e2e8f0;
+            transition: box-shadow .2s ease, transform .2s ease, opacity .2s ease;
+        }
+
+        .qn-card:hover {
+            box-shadow: 0 0.35rem 0.85rem rgba(0, 0, 0, .06) !important;
         }
 
         .saving-overlay {
@@ -362,79 +404,83 @@ if(!$Edit_Exam_ID) { echo '<script>alert("No Exam Selected"); window.location="d
         // ── Question templates ───────────────────────────────────────
         function getQuestionTemplate(type, qId) {
             if (type === 'mcq') return `
-                <math-field id="qt_${qId}" default-mode="text" placeholder="Enter your question here…"></math-field>
-                <div class="mt-2 d-flex flex-column gap-2">
-                    ${['A','B','C','D'].map(l => `
-                    <div class="d-flex align-items-center gap-2">
-                        <input type="radio" name="correct_${qId}" class="opt-radio form-check-input mt-0 flex-shrink-0">
-                        <span class="badge bg-light text-dark border">${l}</span>
-                        <math-field class="opt-input flex-grow-1" id="qo_${qId}_${l}" default-mode="text" placeholder="Option ${l}"></math-field>
+                <div class="col-12 row g-2">
+                    <div class="col-12 d-flex justify-content-between align-items-center mt-1 mb-1">
+                        <label class="form-label fw-bold text-dark mb-0 small"><i class="ti ti-list-check me-1 text-danger"></i>Answer Options & Correct Choice</label>
+                        <small class="text-muted" style="font-size: 11px;">Select the radio to mark correct answer</small>
+                    </div>
+                    ${['A','B','C','D'].map((l, idx) => `
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center gap-2 p-1 border rounded bg-white">
+                            <input type="radio" name="correct_${qId}" value="${l}" class="form-check-input opt-radio mt-0 flex-shrink-0" ${idx === 0 ? 'checked' : ''} title="Mark Option ${l} as correct">
+                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger-subtle fw-bold">${l}</span>
+                            <math-field class="opt-input flex-grow-1" id="qo_${qId}_${l}" default-mode="text" placeholder="Option ${l} formula / text…"></math-field>
+                        </div>
                     </div>`).join('')}
                 </div>
-                <p class="text-muted small mt-2 mb-0"><i class="ti ti-info-circle me-1"></i>Select the radio button to mark the correct answer</p>
                 ${getImageAttachmentBlock(qId)}`;
 
             if (type === 'multiselect') return `
-                <math-field id="qt_${qId}" default-mode="text" placeholder="Enter your question here…"></math-field>
-                <div class="mt-2 d-flex flex-column gap-2">
+                <div class="col-12 row g-2">
+                    <div class="col-12 d-flex justify-content-between align-items-center mt-1 mb-1">
+                        <label class="form-label fw-bold text-dark mb-0 small"><i class="ti ti-checkbox me-1 text-danger"></i>Answer Options & Correct Choices</label>
+                        <small class="text-muted" style="font-size: 11px;">Select checkboxes to mark correct answers</small>
+                    </div>
                     ${['A','B','C','D'].map(l => `
-                    <div class="d-flex align-items-center gap-2">
-                        <input type="checkbox" name="correct_${qId}" value="${l}" class="opt-checkbox form-check-input mt-0 flex-shrink-0">
-                        <span class="badge bg-light text-dark border">${l}</span>
-                        <math-field class="opt-input flex-grow-1" id="qo_${qId}_${l}" default-mode="text" placeholder="Option ${l}"></math-field>
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center gap-2 p-1 border rounded bg-white">
+                            <input type="checkbox" name="correct_${qId}" value="${l}" class="opt-checkbox form-check-input mt-0 flex-shrink-0" title="Mark Option ${l} as correct">
+                            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger-subtle fw-bold">${l}</span>
+                            <math-field class="opt-input flex-grow-1" id="qo_${qId}_${l}" default-mode="text" placeholder="Option ${l} formula / text…"></math-field>
+                        </div>
                     </div>`).join('')}
                 </div>
-                <p class="text-muted small mt-2 mb-0"><i class="ti ti-info-circle me-1"></i>Select the checkboxes to mark the correct answers</p>
                 ${getImageAttachmentBlock(qId)}`;
 
             if (type === 'match') return `
-                <math-field id="qt_${qId}" default-mode="text" placeholder="Match the following items…"></math-field>
-                <div class="row g-2 mt-1">
-                    <div class="col-6">
-                        <div class="text-center small fw-semibold rounded py-1 mb-2 bg-primary bg-opacity-10 text-primary">Column A</div>
-                        ${[1,2,3,4].map(i => `
-                        <div class="input-group input-group-sm mb-1">
-                            <span class="input-group-text">${i}</span>
-                            <math-field class="opt-input form-control" id="qa_${qId}_${i}" default-mode="text" placeholder="Item ${i}"></math-field>
-                        </div>`).join('')}
-                    </div>
-                    <div class="col-6">
-                        <div class="text-center small fw-semibold rounded py-1 mb-2 bg-success bg-opacity-10 text-success">Column B</div>
-                        ${['a','b','c','d'].map(l => `
-                        <div class="input-group input-group-sm mb-1">
-                            <span class="input-group-text">${l}</span>
-                            <math-field class="opt-input form-control" id="qb_${qId}_${l}" default-mode="text" placeholder="Match ${l}"></math-field>
-                        </div>`).join('')}
+                <div class="mt-2">
+                    <label class="form-label fw-semibold small mb-1"><i class="ti ti-arrows-exchange me-1 text-danger"></i>Matching Pairs (MathLive Enabled)</label>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <div class="text-center small fw-semibold rounded py-1 mb-2 bg-primary bg-opacity-10 text-primary">Column A (Premises)</div>
+                            ${[1,2,3,4].map(i => `
+                            <div class="input-group input-group-sm mb-2">
+                                <span class="input-group-text fw-bold">${i}</span>
+                                <math-field class="opt-input form-control" id="qa_${qId}_${i}" default-mode="text" placeholder="Premise ${i}"></math-field>
+                            </div>`).join('')}
+                        </div>
+                        <div class="col-6">
+                            <div class="text-center small fw-semibold rounded py-1 mb-2 bg-success bg-opacity-10 text-success">Column B (Matches)</div>
+                            ${['a','b','c','d'].map((l) => `
+                            <div class="input-group input-group-sm mb-2">
+                                <span class="input-group-text fw-bold text-uppercase">${l}</span>
+                                <math-field class="opt-input form-control" id="qb_${qId}_${l}" default-mode="text" placeholder="Match ${l.toUpperCase()}"></math-field>
+                            </div>`).join('')}
+                        </div>
                     </div>
                 </div>`;
 
             if (type === 'open') return `
-                <math-field id="qt_${qId}" default-mode="text" placeholder="Enter your open-ended question…" style="min-height:80px"></math-field>
                 <div class="mt-2">
-                    <label class="form-label small text-muted">Rubric / marking scheme</label>
-                    <math-field class="open-rubric" default-mode="text" placeholder="e.g. 2 marks for definition, 3 marks for explanation…"></math-field>
-                </div>
-                <div class="d-flex align-items-center gap-2 mt-2">
-                    <label class="form-label small text-muted mb-0">Word limit</label>
-                    <input type="number" class="form-control form-control-sm word-limit-input" placeholder="No limit" min="0" style="width:110px">
-                </div>
-                ${getImageAttachmentBlock(qId)}`;
+                    <label class="form-label fw-semibold small mb-1"><i class="ti ti-notes me-1 text-danger"></i>Grading Rubric / Criteria (MathLive Enabled)</label>
+                    <math-field class="open-rubric" id="mf_rubric_${qId}" default-mode="text" placeholder="Describe key points or marking scheme (e.g. 2 marks for definition, 3 marks for explanation)..." style="min-height: 60px;"></math-field>
+                    <div class="mt-2 d-flex align-items-center gap-2">
+                        <label class="form-label small text-muted mb-0">Word Limit (Optional):</label>
+                        <input type="number" class="form-control form-control-sm word-limit-input" placeholder="e.g. 250" min="10" style="max-width: 140px;">
+                    </div>
+                    ${getImageAttachmentBlock(qId)}
+                </div>`;
 
             if (type === 'fill') return `
-                <p class="small text-muted mb-1">
-                    Write the sentence and use
-                    <code class="bg-primary bg-opacity-10 text-primary rounded px-1">___</code>
-                    for each blank
-                </p>
-                <math-field id="qt_${qId}" default-mode="text"
-                    placeholder="e.g. The chemical formula for water is ___ and it consists of ___ atoms."
-                    oninput="updateFillPreview(this,'${qId}')"></math-field>
-                <div id="fp_${qId}" class="bg-light border rounded p-2 mt-2 small text-muted" style="display:none;line-height:2"></div>
                 <div class="mt-2">
-                    <label class="form-label small text-muted">Answers (in order)</label>
+                    <div class="alert alert-light border py-2 px-3 small text-muted mb-2">
+                        <i class="ti ti-info-circle me-1 text-primary"></i>Use <code class="bg-primary bg-opacity-10 text-primary rounded px-1">___</code> (three underscores) in the Question Statement above for each blank.
+                    </div>
+                    <div id="fp_${qId}" class="bg-light border rounded p-2 mb-2 small text-muted" style="display:none;line-height:2"></div>
+                    <label class="form-label fw-semibold small mb-1">Accepted Answers (in order)</label>
                     <div id="fill_ans_${qId}" class="d-flex flex-column gap-2"></div>
-                </div>
-                ${getImageAttachmentBlock(qId)}`;
+                    ${getImageAttachmentBlock(qId)}
+                </div>`;
 
             return '';
         }
@@ -491,35 +537,84 @@ if(!$Edit_Exam_ID) { echo '<script>alert("No Exam Selected"); window.location="d
             }
 
             const card = document.createElement('div');
-            card.className = 'card border shadow-sm qn-card mb-2';
+            card.className = 'card border shadow-sm qn-card mb-3';
             card.id = 'card_' + qId;
             card.dataset.type = qType;
             card.dataset.qid = qId;
 
             card.innerHTML = `
+                <div class="card-header bg-light d-flex align-items-center justify-content-between py-2 px-3 border-bottom">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-danger rounded-circle d-flex align-items-center justify-content-center qn-num" style="width:28px;height:28px;font-size:13px;font-weight:600">${isEdit ? editQuestions.length : questions.length}</span>
+                        <span class="badge rounded-pill ${CHIP_CLASS[qType]} px-3 py-1 fw-semibold">${CHIP_LABEL[qType]}</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-1">
+                        <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="moveQuestion('${qId}',-1, ${isEdit})" title="Move up">
+                            <i class="ti ti-arrow-up"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="moveQuestion('${qId}',1, ${isEdit})" title="Move down">
+                            <i class="ti ti-arrow-down"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2" onclick="deleteQuestion('${qId}', ${isEdit})" title="Delete">
+                            <i class="ti ti-trash"></i>
+                        </button>
+                    </div>
+                </div>
                 <div class="card-body">
-                    <div class="d-flex align-items-start gap-2 mb-3">
-                        <span class="badge bg-secondary rounded-circle d-flex align-items-center justify-content-center qn-num" style="width:26px;height:26px;font-size:12px">${isEdit ? editQuestions.length : questions.length}</span>
-                        <span class="badge rounded-pill ${CHIP_CLASS[qType]}">${CHIP_LABEL[qType]}</span>
-                        <div class="ms-auto d-flex gap-1">
-                            <button type="button" class="btn btn-sm btn-outline-secondary py-0" onclick="moveQuestion('${qId}',-1, ${isEdit})" title="Move up">
-                                <i class="ti ti-arrow-up"></i>
-                            </button>
-                            <button type="button" class="btn btn-sm btn-outline-secondary py-0" onclick="moveQuestion('${qId}',1, ${isEdit})" title="Move down">
-                                <i class="ti ti-arrow-down"></i>
-                            </button>
-                            <button type="button" class="btn btn-sm btn-outline-danger py-0" onclick="deleteQuestion('${qId}', ${isEdit})" title="Delete">
-                                <i class="ti ti-trash"></i>
-                            </button>
+                    <!-- Metadata Controls matching Question Bank Modal -->
+                    <div class="row g-2 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small mb-1">Course Outcome (CO)</label>
+                            <select id="co_${qId}" class="form-select form-select-sm">
+                                <option value="1">CO1</option>
+                                <option value="2">CO2</option>
+                                <option value="3">CO3</option>
+                                <option value="4">CO4</option>
+                                <option value="5">CO5</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small mb-1">Marks Allocated</label>
+                            <input type="number" step="0.5" id="marks_${qId}" class="form-control form-control-sm" value="${extraData?.marks ?? (extraData?.Marks ?? 1.0)}" min="0.5" max="50">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold small mb-1">Bloom's Level</label>
+                            <select id="bloom_${qId}" class="form-select form-select-sm">
+                                <option value="Remember">Remember</option>
+                                <option value="Understand" selected>Understand</option>
+                                <option value="Apply">Apply</option>
+                                <option value="Analyze">Analyze</option>
+                                <option value="Evaluate">Evaluate</option>
+                                <option value="Create">Create</option>
+                            </select>
                         </div>
                     </div>
-                    <div class="qn-body">${getQuestionTemplate(qType, qId)}</div>
-                    <div class="d-flex align-items-center gap-2 mt-3 pt-2 border-top">
-                        <label class="form-label small text-muted mb-0">Marks</label>
-                        <input type="number" id="marks_${qId}" class="form-control form-control-sm" value="${extraData?.marks ?? 1}" min="0" step="0.5" style="width:70px">
-                        <label class="form-label small text-muted mb-0">CO</label>
-                        <input type="number" id="co_${qId}" class="form-control form-control-sm" value="${extraData?.co ?? 1}" min="1" step="1" style="width:70px">
+
+                    <!-- Question Statement with MathLive & Quick Math -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label fw-semibold small mb-0">Question Statement <span class="text-danger">*</span></label>
+                        </div>
+                        <div class="math-field-wrapper position-relative">
+                            <math-field id="qt_${qId}" default-mode="text" style="min-height: 60px;" placeholder="Enter question statement or type equations using the MathLive keyboard…"${qType === 'fill' ? ` oninput="updateFillPreview(this,'${qId}')"` : ''}></math-field>
+                        </div>
+                        <div class="d-flex flex-wrap gap-1 mt-1 math-quick-bar">
+                            <small class="text-muted me-1 align-self-center" style="font-size: 11px;">Quick Math:</small>
+                            <button type="button" class="btn btn-sm btn-light border py-0 px-1 font-monospace" style="font-size:11px;" onclick="insertSymbol('qt_${qId}', '\\\\frac{#@}{#?}')">½ frac</button>
+                            <button type="button" class="btn btn-sm btn-light border py-0 px-1 font-monospace" style="font-size:11px;" onclick="insertSymbol('qt_${qId}', '\\\\sqrt{#?}')">√ sqrt</button>
+                            <button type="button" class="btn btn-sm btn-light border py-0 px-1 font-monospace" style="font-size:11px;" onclick="insertSymbol('qt_${qId}', '#@^{#?}')">x² sup</button>
+                            <button type="button" class="btn btn-sm btn-light border py-0 px-1 font-monospace" style="font-size:11px;" onclick="insertSymbol('qt_${qId}', '#@_{#?}')">x₁ sub</button>
+                            <button type="button" class="btn btn-sm btn-light border py-0 px-1 font-monospace" style="font-size:11px;" onclick="insertSymbol('qt_${qId}', '\\\\pm')">±</button>
+                            <button type="button" class="btn btn-sm btn-light border py-0 px-1 font-monospace" style="font-size:11px;" onclick="insertSymbol('qt_${qId}', '\\\\pi')">π</button>
+                            <button type="button" class="btn btn-sm btn-light border py-0 px-1 font-monospace" style="font-size:11px;" onclick="insertSymbol('qt_${qId}', '\\\\theta')">θ</button>
+                            <button type="button" class="btn btn-sm btn-light border py-0 px-1 font-monospace" style="font-size:11px;" onclick="insertSymbol('qt_${qId}', '\\\\sum_{#?}^{#?}')">∑</button>
+                            <button type="button" class="btn btn-sm btn-light border py-0 px-1 font-monospace" style="font-size:11px;" onclick="insertSymbol('qt_${qId}', '\\\\int_{#?}^{#?}')">∫</button>
+                            <button type="button" class="btn btn-sm btn-light border py-0 px-1 font-monospace" style="font-size:11px;" onclick="insertSymbol('qt_${qId}', '\\\\infty')">∞</button>
+                        </div>
                     </div>
+
+                    <!-- Type Specific Answers Body -->
+                    <div class="qn-body">${getQuestionTemplate(qType, qId)}</div>
                 </div>`;
 
             const targetListId = isEdit ? 'editQuestionList' : 'questionList';
@@ -550,7 +645,10 @@ if(!$Edit_Exam_ID) { echo '<script>alert("No Exam Selected"); window.location="d
             }
 
             const qt = document.getElementById('qt_' + qId);
-            if (qt && text) setMathValue(qt, text);
+            if (qt && text) {
+                setMathValue(qt, text);
+                if (qType === 'fill') updateFillPreview(qt, qId);
+            }
             if (extraData) prefillQuestion(card, qType, qId, extraData);
 
             updateCount(isEdit);
@@ -560,18 +658,35 @@ if(!$Edit_Exam_ID) { echo '<script>alert("No Exam Selected"); window.location="d
             });
         }
 
-        // ── Prefill from bank ────────────────────────────────────────
+        // ── Prefill from bank / server ───────────────────────────────
         function prefillQuestion(card, type, qId, data) {
+            // Course Outcome
+            const coVal = data.co !== undefined && data.co !== null ? data.co : (data.CO !== undefined ? data.CO : null);
+            if (coVal !== null) {
+                const coEl = document.getElementById('co_' + qId);
+                if (coEl) coEl.value = coVal;
+            }
+            // Bloom's Level
+            const bloomVal = data.bloom_level || data.Bloom_Level;
+            if (bloomVal) {
+                const bEl = document.getElementById('bloom_' + qId);
+                if (bEl) bEl.value = bloomVal;
+            }
+            // Marks
+            const marksVal = data.marks !== undefined && data.marks !== null ? data.marks : (data.Marks !== undefined ? data.Marks : null);
+            if (marksVal !== null) {
+                const mEl = document.getElementById('marks_' + qId);
+                if (mEl) mEl.value = marksVal;
+            }
+
             if (type === 'mcq' && Array.isArray(data.options)) {
                 data.options.forEach(opt => {
                     const el = document.getElementById(`qo_${qId}_${opt.letter}`);
                     if (el) setMathValue(el, opt.text || '');
                 });
                 if (data.correct_opt) {
-                    const radios = card.querySelectorAll('.opt-radio');
-                    const letters = ['A', 'B', 'C', 'D'];
-                    const idx = letters.indexOf(data.correct_opt);
-                    if (idx >= 0 && radios[idx]) radios[idx].checked = true;
+                    const radio = card.querySelector(`input[name="correct_${qId}"][value="${data.correct_opt}"]`);
+                    if (radio) radio.checked = true;
                 }
             }
             if (type === 'multiselect' && Array.isArray(data.options)) {
@@ -580,10 +695,7 @@ if(!$Edit_Exam_ID) { echo '<script>alert("No Exam Selected"); window.location="d
                     if (el) setMathValue(el, opt.text || '');
                 });
                 if (data.answers) {
-                    const checkboxes = card.querySelectorAll('.opt-checkbox');
-                    const letters = ['A', 'B', 'C', 'D'];
                     let correctOpts = [];
-                    
                     if (Array.isArray(data.answers)) {
                         correctOpts = data.answers;
                     } else if (typeof data.answers === 'string') {
@@ -596,9 +708,11 @@ if(!$Edit_Exam_ID) { echo '<script>alert("No Exam Selected"); window.location="d
                         }
                     }
 
+                    card.querySelectorAll('.opt-checkbox').forEach(cb => cb.checked = false);
                     correctOpts.forEach(c => {
-                        const idx = letters.indexOf(String(c).trim());
-                        if (idx >= 0 && checkboxes[idx]) checkboxes[idx].checked = true;
+                        const val = String(c).trim();
+                        const cb = card.querySelector(`input[name="correct_${qId}"][value="${val}"]`);
+                        if (cb) cb.checked = true;
                     });
                 }
             }
@@ -607,8 +721,8 @@ if(!$Edit_Exam_ID) { echo '<script>alert("No Exam Selected"); window.location="d
                 data.pairs.forEach((pair, i) => {
                     const aEl = document.getElementById(`qa_${qId}_${i + 1}`);
                     const bEl = document.getElementById(`qb_${qId}_${cols[i]}`);
-                    if (aEl) setMathValue(aEl, pair.a || '');
-                    if (bEl) setMathValue(bEl, pair.b || '');
+                    if (aEl) setMathValue(aEl, pair.a || pair.left || '');
+                    if (bEl) setMathValue(bEl, pair.b || pair.right || '');
                 });
             }
             if (type === 'open') {
@@ -625,14 +739,7 @@ if(!$Edit_Exam_ID) { echo '<script>alert("No Exam Selected"); window.location="d
                     });
                 }, 150);
             }
-            // CO applies to every question type
-            if (data.co !== undefined && data.co !== null) {
-                const coEl = document.getElementById('co_' + qId);
-                if (coEl) coEl.value = data.co;
-            }
-            // Image attachment applies to mcq / open / fill (not match) —
-            // already handled at upload-area creation time in addQuestion(),
-            // this covers the case where prefillQuestion runs after that.
+            // Image attachment applies to mcq / open / fill (not match)
             if (type !== 'match' && data.image_path) {
                 const uploadArea = card.querySelector('#du_' + qId);
                 if (uploadArea) {
@@ -712,27 +819,30 @@ if(!$Edit_Exam_ID) { echo '<script>alert("No Exam Selected"); window.location="d
             const questionText = qtEl ? (qtEl.value || '') : '';
             const marks = parseFloat(document.getElementById('marks_' + qId)?.value || 1);
             const co = parseInt(document.getElementById('co_' + qId)?.value || 1, 10);
+            const bloomLevel = document.getElementById('bloom_' + qId)?.value || 'Understand';
             const q = {
                 type,
                 question_text: questionText,
                 marks,
-                co
+                co,
+                bloom_level: bloomLevel
             };
 
             if (type === 'mcq') {
                 const opts = [];
                 let correctOpt = null;
                 const letters = ['A', 'B', 'C', 'D'];
-                card.querySelectorAll('.d-flex.align-items-center.gap-2').forEach((row, i) => {
-                    const radio = row.querySelector('.opt-radio');
-                    const input = row.querySelector('.opt-input');
-                    if (!input) return;
-                    opts.push({
-                        letter: letters[i],
-                        text: input.value || ''
-                    });
-                    if (radio?.checked) correctOpt = letters[i];
+                letters.forEach(l => {
+                    const el = document.getElementById(`qo_${qId}_${l}`);
+                    if (el) {
+                        opts.push({
+                            letter: l,
+                            text: el.value || ''
+                        });
+                    }
                 });
+                const checkedRadio = card.querySelector(`input[name="correct_${qId}"]:checked`);
+                if (checkedRadio) correctOpt = checkedRadio.value;
                 q.options = opts;
                 q.correct_opt = correctOpt;
             }
@@ -740,15 +850,17 @@ if(!$Edit_Exam_ID) { echo '<script>alert("No Exam Selected"); window.location="d
                 const opts = [];
                 let correctOpts = [];
                 const letters = ['A', 'B', 'C', 'D'];
-                card.querySelectorAll('.d-flex.align-items-center.gap-2').forEach((row, i) => {
-                    const checkbox = row.querySelector('.opt-checkbox');
-                    const input = row.querySelector('.opt-input');
-                    if (!input) return;
-                    opts.push({
-                        letter: letters[i],
-                        text: input.value || ''
-                    });
-                    if (checkbox?.checked) correctOpts.push(letters[i]);
+                letters.forEach(l => {
+                    const el = document.getElementById(`qo_${qId}_${l}`);
+                    if (el) {
+                        opts.push({
+                            letter: l,
+                            text: el.value || ''
+                        });
+                    }
+                });
+                card.querySelectorAll(`input[name="correct_${qId}"]:checked`).forEach(cb => {
+                    correctOpts.push(cb.value);
                 });
                 q.options = opts;
                 q.answers = correctOpts;
@@ -763,14 +875,19 @@ if(!$Edit_Exam_ID) { echo '<script>alert("No Exam Selected"); window.location="d
                 q.answers = ansDiv ? Array.from(ansDiv.querySelectorAll('input')).map(i => i.value) : [];
             }
             if (type === 'match') {
-                const aEls = card.querySelectorAll('[id^="qa_"]');
-                const bEls = card.querySelectorAll('[id^="qb_"]');
-                q.pairs = Array.from({
-                    length: Math.max(aEls.length, bEls.length)
-                }, (_, i) => ({
-                    a: aEls[i]?.value || '',
-                    b: bEls[i]?.value || ''
-                }));
+                const pairs = [];
+                const cols = ['a', 'b', 'c', 'd'];
+                [1, 2, 3, 4].forEach((num, idx) => {
+                    const aEl = document.getElementById(`qa_${qId}_${num}`);
+                    const bEl = document.getElementById(`qb_${qId}_${cols[idx]}`);
+                    if (aEl || bEl) {
+                        pairs.push({
+                            a: aEl ? aEl.value || '' : '',
+                            b: bEl ? bEl.value || '' : ''
+                        });
+                    }
+                });
+                q.pairs = pairs;
             }
             // Optional image attachment — available on mcq / open / fill (not match)
             if (type !== 'match') {
@@ -799,7 +916,8 @@ if(!$Edit_Exam_ID) { echo '<script>alert("No Exam Selected"); window.location="d
                 return false;
             }
             for (const card of cards) {
-                const qt = document.getElementById('qt_' + card.dataset.qid);
+                const qId = card.dataset.qid;
+                const qt = document.getElementById('qt_' + qId);
                 if (!qt?.value?.trim()) {
                     card.scrollIntoView({
                         behavior: 'smooth',
@@ -809,7 +927,7 @@ if(!$Edit_Exam_ID) { echo '<script>alert("No Exam Selected"); window.location="d
                     return false;
                 }
                 if (card.dataset.type === 'mcq' || card.dataset.type === 'multiselect') {
-                    const filled = Array.from(card.querySelectorAll('.opt-input')).filter(i => i.value.trim()).length;
+                    const filled = ['A', 'B', 'C', 'D'].map(l => document.getElementById(`qo_${qId}_${l}`)?.value?.trim() || '').filter(Boolean).length;
                     if (filled < 2) {
                         card.scrollIntoView({
                             behavior: 'smooth',
@@ -1038,7 +1156,7 @@ if(!$Edit_Exam_ID) { echo '<script>alert("No Exam Selected"); window.location="d
 
         function downloadQP() {
             const examSelect = document.getElementById('Exam_ID');
-            const examId = examSelect ? examSelect.value : '';
+            const examId = examSelect ? examSelect.value : (editExamId || EDIT_EXAM_ID || '');
             if (!examId) {
                 showToast('Please select an exam first.', 'danger');
                 return;
@@ -1048,6 +1166,29 @@ if(!$Edit_Exam_ID) { echo '<script>alert("No Exam Selected"); window.location="d
 
         function escHtml(str) {
             return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        // ── MathLive Symbol Insert Helper ────────────────────────────
+        let activeMathField = null;
+        document.addEventListener('focusin', function(e) {
+            if (e.target && e.target.tagName && e.target.tagName.toLowerCase() === 'math-field') {
+                activeMathField = e.target;
+            }
+        });
+
+        function insertSymbol(targetId, latex) {
+            let mf = activeMathField;
+            if (!mf || (targetId && !mf.closest('#card_' + targetId.replace('qt_', '')))) {
+                mf = document.getElementById(targetId) || activeMathField;
+            }
+            if (mf) {
+                if (typeof mf.executeCommand === 'function') {
+                    mf.focus();
+                    mf.executeCommand(['insert', latex]);
+                } else if ('value' in mf) {
+                    mf.value = (mf.value || '') + latex;
+                }
+            }
         }
     </script>
 </body>

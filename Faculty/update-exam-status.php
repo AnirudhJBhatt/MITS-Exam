@@ -1,41 +1,38 @@
 <?php
-    session_start();
-    if (!$_SESSION["LoginFaculty"]) {
-        echo '<script> alert("Your Are Not Authorize Person For This link");</script>';
-        echo '<script>window.location="../index.php"</script>';
-        exit;
-    }
-    require_once "../Connection/connection.php";
+/**
+ * MITS Exam Portal - Exam Status Toggle Handler
+ * AJAX endpoint for toggling exam status or result publication
+ */
+require_once "../Connection/connection.php";
+require_once "../Common/auth.php";
+require_once "../Common/csrf.php";
 
-    header('Content-Type: application/json');
+check_role(['Faculty', 'Admin']);
 
-    if (!isset($_POST['exam_id'], $_POST['status'])) {
-        echo json_encode(['success' => false, 'message' => 'Invalid request']);
-        exit;
-    }
+header('Content-Type: application/json; charset=utf-8');
 
-    $exam_id = (int) $_POST['exam_id'];
-    $current_status = (int) $_POST['status'];
+$fac_id = $_SESSION['LoginFaculty'] ?? $_SESSION['user_id'] ?? '';
+$exam_id = (int)($_POST['exam_id'] ?? 0);
+$type = $_POST['type'] ?? 'result'; // 'result' or 'exam'
 
-    // Toggle logic
-    if ($current_status === 1) {
-        // UnPublish → NULL
-        $sql = "UPDATE exams SET Result_Status = NULL WHERE Exam_ID = ?";
-        $new_status = 0;
+if ($exam_id <= 0) {
+    echo json_encode(['success' => false, 'message' => 'Invalid exam identifier.']);
+    exit;
+}
+
+try {
+    if ($type === 'exam') {
+        $new_status = in_array($_POST['status'] ?? '', ['draft', 'published', 'archived']) ? $_POST['status'] : 'draft';
+        $stmt = $pdo->prepare("UPDATE exams SET Status = ? WHERE Exam_ID = ? AND Fac_ID = ?");
+        $stmt->execute([$new_status, $exam_id, $fac_id]);
+        echo json_encode(['success' => true, 'new_status' => $new_status]);
     } else {
-        // Publish → 1
-        $sql = "UPDATE exams SET Result_Status = 1 WHERE Exam_ID = ?";
-        $new_status = 1;
+        $current_status = (int)($_POST['status'] ?? 0);
+        $new_status = ($current_status === 1) ? 0 : 1;
+        $stmt = $pdo->prepare("UPDATE exams SET Result_Published = ? WHERE Exam_ID = ? AND Fac_ID = ?");
+        $stmt->execute([$new_status, $exam_id, $fac_id]);
+        echo json_encode(['success' => true, 'new_status' => $new_status]);
     }
-
-    $stmt = $con->prepare($sql);
-    $stmt->bind_param("i", $exam_id);
-
-    if ($stmt->execute()) {
-        echo json_encode(['success' => true, 'new_status' => $new_status ]);
-    } else {
-        echo json_encode([ 'success' => false,'message' => 'Database update failed' ]);
-    }
-
-    $stmt->close();
-?>
+} catch (Exception $e) {
+    echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+}

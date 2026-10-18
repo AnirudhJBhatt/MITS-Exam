@@ -59,7 +59,6 @@
     </ul>
 
     <style>
-        /* Hover effect for inactive links */
         .sidebar-link.text-white-50:hover {
             color: white !important;
             background-color: rgba(255,255,255,0.05);
@@ -67,30 +66,3 @@
         }
     </style>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const sidebar = document.getElementById("sidebar");
-        const menuToggle = document.getElementById("menuToggle");
-
-        menuToggle.addEventListener("click", () => {
-            if (window.innerWidth < 992) {
-                // MOBILE → Slide in/out
-                sidebar.classList.toggle("show");
-            } else {
-                // DESKTOP → Collapse width
-                sidebar.classList.toggle("collapsed");
-            }
-        });
-
-        // Auto-adjust when resizing
-        window.addEventListener("resize", () => {
-            if (window.innerWidth < 992) {
-                sidebar.classList.remove("collapsed"); // remove desktop style
-            } else {
-                sidebar.classList.remove("show"); // remove mobile style
-            }
-        });
-    });
-</script>

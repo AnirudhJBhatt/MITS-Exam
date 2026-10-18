@@ -1,143 +1,185 @@
- <?php  
-	session_start();
-	if (!isset($_SESSION['LoginDeptAdmin'])) {
-        echo "<script>alert('You Are Not Authorize Person For This link'); window.location.href='../index.php';</script>";
-        exit;
-    }
-	require_once "../Connection/connection.php";
-?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dept Admin - Dashboard</title>
-    <!-- Fonts and Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="../Common/style.css">
-</head>
-<body>
-    <!-- NAVBAR -->
-    <?php include '../Common/header.php'; ?>
-    <!-- SIDEBAR -->
-    <?php include '../Common/deptadmin-sidebar.php'; ?>
+<?php  
+/**
+ * Department Administrator Dashboard
+ * Real-time Departmental Metrics, KPI Tracking, and Quick Administrative Shortcuts
+ */
 
-    <!-- MAIN CONTENT -->
-    <main>
-        <div class="dashboard-header">
-            <h4 class="mb-0 fw-bold">Dashboard</h4>
+require_once __DIR__ . "/../Connection/connection.php";
+require_once __DIR__ . "/../Common/auth.php";
+check_role('DeptAdmin');
+
+$Dept_ID = $_SESSION['LoginDeptAdmin'];
+
+// Fetch Department Profile
+$deptName = $Dept_ID;
+$deptCode = "";
+if ($pdo) {
+    $stmt = $pdo->prepare("SELECT Dept_Name, Dept_Code FROM department WHERE Dept_ID = ? LIMIT 1");
+    $stmt->execute([$Dept_ID]);
+    if ($r = $stmt->fetch()) {
+        $deptName = $r['Dept_Name'];
+        $deptCode = $r['Dept_Code'] ?? '';
+    }
+} elseif ($con) {
+    $stmt = $con->prepare("SELECT Dept_Name, Dept_Code FROM department WHERE Dept_ID = ? LIMIT 1");
+    $stmt->bind_param("s", $Dept_ID);
+    $stmt->execute();
+    if ($r = $stmt->get_result()->fetch_assoc()) {
+        $deptName = $r['Dept_Name'];
+        $deptCode = $r['Dept_Code'] ?? '';
+    }
+}
+
+// Fetch Live Department Statistics
+$totalStudents = 0;
+$totalFaculty  = 0;
+$totalCourses  = 0;
+$totalExams    = 0;
+$totalProgrammes = 0;
+
+if ($pdo) {
+    try {
+        $stS = $pdo->prepare("SELECT COUNT(*) FROM student WHERE Stud_Dept = ?");
+        $stS->execute([$Dept_ID]);
+        $totalStudents = (int)$stS->fetchColumn();
+
+        $stF = $pdo->prepare("SELECT COUNT(*) FROM faculty WHERE Fac_Dept = ?");
+        $stF->execute([$Dept_ID]);
+        $totalFaculty = (int)$stF->fetchColumn();
+
+        $stC = $pdo->prepare("SELECT COUNT(*) FROM courses WHERE Dept_ID = ?");
+        $stC->execute([$Dept_ID]);
+        $totalCourses = (int)$stC->fetchColumn();
+
+        $stP = $pdo->prepare("SELECT COUNT(*) FROM programmes WHERE Dept_ID = ?");
+        $stP->execute([$Dept_ID]);
+        $totalProgrammes = (int)$stP->fetchColumn();
+
+        // Total published exams for this department's courses
+        $stE = $pdo->prepare("SELECT COUNT(*) FROM exams e JOIN courses c ON e.Course_ID = c.Course_ID WHERE c.Dept_ID = ? AND e.Status = 'published'");
+        $stE->execute([$Dept_ID]);
+        $totalExams = (int)$stE->fetchColumn();
+    } catch (Exception $e) {
+        // Fallback silently
+    }
+} elseif ($con) {
+    $q = mysqli_query($con, "SELECT COUNT(*) as c FROM student WHERE Stud_Dept = '$Dept_ID'");
+    if ($q && $r = mysqli_fetch_assoc($q)) $totalStudents = (int)$r['c'];
+
+    $q = mysqli_query($con, "SELECT COUNT(*) as c FROM faculty WHERE Fac_Dept = '$Dept_ID'");
+    if ($q && $r = mysqli_fetch_assoc($q)) $totalFaculty = (int)$r['c'];
+
+    $q = mysqli_query($con, "SELECT COUNT(*) as c FROM courses WHERE Dept_ID = '$Dept_ID'");
+    if ($q && $r = mysqli_fetch_assoc($q)) $totalCourses = (int)$r['c'];
+
+    $q = mysqli_query($con, "SELECT COUNT(*) as c FROM programmes WHERE Dept_ID = '$Dept_ID'");
+    if ($q && $r = mysqli_fetch_assoc($q)) $totalProgrammes = (int)$r['c'];
+
+    $q = mysqli_query($con, "SELECT COUNT(*) as c FROM exams e JOIN courses c ON e.Course_ID = c.Course_ID WHERE c.Dept_ID = '$Dept_ID' AND e.Status = 'published'");
+    if ($q && $r = mysqli_fetch_assoc($q)) $totalExams = (int)$r['c'];
+}
+
+include '../Common/header.php';
+include '../Common/deptadmin-sidebar.php';
+?>
+
+<!-- MAIN CONTENT -->
+<main>
+    <div class="dashboard-header">
+        <div>
+            <h4 class="mb-1"><?= htmlspecialchars($deptName, ENT_QUOTES, 'UTF-8') ?></h4>
+            <p class="mb-0 text-white-50 small">Department Academic Administration & Assessment Overview</p>
+        </div>
+        <span class="badge bg-white text-danger px-3 py-2 rounded-pill fw-semibold shadow-sm">
+            <i class="bi bi-building me-1"></i> Dept: <?= htmlspecialchars($Dept_ID, ENT_QUOTES, 'UTF-8') ?>
+        </span>
+    </div>
+
+    <!-- Live Departmental KPI Stat Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-sm-6 col-xl-3">
+            <div class="card stat-card hover-elevate h-100">
+                <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div class="stat-value text-dark"><?= number_format($totalStudents) ?></div>
+                <div class="stat-label">Department Students</div>
+            </div>
         </div>
 
-        <!-- Dashboard Cards -->
-            <div class="row g-4">
-                <div class="col-md-6 col-lg-3">
-                    <div class="card p-4 text-center shadow-sm border-0 rounded-4 hover-elevate bg-white h-100">
-                        <div class="icon-box bg-primary-subtle">
-                            <i class="ti ti-users"></i>
-                        </div>
-                        <div class="stat-value text-primary mb-2">1,250</div>
-                        <h6 class="fw-bold text-secondary text-uppercase" style="letter-spacing: 1px;">Total Students</h6>
-                        <div class="mt-3 pt-3 border-top text-start">
-                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1"><i class="ti ti-trending-up me-1"></i>+5% this semester</span>
-                        </div>
-                    </div>
+        <div class="col-sm-6 col-xl-3">
+            <div class="card stat-card hover-elevate h-100">
+                <div class="stat-icon bg-success bg-opacity-10 text-success">
+                    <i class="bi bi-person-video3"></i>
                 </div>
-                
-                <div class="col-md-6 col-lg-3">
-                    <div class="card p-4 text-center shadow-sm border-0 rounded-4 hover-elevate bg-white h-100">
-                        <div class="icon-box bg-success-subtle">
-                            <i class="ti ti-file-pencil"></i>
-                        </div>
-                        <div class="stat-value text-success mb-2">12</div>
-                        <h6 class="fw-bold text-secondary text-uppercase" style="letter-spacing: 1px;">Ongoing Exams</h6>
-                        <div class="mt-3 pt-3 border-top text-start">
-                            <span class="text-muted small"><i class="ti ti-clock me-1"></i>Last updated just now</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="col-md-6 col-lg-3">
-                    <div class="card p-4 text-center shadow-sm border-0 rounded-4 hover-elevate bg-white h-100">
-                        <div class="icon-box bg-warning-subtle">
-                            <i class="ti ti-book-2"></i>
-                        </div>
-                        <div class="stat-value text-warning mb-2">24</div>
-                        <h6 class="fw-bold text-secondary text-uppercase" style="letter-spacing: 1px;">Active Courses</h6>
-                        <div class="mt-3 pt-3 border-top text-start">
-                            <span class="text-muted small"><i class="ti ti-check me-1"></i>All mapped correctly</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 col-lg-3">
-                    <div class="card p-4 text-center shadow-sm border-0 rounded-4 hover-elevate bg-white h-100">
-                        <div class="icon-box bg-info-subtle">
-                            <i class="ti ti-school"></i>
-                        </div>
-                        <div class="stat-value text-info mb-2">45</div>
-                        <h6 class="fw-bold text-secondary text-uppercase" style="letter-spacing: 1px;">Faculty Members</h6>
-                        <div class="mt-3 pt-3 border-top text-start">
-                            <span class="badge bg-info bg-opacity-10 text-info rounded-pill px-2 py-1"><i class="ti ti-activity me-1"></i>38 Active today</span>
-                        </div>
-                    </div>
-                </div>
+                <div class="stat-value text-dark"><?= number_format($totalFaculty) ?></div>
+                <div class="stat-label">Faculty Members</div>
             </div>
-            
-            <!-- <div class="row g-4 mt-4">
-                <div class="col-lg-8">
-                    <div class="card shadow-sm border-0 rounded-4 h-100">
-                        <div class="card-header bg-light border-0 py-3 px-4">
-                            <h6 class="mb-0 fw-bold text-uppercase"><i class="ti ti-bell me-2"></i>Recent Activity</h6>
-                        </div>
-                        <div class="card-body p-4">
-                            <div class="d-flex align-items-start mb-4 pb-3 border-bottom">
-                                <div class="bg-primary-subtle text-primary p-2 rounded-3 me-3"><i class="ti ti-file-plus fs-5"></i></div>
-                                <div>
-                                    <h6 class="mb-1 fw-bold">New Exam Scheduled</h6>
-                                    <p class="text-muted small mb-0">Midterm for Computer Networks scheduled by Dr. Smith.</p>
-                                </div>
-                                <span class="ms-auto text-muted small">2 hrs ago</span>
-                            </div>
-                            <div class="d-flex align-items-start mb-4 pb-3 border-bottom">
-                                <div class="bg-success-subtle text-success p-2 rounded-3 me-3"><i class="ti ti-user-check fs-5"></i></div>
-                                <div>
-                                    <h6 class="mb-1 fw-bold">Student Enrollments Updated</h6>
-                                    <p class="text-muted small mb-0">15 new students enrolled in Data Structures.</p>
-                                </div>
-                                <span class="ms-auto text-muted small">5 hrs ago</span>
-                            </div>
-                            <div class="d-flex align-items-start">
-                                <div class="bg-warning-subtle text-warning p-2 rounded-3 me-3"><i class="ti ti-alert-circle fs-5"></i></div>
-                                <div>
-                                    <h6 class="mb-1 fw-bold">Pending Approvals</h6>
-                                    <p class="text-muted small mb-0">3 faculty requests pending for exam creation.</p>
-                                </div>
-                                <span class="ms-auto text-muted small">1 day ago</span>
-                            </div>
-                        </div>
-                    </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card stat-card hover-elevate h-100">
+                <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                    <i class="bi bi-journal-bookmark-fill"></i>
                 </div>
-                <div class="col-lg-4">
-                    <div class="card shadow-sm border-0 rounded-4 h-100 bg-primary text-white position-relative overflow-hidden">
-                        Decorative background circle
-                        <div class="position-absolute rounded-circle bg-white opacity-10" style="width: 200px; height: 200px; top: -50px; right: -50px;"></div>
-                        <div class="card-body p-4 d-flex flex-column justify-content-center align-items-center text-center position-relative z-1">
-                            <i class="ti ti-report-analytics display-2 mb-3 text-white opacity-75"></i>
-                            <h4 class="fw-bold mb-3">Generate Reports</h4>
-                            <p class="text-white opacity-75 mb-4">Need a detailed breakdown of department performance? Generate a comprehensive report now.</p>
-                            <button class="btn btn-light rounded-pill px-4 fw-bold shadow-sm hover-elevate text-primary">Create Report <i class="ti ti-arrow-right ms-2"></i></button>
-                        </div>
-                    </div>
+                <div class="stat-value text-dark"><?= number_format($totalCourses) ?></div>
+                <div class="stat-label">Active Courses</div>
+            </div>
+        </div>
+
+        <div class="col-sm-6 col-xl-3">
+            <div class="card stat-card hover-elevate h-100">
+                <div class="stat-icon bg-danger bg-opacity-10 text-danger">
+                    <i class="bi bi-file-earmark-check-fill"></i>
                 </div>
-            </div> -->
-    </main>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <?php include '../Common/footer.php'; ?>
-</body>
-</html>
+                <div class="stat-value text-dark"><?= number_format($totalExams) ?></div>
+                <div class="stat-label">Published Assessments</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Departmental Actions -->
+    <div class="card p-4 border-0 shadow-sm rounded-4 mb-4">
+        <h5 class="fw-bold mb-3 text-dark">Quick Administrative Actions</h5>
+        <div class="row g-3">
+            <div class="col-md-3">
+                <a href="manage-student.php" class="btn btn-outline-secondary w-100 py-3 text-start d-flex align-items-center gap-3 rounded-3 hover-elevate">
+                    <i class="bi bi-cloud-arrow-up fs-4 text-primary"></i>
+                    <div>
+                        <div class="fw-bold text-dark">Student Batch Upload</div>
+                        <small class="text-muted">Import Students via CSV</small>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="map-courses.php" class="btn btn-outline-secondary w-100 py-3 text-start d-flex align-items-center gap-3 rounded-3 hover-elevate">
+                    <i class="bi bi-diagram-3 fs-4 text-success"></i>
+                    <div>
+                        <div class="fw-bold text-dark">Course-Faculty Mapping</div>
+                        <small class="text-muted">Assign teachers to subjects</small>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="sync-student-courses.php" class="btn btn-outline-secondary w-100 py-3 text-start d-flex align-items-center gap-3 rounded-3 hover-elevate">
+                    <i class="bi bi-arrow-repeat fs-4 text-warning"></i>
+                    <div>
+                        <div class="fw-bold text-dark">Sync Enrollments</div>
+                        <small class="text-muted">Batch map student courses</small>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3">
+                <a href="view-results.php" class="btn btn-outline-secondary w-100 py-3 text-start d-flex align-items-center gap-3 rounded-3 hover-elevate">
+                    <i class="bi bi-bar-chart-line fs-4 text-danger"></i>
+                    <div>
+                        <div class="fw-bold text-dark">Department Results</div>
+                        <small class="text-muted">View performance analytics</small>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<?php include '../Common/footer.php'; ?>

@@ -1,49 +1,47 @@
 <?php
-session_start();
-if (!isset($_SESSION["LoginFaculty"])) {
-    die("Unauthorized access. Please login.");
-}
-
 require_once __DIR__ . '/../Connection/connection.php';
+require_once __DIR__ . '/../Common/auth.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
-if (!isset($_GET['Exam_ID'])) {
-    die("Exam ID is required.");
+check_role(['Faculty', 'Admin', 'DeptAdmin']);
+
+$Exam_ID = (int)($_GET['Exam_ID'] ?? $_GET['exam_id'] ?? 0);
+if ($Exam_ID <= 0) {
+    die("Valid Exam ID is required.");
 }
 
-$Exam_ID = mysqli_real_escape_string($con, $_GET['Exam_ID']);
-
-// Fetch Exam & Course & Department Details
-$examQuery = "
+// Fetch Exam & Course & Department Details via PDO
+$examStmt = $pdo->prepare("
     SELECT e.*, c.Course_Name, c.Course_Code, c.Semester, d.Dept_Name, p.Prog_Name
     FROM exams e
     JOIN courses c ON e.Course_ID = c.Course_ID
     JOIN programmes p ON c.Prog_ID = p.Prog_ID
     LEFT JOIN department d ON c.Dept_ID = d.Dept_ID
-    WHERE e.Exam_ID = '$Exam_ID'
-";
-$examRun = mysqli_query($con, $examQuery);
-$exam = mysqli_fetch_assoc($examRun);
+    WHERE e.Exam_ID = ? LIMIT 1
+");
+$examStmt->execute([$Exam_ID]);
+$exam = $examStmt->fetch(PDO::FETCH_ASSOC);
 
 if (!$exam) {
-    die("Exam not found.");
+    die("Examination record not found.");
 }
 
-// Fetch Questions
-$questionQuery = "
+// Fetch Questions via PDO
+$qStmt = $pdo->prepare("
     SELECT Question_ID, Question_Type, Question_Text, Marks, CO, Options_JSON, Pairs_JSON, Image_Path
     FROM exam_questions
-    WHERE Exam_ID = '$Exam_ID'
+    WHERE Exam_ID = ?
     ORDER BY Sort_Order ASC, Question_ID ASC
-";
-$qRun = mysqli_query($con, $questionQuery);
+");
+$qStmt->execute([$Exam_ID]);
 $questions = [];
 $used_cos = [];
 $total_marks = 0;
 
-while ($row = mysqli_fetch_assoc($qRun)) {
+$rows = $qStmt->fetchAll(PDO::FETCH_ASSOC);
+foreach ($rows as $row) {
     $questions[] = $row;
-    $total_marks += $row['Marks'];
+    $total_marks += (float)$row['Marks'];
     if (!empty($row['CO'])) {
         $used_cos[] = $row['CO'];
     }

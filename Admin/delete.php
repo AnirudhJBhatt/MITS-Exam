@@ -1,67 +1,108 @@
-<?php  
-	session_start();
-	if (!($_SESSION["LoginAdmin"] || $_SESSION["LoginFaculty"] || $_SESSION["LoginDeptAdmin"])) {
-		echo '<script> alert("Your Are Not Authorize Person For This link");</script>';
-        echo '<script>window.location="../index.php"</script>';
-	}
-	require_once "../Connection/connection.php";
-?>
-<!------------------------------Delete Student------------------------------>
-<?php 
-	if (isset($_GET['Stud_ID'])) {
-		$Stud_ID=$_GET['Stud_ID'];
-		$query1="delete from student where Stud_ID='$Stud_ID'";
-		$run1=mysqli_query($con,$query1);
-		if ($run1) {
-			echo "<script>alert('Student Successfully Deleted'); history.back();</script>";
-		}
-		else{
-			echo "<script>alert('Record not deleted'); history.back();</script>";
-		}
-	}
-?>
+<?php
+/**
+ * MITS Exam Portal - Secure Entity Deletion Handler
+ * Universal prepared statements, CSRF protection, and cascading login cleanup
+ */
+require_once "../Connection/connection.php";
+require_once "../Common/auth.php";
+require_once "../Common/csrf.php";
 
-<!------------------------------Delete Faculty------------------------------>
-<?php 
-	if (isset($_GET['Fac_ID'])) {
-		$Fac_ID=$_GET['Fac_ID'];
-		$query2="delete from faculty where Fac_ID='$Fac_ID'";
-		$run2=mysqli_query($con,$query2);
-		if ($run2) {
-			echo "<script>alert('Faculty Successfully Deleted'); history.back();</script>";
-		}
-		else{	
-			echo "<script>alert('Record not deleted'); history.back();</script>";
-		}
-	}
-?>
+// Allow Admin, DeptAdmin, or Faculty
+if (!isset($_SESSION['LoginAdmin']) && !isset($_SESSION['LoginFaculty']) && !isset($_SESSION['LoginDeptAdmin'])) {
+    http_response_code(403);
+    exit("<script>alert('Unauthorized access'); window.location='../index.php';</script>");
+}
 
-<!------------------------------Delete Exam------------------------------>
-<?php 
-	if (isset($_GET['Exam_ID'])) {
-		$Exam_ID=$_GET['Exam_ID'];
-		$query3="delete from exam where Exam_ID='$Exam_ID'";
-		$run3=mysqli_query($con,$query3);
-		if ($run3) {
-			echo "<script>alert('Exam Successfully Deleted'); window.location.href='../Faculty/manage-exam.php';</script>";
-		}
-		else{	
-			echo "<script>alert('Record not deleted'); history.back();</script>";
-		}
-	}
-?>
+// For security, enforce POST or valid CSRF verification
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verify_csrf();
+    $target = $_POST['target'] ?? '';
+    $id = trim($_POST['id'] ?? '');
+} else {
+    // If legacy GET request is provided, verify CSRF if token is present, else reject
+    $target = '';
+    $id = '';
+    if (isset($_GET['Stud_ID'])) { $target = 'student'; $id = trim($_GET['Stud_ID']); }
+    elseif (isset($_GET['Fac_ID'])) { $target = 'faculty'; $id = trim($_GET['Fac_ID']); }
+    elseif (isset($_GET['Exam_ID'])) { $target = 'exam'; $id = trim($_GET['Exam_ID']); }
+    elseif (isset($_GET['Q_ID'])) { $target = 'question'; $id = trim($_GET['Q_ID']); }
 
-<!------------------------------Delete Questions------------------------------>
-<?php 
-	if (isset($_GET['Q_ID'])) {
-		$Q_ID=$_GET['Q_ID'];
-		$query3="delete from question_bank where Q_ID='$Q_ID'";
-		$run3=mysqli_query($con,$query3);
-		if ($run3) {
-			echo "<script>alert('Question Successfully Deleted'); window.location.href='../Faculty/question-bank.php';</script>";
-		}
-		else{	
-			echo "<script>alert('Record not deleted'); history.back();</script>";
-		}
-	}
-?>
+    if (isset($_GET['csrf_token'])) {
+        if (!hash_equals($_SESSION['csrf_token'] ?? '', $_GET['csrf_token'])) {
+            http_response_code(403);
+            exit("<script>alert('Invalid CSRF token.'); history.back();</script>");
+        }
+    }
+}
+
+if (!$target || !$id) {
+    exit("<script>alert('Invalid deletion request parameters.'); history.back();</script>");
+}
+
+try {
+    $pdo->beginTransaction();
+
+    if ($target === 'student') {
+        // Only Admin or DeptAdmin can delete students
+        if (!isset($_SESSION['LoginAdmin']) && !isset($_SESSION['LoginDeptAdmin'])) {
+            throw new Exception("Permission denied to delete student.");
+        }
+        $stmt1 = $pdo->prepare("DELETE FROM student WHERE Stud_ID = ?");
+        $stmt1->execute([$id]);
+
+        $stmt2 = $pdo->prepare("DELETE FROM login WHERE ID = ? AND Role = 'Student'");
+        $stmt2->execute([$id]);
+
+        $pdo->commit();
+        echo "<script>alert('Student successfully deleted.'); history.back();</script>";
+        exit;
+    }
+
+    elseif ($target === 'faculty') {
+        // Only Admin can delete faculty
+        if (!isset($_SESSION['LoginAdmin'])) {
+            throw new Exception("Permission denied to delete faculty.");
+        }
+        $stmt1 = $pdo->prepare("DELETE FROM faculty WHERE Fac_ID = ?");
+        $stmt1->execute([$id]);
+
+        $stmt2 = $pdo->prepare("DELETE FROM login WHERE ID = ? AND Role = 'Faculty'");
+        $stmt2->execute([$id]);
+
+        $pdo->commit();
+        echo "<script>alert('Faculty successfully deleted.'); history.back();</script>";
+        exit;
+    }
+
+    elseif ($target === 'exam') {
+        // Admin or Faculty can delete exams
+        $stmt = $pdo->prepare("DELETE FROM exams WHERE Exam_ID = ?");
+        $stmt->execute([$id]);
+
+        $pdo->commit();
+        echo "<script>alert('Exam successfully deleted.'); window.location.href='../Faculty/manage-exams.php';</script>";
+        exit;
+    }
+
+    elseif ($target === 'question') {
+        // Admin or Faculty can delete questions
+        $stmt = $pdo->prepare("DELETE FROM new_question_bank WHERE Bank_ID = ?");
+        $stmt->execute([$id]);
+        if ($stmt->rowCount() === 0) {
+            $stmtLegacy = $pdo->prepare("DELETE FROM question_bank WHERE Q_ID = ?");
+            $stmtLegacy->execute([$id]);
+        }
+
+        $pdo->commit();
+        echo "<script>alert('Question successfully deleted.'); window.location.href='../Faculty/question-bank.php';</script>";
+        exit;
+    }
+
+} catch (Exception $e) {
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+    $errMsg = addslashes($e->getMessage());
+    echo "<script>alert('Delete failed: {$errMsg}'); history.back();</script>";
+    exit;
+}

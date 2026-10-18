@@ -1,368 +1,328 @@
 <?php
+/**
+ * MITS Assessment Portal - Itemized Result Details Modal Provider
+ * Fetches question-by-question responses, rubrics, proctor telemetry, and faculty comments.
+ */
+if (session_status() === PHP_SESSION_NONE) {
     session_start();
-    // Only LoginFaculty and LoginStudent has access
-    // if (!isset($_SESSION["LoginFaculty"])) {
-    //     http_response_code(403);
-    //     echo '<div class="alert alert-danger">Unauthorized access. Please login.</div>';
-    //     exit;
-    // }
+}
+require_once __DIR__ . "/../Connection/connection.php";
+require_once __DIR__ . "/../Common/auth.php";
 
-    require_once __DIR__ . "/../Connection/connection.php";
+check_role(['Faculty', 'Admin', 'DeptAdmin', 'Student']);
 
-    if (!isset($_POST['Stud_ID']) || !isset($_POST['Exam_ID'])) {
-        http_response_code(400);
-        echo '<div class="alert alert-danger">Invalid request. Student ID or Exam ID missing.</div>';
-        exit;
-    }
+$currentUserRole = $_SESSION['Role'] ?? '';
+$currentUserId = $_SESSION['user_id'] ?? $_SESSION['LoginStudent'] ?? $_SESSION['LoginFaculty'] ?? '';
 
-    $Stud_ID = mysqli_real_escape_string($con, $_POST['Stud_ID']);
-    $Exam_ID = mysqli_real_escape_string($con, $_POST['Exam_ID']);
+if (!isset($_POST['Stud_ID']) || !isset($_POST['Exam_ID'])) {
+    http_response_code(400);
+    echo '<div class="alert alert-danger">Invalid request. Student ID or Exam ID missing.</div>';
+    exit;
+}
 
-    // 1. Fetch Student Name
-    $studQuery = "SELECT Stud_Name FROM student WHERE Stud_ID = '$Stud_ID'";
-    $studRun = mysqli_query($con, $studQuery);
-    $studRow = mysqli_fetch_assoc($studRun);
-    $Stud_Name = $studRow ? $studRow['Stud_Name'] : 'Unknown Student';
+$Stud_ID = trim($_POST['Stud_ID']);
+$Exam_ID = (int)$_POST['Exam_ID'];
 
-    // 2. Fetch Exam details
-    $examQuery = "SELECT Exam_Name, Total_Marks FROM exams WHERE Exam_ID = '$Exam_ID'";
-    $examRun = mysqli_query($con, $examQuery);
-    $examRow = mysqli_fetch_assoc($examRun);
-    $Exam_Name = $examRow ? $examRow['Exam_Name'] : 'Unknown Exam';
+// Security check: If student, verify they are only requesting their own result
+if ($currentUserRole === 'Student' && $Stud_ID !== $currentUserId) {
+    http_response_code(403);
+    echo '<div class="alert alert-danger">Access denied. You can only view your own result scorecard.</div>';
+    exit;
+}
 
-    // 3. Fetch Attempt summary from results table
-    $resQuery = "SELECT Result_ID, Total_Marks, Marks_Obtained, Time_Taken_Sec, Violations, Auto_Submitted, Status, Submitted_At 
-                FROM results 
-                WHERE Stud_ID = '$Stud_ID' AND Exam_ID = '$Exam_ID'";
-    $resRun = mysqli_query($con, $resQuery);
-    $resultData = mysqli_fetch_assoc($resRun);
+// 1. Fetch Student Profile
+$studStmt = $pdo->prepare("
+    SELECT s.Stud_Name, s.Stud_Email, d.Dept_Name, p.Prog_Name 
+    FROM student s
+    LEFT JOIN department d ON s.Stud_Dept = d.Dept_ID
+    LEFT JOIN programmes p ON s.Stud_Branch = p.Prog_ID
+    WHERE s.Stud_ID = ? LIMIT 1
+");
+$studStmt->execute([$Stud_ID]);
+$student = $studStmt->fetch();
+$Stud_Name = $student['Stud_Name'] ?? 'Candidate';
 
-    if (!$resultData) {
-        echo '<div class="alert alert-warning text-center my-4">No submission results found for this student.</div>';
-        exit;
-    }
+// 2. Fetch Exam Details
+$examStmt = $pdo->prepare("
+    SELECT e.Exam_Name, e.Total_Marks, e.Duration, c.Course_Code, c.Course_Name
+    FROM exams e
+    LEFT JOIN courses c ON e.Course_ID = c.Course_ID
+    WHERE e.Exam_ID = ? LIMIT 1
+");
+$examStmt->execute([$Exam_ID]);
+$exam = $examStmt->fetch();
+$Exam_Name = $exam['Exam_Name'] ?? 'Examination';
 
-    $Result_ID = $resultData['Result_ID'];
-    $Obtained_Marks = $resultData['Marks_Obtained'];
-    $Max_Marks_Exam = $resultData['Total_Marks'];
-    $Time_Taken = $resultData['Time_Taken_Sec'];
-    $Violations = $resultData['Violations'];
-    $Auto_Submitted = $resultData['Auto_Submitted'];
-    $Status = $resultData['Status'];
-    $Submitted_At = $resultData['Submitted_At'];
+// 3. Fetch Attempt Summary from results
+$resStmt = $pdo->prepare("
+    SELECT Result_ID, Total_Marks, Marks_Obtained, Percentage, Time_Taken_Sec, Violations, Auto_Submitted, Status, Submitted_At, Graded_At
+    FROM results 
+    WHERE Stud_ID = ? AND Exam_ID = ? LIMIT 1
+");
+$resStmt->execute([$Stud_ID, $Exam_ID]);
+$resultData = $resStmt->fetch();
 
-    // Calculate percentage
-    $percentage = $Max_Marks_Exam > 0 ? round(($Obtained_Marks / $Max_Marks_Exam) * 100, 1) : 0;
+if (!$resultData) {
+    echo '<div class="alert alert-warning text-center my-4">
+        <i class="bi bi-info-circle fs-2 text-warning d-block mb-2"></i>
+        No submission results found for this candidate.
+    </div>';
+    exit;
+}
 
-    // Format duration
-    $minutes = floor($Time_Taken / 60);
-    $seconds = $Time_Taken % 60;
-    $durationStr = ($minutes > 0 ? $minutes . "m " : "") . $seconds . "s";
+$Result_ID = (int)$resultData['Result_ID'];
+$Obtained_Marks = (float)$resultData['Marks_Obtained'];
+$Max_Marks_Exam = (float)$resultData['Total_Marks'];
+$Percentage = round((float)$resultData['Percentage'], 1);
+$Time_Taken = (int)$resultData['Time_Taken_Sec'];
+$Violations = (int)$resultData['Violations'];
+$Auto_Submitted = (bool)$resultData['Auto_Submitted'];
+$Status = $resultData['Status'];
+$Submitted_At = $resultData['Submitted_At'];
 
-    // 4. Fetch Question & Answer details
-    $qQuery = "SELECT 
-                ra.Question_ID,
-                ra.Question_Type,
-                ra.Student_Answer,
-                ra.Is_Correct,
-                ra.Marks_Awarded,
-                ra.Max_Marks,
-                ra.Answer_Status,
-                ra.Grader_Comment,
-                eq.Question_Text,
-                eq.Options_JSON,
-                eq.Correct_Opt,
-                eq.Rubric,
-                eq.Word_Limit,
-                eq.Answers_JSON,
-                eq.Pairs_JSON,
-                eq.Image_Path,
-                eq.CO
-            FROM result_answers ra
-            JOIN exam_questions eq ON ra.Question_ID = eq.Question_ID
-            WHERE ra.Result_ID = '$Result_ID'
-            ORDER BY eq.Sort_Order, eq.Question_ID";
-    $qRun = mysqli_query($con, $qQuery);
+$minutes = floor($Time_Taken / 60);
+$seconds = $Time_Taken % 60;
+$durationStr = "{$minutes}m {$seconds}s";
+
+// 4. Fetch Question & Answer Details
+$qStmt = $pdo->prepare("
+    SELECT 
+        ra.Question_ID,
+        ra.Question_Type,
+        ra.Student_Answer,
+        ra.Is_Correct,
+        ra.Marks_Awarded,
+        ra.Max_Marks,
+        ra.Answer_Status,
+        ra.Grader_Comment,
+        ra.Graded_By,
+        eq.Question_Text,
+        eq.Options_JSON,
+        eq.Correct_Opt,
+        eq.Rubric,
+        eq.Word_Limit,
+        eq.Answers_JSON,
+        eq.Pairs_JSON,
+        eq.Image_Path,
+        eq.CO
+    FROM result_answers ra
+    JOIN exam_questions eq ON ra.Question_ID = eq.Question_ID
+    WHERE ra.Result_ID = ?
+    ORDER BY eq.Sort_Order ASC, eq.Question_ID ASC
+");
+$qStmt->execute([$Result_ID]);
+$answers = $qStmt->fetchAll();
 ?>
 
-<div class="container-fluid px-0">
-    <!-- Header Summary Card -->
-    <div class="card border-0 bg-light mb-4 shadow-sm">
+<div class="result-details-view">
+    <!-- Header Executive Card -->
+    <div class="card border-0 bg-light rounded-4 mb-4 shadow-sm">
         <div class="card-body p-4">
             <div class="row g-3 align-items-center">
                 <div class="col-md-7">
-                    <h5 class="fw-bold text-dark mb-1"><?= htmlspecialchars($Stud_ID) ?> - <?= htmlspecialchars($Stud_Name) ?></h5>
-                    <h6 class="text-secondary mb-0 fw-semibold"><?= htmlspecialchars($Exam_Name) ?></h6>
+                    <div class="d-flex align-items-center gap-2 mb-1">
+                        <span class="badge bg-danger bg-opacity-10 text-danger fw-bold font-monospace">ROLL: <?= htmlspecialchars($Stud_ID) ?></span>
+                        <span class="badge bg-secondary-subtle text-secondary fw-semibold"><?= htmlspecialchars($exam['Course_Code'] ?? '') ?></span>
+                    </div>
+                    <h4 class="fw-bold text-dark mb-1"><?= htmlspecialchars($Stud_Name) ?></h4>
+                    <p class="text-secondary small mb-0">
+                        <i class="bi bi-file-earmark-text-fill text-danger me-1"></i><?= htmlspecialchars($Exam_Name) ?> &bull; 
+                        Submitted: <?= date('d M Y, h:i A', strtotime($Submitted_At)) ?>
+                    </p>
                 </div>
                 <div class="col-md-5 text-md-end">
-                    <div class="d-inline-block text-center bg-white p-3 rounded shadow-sm border">
-                        <span class="d-block text-uppercase text-muted fw-bold" style="font-size: 0.7rem; letter-spacing: 0.5px;">Score Obtained</span>
-                        <h3 class="fw-bold text-danger mb-0" style="font-family: 'JetBrains Mono', monospace;">
-                            <?= htmlspecialchars(round($Obtained_Marks, 2)) ?> <span class="fs-5 text-muted">/ <?= htmlspecialchars(round($Max_Marks_Exam, 2)) ?></span>
-                        </h3>
-                        <span class="badge rounded-pill bg-danger-subtle text-danger px-3 py-1 mt-1 fw-bold"><?= $percentage ?>%</span>
+                    <div class="d-inline-flex flex-column align-items-md-end bg-white p-3 rounded-4 shadow-sm border">
+                        <span class="text-uppercase text-muted fw-bold small" style="letter-spacing: 0.5px; font-size: 0.68rem;">Score Achieved</span>
+                        <div class="d-flex align-items-baseline gap-2">
+                            <h3 class="fw-bold text-danger mb-0 font-monospace"><?= $Obtained_Marks ?></h3>
+                            <span class="text-muted fs-6 fw-semibold">/ <?= $Max_Marks_Exam ?></span>
+                            <span class="badge <?= $Percentage >= 75 ? 'bg-success' : ($Percentage >= 40 ? 'bg-primary' : 'bg-danger') ?> rounded-pill px-2">
+                                <?= $Percentage ?>%
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>
-            
-            <hr class="my-3 opacity-50">
-            
-            <div class="row g-3 text-center text-md-start">
-                <div class="col-6 col-md-3">
-                    <span class="text-muted d-block small">Status</span>
-                    <?php
-                        $badgeClass = 'bg-secondary';
-                        if ($Status === 'graded') $badgeClass = 'bg-success text-white';
-                        elseif ($Status === 'pending_review') $badgeClass = 'bg-warning text-dark';
-                        elseif ($Status === 'published') $badgeClass = 'bg-info text-dark';
-                    ?>
-                    <span class="badge <?= $badgeClass ?> text-capitalize px-3 py-1 fw-bold mt-1">
-                        <?= str_replace('_', ' ', $Status) ?>
-                    </span>
-                </div>
-                <div class="col-6 col-md-3">
-                    <span class="text-muted d-block small">Time Taken</span>
-                    <strong class="d-block text-dark mt-1"><?= $durationStr ?></strong>
-                </div>
-                <div class="col-6 col-md-3">
-                    <span class="text-muted d-block small">Violations</span>
-                    <?php if ($Violations > 0): ?>
-                        <span class="badge bg-danger px-3 py-1 fw-bold mt-1">
-                            <?= $Violations ?> Warn<?= $Violations == 1 ? '' : 's' ?>
-                        </span>
-                    <?php else: ?>
-                        <span class="badge bg-success-subtle text-success px-3 py-1 fw-bold mt-1">
-                            None
-                        </span>
-                    <?php endif; ?>
-                </div>
-                <div class="col-6 col-md-3">
-                    <span class="text-muted d-block small">Submitted At</span>
-                    <strong class="d-block text-dark mt-1" style="font-size: 0.85rem;">
-                        <?= $Submitted_At ? date('d M, g:i A', strtotime($Submitted_At)) : 'N/A' ?>
-                        <?php if ($Auto_Submitted): ?>
-                            <span class="text-danger ms-1 small" title="Auto-submitted due to timer expiration">(Auto)</span>
-                        <?php endif; ?>
-                    </strong>
-                </div>
+
+            <!-- Telemetry Badges Strip -->
+            <div class="d-flex flex-wrap align-items-center gap-3 pt-3 mt-3 border-top text-muted small">
+                <span><i class="bi bi-stopwatch text-danger me-1"></i>Duration: <strong><?= $durationStr ?></strong></span>
+                <span>
+                    <i class="bi bi-shield-shaded me-1 text-<?= $Violations > 0 ? 'danger' : 'success' ?>"></i>
+                    Violations: <strong class="<?= $Violations > 0 ? 'text-danger' : 'text-success' ?>"><?= $Violations ?></strong>
+                </span>
+                <?php if ($Auto_Submitted): ?>
+                    <span class="badge bg-danger bg-opacity-10 text-danger px-2"><i class="bi bi-exclamation-triangle me-1"></i>Auto-Submitted</span>
+                <?php endif; ?>
+                <span class="ms-md-auto">
+                    Status: <span class="badge bg-<?= ($Status === 'graded') ? 'success' : 'warning text-dark' ?> fw-semibold text-uppercase"><?= str_replace('_', ' ', $Status) ?></span>
+                </span>
             </div>
         </div>
     </div>
 
-    <!-- Questions Details Title -->
-    <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
-        <span class="text-muted small">Total Questions: <strong><?= mysqli_num_rows($qRun) ?></strong></span>
-    </div>
+    <!-- Question Answers Breakdown -->
+    <h6 class="fw-bold mb-3 text-dark text-uppercase small" style="letter-spacing: 0.5px;">
+        <i class="bi bi-card-checklist me-2"></i>Itemized Response Breakdown (<?= count($answers) ?> Questions)
+    </h6>
 
-    <!-- Loop through questions -->
-    <?php 
-    $sl = 1;
-    while ($row = mysqli_fetch_assoc($qRun)):
-        $qType = $row['Question_Type'];
-        $marksAwarded = (float)$row['Marks_Awarded'];
-        $maxMarks = (float)$row['Max_Marks'];
-        $isCorrect = $row['Is_Correct'];
-        $ansStatus = $row['Answer_Status'];
-        
-        // Determine border & badge styles based on grading
-        if ($qType === 'open' && $isCorrect === null && $ansStatus === 'attempted') {
-            $borderClass = 'border-warning';
-            $badgeBg = 'bg-warning-subtle text-warning-emphasis border border-warning-subtle';
-            $statusText = 'Pending Review';
-        } elseif ($ansStatus === 'unattempted' || $ansStatus === 'not') {
-            $borderClass = 'border-secondary-subtle';
-            $badgeBg = 'bg-light text-secondary border';
-            $statusText = 'Unattempted';
-        } elseif ($marksAwarded == $maxMarks) {
-            $borderClass = 'border-success';
-            $badgeBg = 'bg-success-subtle text-success border border-success-subtle';
-            $statusText = 'Correct';
-        } elseif ($marksAwarded > 0) {
-            $borderClass = 'border-warning';
-            $badgeBg = 'bg-warning-subtle text-warning-emphasis border border-warning-subtle';
-            $statusText = 'Partially Correct';
-        } else {
-            $borderClass = 'border-danger';
-            $badgeBg = 'bg-danger-subtle text-danger border border-danger-subtle';
-            $statusText = 'Incorrect';
-        }
-    ?>
-        <div class="card mb-3 border-0 border-start border-4 <?= $borderClass ?> shadow-sm">
-            <div class="card-body p-4">
-                <!-- Question Top Header Details -->
-                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+    <div class="d-flex flex-column gap-3">
+        <?php foreach ($answers as $idx => $row): 
+            $qNum = $idx + 1;
+            $qType = $row['Question_Type'];
+            $awarded = (float)$row['Marks_Awarded'];
+            $maxMarks = (float)$row['Max_Marks'];
+            $isCorrect = $row['Is_Correct'];
+            $borderClass = ($isCorrect === 1) ? 'border-success' : ($isCorrect === 0 ? 'border-danger' : 'border-warning');
+        ?>
+            <div class="card border rounded-4 shadow-sm <?= $borderClass ?>" style="border-left-width: 5px !important;">
+                <div class="card-header bg-white border-bottom py-3 px-4 d-flex flex-wrap justify-content-between align-items-center gap-2">
                     <div class="d-flex align-items-center gap-2">
-                        <span class="badge bg-secondary-subtle text-secondary-emphasis fw-bold">Q<?= $sl ?></span>
-                        <span class="badge bg-light text-dark border px-2 py-1 text-uppercase small" style="font-size:0.7rem; font-weight:600;">
-                            <?= $qType === 'mcq' ? 'MCQ' : ($qType === 'fill' ? 'Fill Blank' : ($qType === 'match' ? 'Matching' : 'Subjective')) ?>
-                        </span>
+                        <span class="fw-bold text-dark font-monospace">Q<?= $qNum ?></span>
+                        <span class="badge bg-secondary-subtle text-secondary text-uppercase fw-semibold" style="font-size: 0.7rem;"><?= htmlspecialchars($qType) ?></span>
                         <?php if (!empty($row['CO'])): ?>
-                            <span class="badge bg-info-subtle text-info-emphasis border border-info-subtle px-2 py-1 small" style="font-size:0.7rem;">CO<?= htmlspecialchars($row['CO']) ?></span>
+                            <span class="badge bg-danger bg-opacity-10 text-danger fw-bold">CO<?= $row['CO'] ?></span>
                         <?php endif; ?>
                     </div>
                     <div class="d-flex align-items-center gap-2">
-                        <span class="badge rounded-pill <?= $badgeBg ?> px-3 py-1 font-monospace" style="font-size: 0.75rem;">
-                            <?= $statusText ?>
-                        </span>
-                        <span class="fw-bold text-dark px-2 py-1 bg-light rounded border small" style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">
-                            Score: <?= round($marksAwarded, 2) ?> / <?= round($maxMarks, 2) ?>
+                        <span class="fw-bold font-monospace <?= ($awarded >= $maxMarks) ? 'text-success' : ($awarded > 0 ? 'text-primary' : 'text-danger') ?>">
+                            Score: <?= $awarded ?> / <?= $maxMarks ?>
                         </span>
                     </div>
                 </div>
 
-                <!-- Question Text -->
-                <div class="question-text mb-3 text-dark fw-medium lh-base text-break" style="font-size: 1rem; white-space: pre-line;">
-                    <?= htmlspecialchars($row['Question_Text']) ?>
-                </div>
+                <div class="card-body p-4">
+                    <!-- Question Diagram if present -->
+                    <?php if (!empty($row['Image_Path'])): ?>
+                        <div class="mb-3 text-center">
+                            <img src="../<?= htmlspecialchars($row['Image_Path']) ?>" class="img-fluid rounded border shadow-sm" style="max-height: 220px;" alt="Question Diagram">
+                        </div>
+                    <?php endif; ?>
 
-                <!-- Attached image if exists -->
-                <?php if (!empty($row['Image_Path'])): ?>
-                    <div class="mb-3">
-                        <img src="<?= htmlspecialchars($row['Image_Path']) ?>" class="img-fluid rounded border shadow-sm" style="max-height: 250px;" alt="Attached Image">
+                    <!-- Question Text -->
+                    <div class="text-dark fw-medium mb-3" style="line-height: 1.6;">
+                        <?= nl2br(htmlspecialchars($row['Question_Text'])) ?>
                     </div>
-                <?php endif; ?>
 
-                <div class="student-response-block border-top pt-3 mt-3">
-                    <?php if ($qType === 'mcq'): 
-                        $options = json_decode($row['Options_JSON'] ?? '[]', true) ?: [];
+                    <!-- MCQ View -->
+                    <?php if ($qType === 'mcq' || $qType === 'multiselect'): 
+                        $rawOptions = json_decode($row['Options_JSON'] ?? '{}', true) ?: [];
+                        $normalizedOptions = [];
+                        $defaultLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+                        $idx = 0;
+                        foreach ($rawOptions as $k => $v) {
+                            if (is_array($v)) {
+                                $let = $v['letter'] ?? $v['option'] ?? $v['key'] ?? ($defaultLetters[$idx] ?? (string)$idx);
+                                $txt = $v['text'] ?? $v['value'] ?? $v['opt'] ?? '';
+                                $normalizedOptions[(string)$let] = is_scalar($txt) ? (string)$txt : json_encode($txt);
+                            } else {
+                                $let = (is_string($k) && !is_numeric($k)) ? $k : ($defaultLetters[$idx] ?? (string)$k);
+                                $normalizedOptions[(string)$let] = is_scalar($v) ? (string)$v : json_encode($v);
+                            }
+                            $idx++;
+                        }
+
                         $studentSelected = json_decode($row['Student_Answer'] ?? 'null', true);
-                        $correctOpt = $row['Correct_Opt'];
+                        if ($studentSelected === null && is_string($row['Student_Answer'])) {
+                            $studentSelected = $row['Student_Answer'];
+                        }
+                        $correctOpt = $row['Correct_Opt'] ?? '';
+                        $acceptedArr = json_decode($row['Answers_JSON'] ?? '[]', true) ?: [];
+                        if (empty($acceptedArr) && !empty($correctOpt)) {
+                            $decodedCorr = json_decode($correctOpt, true);
+                            $acceptedArr = is_array($decodedCorr) ? $decodedCorr : [$correctOpt];
+                        }
                     ?>
-                        <div class="options-container">
-                            <div class="row g-2">
-                                <?php foreach ($options as $opt): 
-                                    $letter = $opt['letter'] ?? '';
-                                    $text = $opt['text'] ?? '';
-                                    
-                                    $optClass = 'border bg-white text-dark';
-                                    $badge = '';
-                                    
-                                    // If student selected this option
-                                    if ($studentSelected === $letter) {
-                                        if ($letter === $correctOpt) {
-                                            $optClass = 'border-success bg-success-subtle text-success-emphasis fw-bold';
-                                            $badge = '<span class="badge bg-success ms-auto">Your Answer & Correct</span>';
-                                        } else {
-                                            $optClass = 'border-danger bg-danger-subtle text-danger-emphasis fw-bold';
-                                            $badge = '<span class="badge bg-danger ms-auto">Your Answer (Incorrect)</span>';
-                                        }
-                                    } elseif ($letter === $correctOpt) {
-                                        // This is the correct option but was NOT selected by student
-                                        $optClass = 'border-success text-success-emphasis fw-semibold bg-white';
-                                        $badge = '<span class="badge bg-success-subtle text-success border border-success ms-auto">Correct Answer</span>';
-                                    }
-                                ?>
-                                    <div class="col-12">
-                                        <div class="p-2 px-3 rounded d-flex align-items-center <?= $optClass ?>" style="font-size: 0.92rem; min-height: 42px;">
-                                            <div class="d-flex align-items-center gap-2 flex-grow-1">
-                                                <strong class="text-center rounded-circle border d-inline-flex align-items-center justify-content-center bg-light text-dark fw-bold" style="width:24px; height:24px; font-size:0.8rem;"><?= $letter ?></strong>
-                                                <span class="text-break"><?= htmlspecialchars($text) ?></span>
-                                            </div>
-                                            <?= $badge ?>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
+                        <div class="options-display d-flex flex-column gap-2 mb-2">
+                            <?php foreach ($normalizedOptions as $optKey => $optText): 
+                                $optKeyStr = (string)$optKey;
+                                $optTextStr = (string)$optText;
+
+                                $isStudentChoice = false;
+                                if (is_array($studentSelected)) {
+                                    $isStudentChoice = in_array($optKeyStr, array_map('strval', $studentSelected)) || in_array($optTextStr, $studentSelected);
+                                } elseif ($studentSelected !== null && $studentSelected !== '') {
+                                    $isStudentChoice = ((string)$studentSelected === $optKeyStr || (string)$studentSelected === $optTextStr);
+                                }
+
+                                $isRight = false;
+                                if ($qType === 'mcq') {
+                                    $isRight = ($optKeyStr === (string)$correctOpt || $optTextStr === (string)$correctOpt);
+                                } else {
+                                    $isRight = in_array($optKeyStr, array_map('strval', $acceptedArr)) || in_array($optTextStr, $acceptedArr);
+                                }
+
+                                $bgStyle = 'bg-light text-secondary border';
+                                $badge = '';
+                                if ($isStudentChoice && $isRight) {
+                                    $bgStyle = 'bg-success bg-opacity-10 border-success text-success fw-bold';
+                                    $badge = '<span class="badge bg-success ms-auto"><i class="bi bi-check2"></i> Student Correct Choice</span>';
+                                } elseif ($isStudentChoice && !$isRight) {
+                                    $bgStyle = 'bg-danger bg-opacity-10 border-danger text-danger fw-bold';
+                                    $badge = '<span class="badge bg-danger ms-auto"><i class="bi bi-x"></i> Student Choice</span>';
+                                } elseif ($isRight) {
+                                    $bgStyle = 'bg-success bg-opacity-10 border-success text-success';
+                                    $badge = '<span class="badge bg-outline-success border border-success text-success ms-auto">Correct Answer</span>';
+                                }
+                            ?>
+                                <div class="p-2 px-3 rounded-3 d-flex align-items-center gap-2 <?= $bgStyle ?>">
+                                    <span class="badge bg-white text-dark border font-monospace"><?= htmlspecialchars($optKeyStr) ?></span>
+                                    <span><?= htmlspecialchars($optTextStr) ?></span>
+                                    <?= $badge ?>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
 
-                    <?php elseif ($qType === 'multiselect'): 
-                        $options = json_decode($row['Options_JSON'] ?? '[]', true) ?: [];
-                        $studentSelected = json_decode($row['Student_Answer'] ?? '[]', true) ?: [];
-                        $correctAnswers = json_decode($row['Answers_JSON'] ?? '[]', true) ?: [];
-                    ?>
-                        <div class="options-container">
-                            <div class="row g-2">
-                                <?php foreach ($options as $opt): 
-                                    $letter = $opt['letter'] ?? '';
-                                    $text = $opt['text'] ?? '';
-                                    
-                                    $optClass = 'border bg-white text-dark';
-                                    $badge = '';
-                                    
-                                    $isSelected = in_array($letter, $studentSelected);
-                                    $isCorrectOpt = in_array($letter, $correctAnswers);
-                                    
-                                    if ($isSelected) {
-                                        if ($isCorrectOpt) {
-                                            $optClass = 'border-success bg-success-subtle text-success-emphasis fw-bold';
-                                            $badge = '<span class="badge bg-success ms-auto">Your Answer & Correct</span>';
-                                        } else {
-                                            $optClass = 'border-danger bg-danger-subtle text-danger-emphasis fw-bold';
-                                            $badge = '<span class="badge bg-danger ms-auto">Your Answer (Incorrect)</span>';
-                                        }
-                                    } elseif ($isCorrectOpt) {
-                                        $optClass = 'border-success text-success-emphasis fw-semibold bg-white';
-                                        $badge = '<span class="badge bg-success-subtle text-success border border-success ms-auto">Correct Answer</span>';
-                                    }
-                                ?>
-                                    <div class="col-12">
-                                        <div class="p-2 px-3 rounded d-flex align-items-center <?= $optClass ?>" style="font-size: 0.92rem; min-height: 42px;">
-                                            <div class="d-flex align-items-center gap-2 flex-grow-1">
-                                                <strong class="text-center rounded border d-inline-flex align-items-center justify-content-center bg-light text-dark fw-bold" style="width:24px; height:24px; font-size:0.8rem;"><?= $letter ?></strong>
-                                                <span class="text-break"><?= htmlspecialchars($text) ?></span>
-                                            </div>
-                                            <?= $badge ?>
-                                        </div>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        </div>
+                    <!-- Fill in Blanks -->
                     <?php elseif ($qType === 'fill'): 
-                        $studentSelected = json_decode($row['Student_Answer'] ?? 'null', true);
+                        $studentAnswer = json_decode($row['Student_Answer'] ?? 'null', true);
+                        if ($studentAnswer === null && is_string($row['Student_Answer'])) $studentAnswer = $row['Student_Answer'];
                         $acceptedAnswers = json_decode($row['Answers_JSON'] ?? '[]', true) ?: [];
-                        $isCorrect = $row['Is_Correct'];
                     ?>
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <span class="text-muted d-block small mb-1">Student's Answer:</span>
-                                <div class="p-2 px-3 rounded border text-break <?= ($isCorrect ? 'bg-success-subtle text-success-emphasis border-success fw-bold' : (!empty($studentSelected) ? 'bg-danger-subtle text-danger-emphasis border-danger fw-bold' : 'bg-light text-muted')) ?>" style="font-size:0.95rem;">
-                                    <?= !empty($studentSelected) ? htmlspecialchars($studentSelected) : '<i>No answer submitted</i>' ?>
+                                <span class="text-muted small d-block mb-1">Student's Input:</span>
+                                <div class="p-2 px-3 rounded-3 bg-light border font-monospace fw-bold <?= $row['Is_Correct'] ? 'text-success border-success' : 'text-danger border-danger' ?>">
+                                    <?= !empty($studentAnswer) ? (is_array($studentAnswer) ? implode(', ', array_map(function($x){ return is_scalar($x) ? (string)$x : json_encode($x); }, $studentAnswer)) : htmlspecialchars(is_scalar($studentAnswer) ? (string)$studentAnswer : json_encode($studentAnswer))) : '<span class="text-muted fst-italic">No input</span>' ?>
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <span class="text-muted d-block small mb-1">Accepted Answers:</span>
-                                <div class="p-2 px-3 rounded bg-light border text-dark" style="font-size:0.95rem;">
-                                    <?= implode(', ', array_map('htmlspecialchars', $acceptedAnswers)) ?>
+                                <span class="text-muted small d-block mb-1">Accepted Answers:</span>
+                                <div class="p-2 px-3 rounded-3 bg-white border text-dark font-monospace">
+                                    <?= implode(', ', array_map(function($x){ return htmlspecialchars(is_scalar($x) ? (string)$x : json_encode($x)); }, $acceptedAnswers)) ?>
                                 </div>
                             </div>
                         </div>
 
+                    <!-- Match the Following -->
                     <?php elseif ($qType === 'match'): 
                         $pairs = json_decode($row['Pairs_JSON'] ?? '[]', true) ?: [];
                         $studentSelected = json_decode($row['Student_Answer'] ?? '[]', true) ?: [];
                     ?>
                         <div class="table-responsive">
-                            <table class="table table-sm table-bordered align-middle text-center mb-0 mt-2" style="font-size: 0.9rem;">
-                                <thead class="table-light text-secondary">
+                            <table class="table table-sm table-bordered text-center align-middle mb-0">
+                                <thead class="table-light small">
                                     <tr>
-                                        <th class="text-start ps-3" style="width: 35%;">Left Item</th>
-                                        <th style="width: 30%;">Correct Match</th>
-                                        <th style="width: 30%;">Student Match</th>
-                                        <th style="width: 5%;">Status</th>
+                                        <th class="text-start ps-3">Column A (Premise)</th>
+                                        <th>Correct Match</th>
+                                        <th>Student Choice</th>
+                                        <th>Result</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($pairs as $idx => $pair): 
-                                        $leftVal = $pair['a'] ?? '';
-                                        $rightVal = $pair['b'] ?? '';
-                                        
-                                        // Student choice for this index
-                                        $studentVal = $studentSelected[(string)$idx] ?? $studentSelected[$idx] ?? null;
-                                        
-                                        $matchCorrect = ($studentVal !== null && $studentVal === $rightVal);
+                                    <?php foreach ($pairs as $pIdx => $pair): 
+                                        $left = $pair['left'] ?? $pair['a'] ?? '';
+                                        $right = $pair['right'] ?? $pair['b'] ?? '';
+                                        $userChoice = $studentSelected[(string)$pIdx] ?? $studentSelected[$pIdx] ?? null;
+                                        $matchCorrect = ($userChoice !== null && (string)$userChoice === (string)$pIdx);
+                                        $userChoiceText = $userChoice !== null ? ($pairs[$userChoice]['right'] ?? $pairs[$userChoice]['b'] ?? $userChoice) : '—';
                                     ?>
-                                        <tr class="<?= $matchCorrect ? 'table-success-subtle text-success-emphasis' : ($studentVal === null ? 'text-muted' : 'table-danger-subtle text-danger-emphasis') ?>">
-                                            <td class="text-start ps-3 fw-medium text-dark"><?= htmlspecialchars($leftVal) ?></td>
-                                            <td><?= htmlspecialchars($rightVal) ?></td>
-                                            <td class="fw-semibold"><?= $studentVal !== null ? htmlspecialchars($studentVal) : '—' ?></td>
+                                        <tr class="<?= $matchCorrect ? 'table-success' : ($userChoice === null ? '' : 'table-danger') ?>">
+                                            <td class="text-start ps-3 fw-medium"><?= htmlspecialchars(is_scalar($left) ? (string)$left : json_encode($left)) ?></td>
+                                            <td><?= htmlspecialchars(is_scalar($right) ? (string)$right : json_encode($right)) ?></td>
+                                            <td class="font-monospace fw-bold"><?= htmlspecialchars(is_scalar($userChoiceText) ? (string)$userChoiceText : json_encode($userChoiceText)) ?></td>
                                             <td>
-                                                <?php if ($studentVal === null): ?>
-                                                    <span class="text-muted">—</span>
-                                                <?php elseif ($matchCorrect): ?>
-                                                    <i class="bi bi-check-circle-fill text-success fs-5"></i>
-                                                <?php else: ?>
-                                                    <i class="bi bi-x-circle-fill text-danger fs-5"></i>
-                                                <?php endif; ?>
+                                                <?= $matchCorrect ? '<i class="bi bi-check-circle-fill text-success fs-5"></i>' : '<i class="bi bi-x-circle-fill text-danger fs-5"></i>' ?>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>
@@ -370,47 +330,46 @@
                             </table>
                         </div>
 
+                    <!-- Open Ended -->
                     <?php elseif ($qType === 'open'): 
-                        $studentSelected = json_decode($row['Student_Answer'] ?? 'null', true);
+                        $studentAnswer = json_decode($row['Student_Answer'] ?? 'null', true);
+                        if ($studentAnswer === null && is_string($row['Student_Answer'])) $studentAnswer = $row['Student_Answer'];
                         $rubric = $row['Rubric'];
                         $wordLimit = $row['Word_Limit'];
-                        $wordCount = !empty($studentSelected) ? str_word_count($studentSelected) : 0;
+                        $words = is_string($studentAnswer) ? str_word_count($studentAnswer) : 0;
                     ?>
                         <div class="mb-3">
-                            <span class="text-muted d-block small mb-1">Student's Answer:</span>
-                            <div class="p-3 rounded border text-dark bg-white shadow-inner text-break" style="font-size:0.95rem; white-space: pre-line; min-height: 80px; border-left: 3px solid #dee2e6 !important;">
-                                <?= !empty($studentSelected) ? htmlspecialchars($studentSelected) : '<i>No answer submitted</i>' ?>
+                            <label class="form-label small text-muted text-uppercase fw-bold mb-1">Student's Response:</label>
+                            <div class="p-3 rounded-3 bg-white border text-dark font-monospace text-break" style="min-height: 80px; white-space: pre-wrap;">
+                                <?= !empty($studentAnswer) ? htmlspecialchars(is_scalar($studentAnswer) ? (string)$studentAnswer : json_encode($studentAnswer, JSON_PRETTY_PRINT)) : '<span class="text-muted fst-italic">No answer submitted.</span>' ?>
                             </div>
                             <?php if ($wordLimit > 0): ?>
                                 <small class="text-muted mt-1 d-block">
-                                    <i class="bi bi-file-earmark-font me-1"></i>Word Count: <strong><?= $wordCount ?></strong> / max <?= $wordLimit ?> words.
+                                    Word count: <strong><?= $words ?></strong> / max <?= $wordLimit ?> words
                                 </small>
                             <?php endif; ?>
                         </div>
 
                         <?php if (!empty($rubric)): ?>
-                            <div class="mb-2 p-3 bg-light rounded border text-secondary" style="font-size: 0.88rem;">
-                                <strong class="text-dark small d-block mb-1"><i class="bi bi-clipboard2-check me-1"></i>Grading Rubric:</strong>
-                                <?= htmlspecialchars($rubric) ?>
+                            <div class="p-3 rounded-3 bg-light border-start border-4 border-primary text-secondary small mb-2">
+                                <strong class="text-primary d-block mb-1"><i class="bi bi-journal-bookmark me-1"></i>Grading Rubric Guidance:</strong>
+                                <?= nl2br(htmlspecialchars($rubric)) ?>
                             </div>
                         <?php endif; ?>
                     <?php endif; ?>
 
-                    <!-- Grader Comments -->
+                    <!-- Evaluator Comments -->
                     <?php if (!empty($row['Grader_Comment'])): ?>
-                        <div class="mt-3 p-2 px-3 rounded bg-light-subtle border border-light-subtle text-secondary" style="font-size: 0.9rem;">
-                            <strong class="text-dark small d-block mb-1"><i class="bi bi-chat-right-text me-1 text-primary"></i>Faculty Comment:</strong>
-                            <span class="fst-italic text-dark"><?= htmlspecialchars($row['Grader_Comment']) ?></span>
+                        <div class="mt-3 p-3 rounded-3 bg-light border text-secondary small">
+                            <strong class="text-dark d-block mb-1"><i class="bi bi-chat-quote-fill me-1 text-danger"></i>Faculty Feedback:</strong>
+                            <span class="text-dark fst-italic"><?= htmlspecialchars($row['Grader_Comment']) ?></span>
                             <?php if (!empty($row['Graded_By'])): ?>
-                                <small class="text-muted d-block mt-1 text-end">— Graded by <?= htmlspecialchars($row['Graded_By']) ?></small>
+                                <div class="text-end text-muted mt-1">— Evaluated by <?= htmlspecialchars($row['Graded_By']) ?></div>
                             <?php endif; ?>
                         </div>
                     <?php endif; ?>
                 </div>
             </div>
-        </div>
-    <?php 
-    $sl++;
-    endwhile; 
-    ?>
+        <?php endforeach; ?>
+    </div>
 </div>

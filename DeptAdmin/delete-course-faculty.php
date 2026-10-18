@@ -1,32 +1,39 @@
 <?php
-    session_start();
-    require_once "../Connection/connection.php";
+/**
+ * Asynchronous Course-Faculty Unmapping Handler
+ */
 
-    if (!isset($_SESSION['LoginDeptAdmin'])) {
-        echo "<script>alert('You Are Not Authorize Person For This link'); window.location.href='../index.php';</script>";
-        exit;
-    }
+require_once __DIR__ . "/../Connection/connection.php";
+require_once __DIR__ . "/../Common/auth.php";
 
-    if(isset($_POST['course'], $_POST['faculty'], $_POST['acad_year'])){
+check_role('DeptAdmin');
 
-        $course = $_POST['course'];
-        $faculty = $_POST['faculty'];
-        $acad_year = $_POST['acad_year'];
+if (isset($_POST['course'], $_POST['faculty'], $_POST['acad_year'])) {
+    $course    = (int)$_POST['course'];
+    $faculty   = trim($_POST['faculty']);
+    $acad_year = trim($_POST['acad_year']);
 
-        // Delete from course_mapping
-        mysqli_query($con, 
-            "DELETE FROM course_mapping 
-            WHERE Course_ID='$course' 
-            AND Fac_ID='$faculty' 
-            AND Acad_Year='$acad_year'");
+    if ($pdo) {
+        $stmt1 = $pdo->prepare("DELETE FROM course_mapping WHERE Course_ID = ? AND Fac_ID = ? AND Acad_Year = ?");
+        $stmt1->execute([$course, $faculty, $acad_year]);
 
-        // Delete from student_course_mapping
-        mysqli_query($con, 
-            "DELETE FROM student_course_mapping 
-            WHERE Course_ID='$course' 
-            AND Fac_ID='$faculty' 
-            AND Acad_Year='$acad_year'");
+        $stmt2 = $pdo->prepare("DELETE FROM student_course_mapping WHERE Course_ID = ? AND Fac_ID = ? AND Acad_Year = ?");
+        $stmt2->execute([$course, $faculty, $acad_year]);
 
         echo "success";
+        exit;
+    } elseif ($con) {
+        $stmt1 = $con->prepare("DELETE FROM course_mapping WHERE Course_ID = ? AND Fac_ID = ? AND Acad_Year = ?");
+        $stmt1->bind_param("iss", $course, $faculty, $acad_year);
+        $stmt1->execute();
+
+        $stmt2 = $con->prepare("DELETE FROM student_course_mapping WHERE Course_ID = ? AND Fac_ID = ? AND Acad_Year = ?");
+        $stmt2->bind_param("iss", $course, $faculty, $acad_year);
+        $stmt2->execute();
+
+        echo "success";
+        exit;
     }
-?>
+}
+
+echo "error";

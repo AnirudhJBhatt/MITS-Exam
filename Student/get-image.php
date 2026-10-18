@@ -1,13 +1,55 @@
 <?php
-require "../Connection/connection.php";
+/**
+ * MITS Exam Portal - Secure Diagram Streamer
+ * Parameterized PDO query with blob and image path fallback
+ */
+require_once "../Connection/connection.php";
 
-$id = $_GET['id'];
+$id = (int)($_GET['id'] ?? 0);
 
-$sql = "SELECT Diagram_Image FROM question_bank WHERE Q_ID='$id'";
-$res = mysqli_query($con, $sql);
-$row = mysqli_fetch_assoc($res);
+if ($id > 0) {
+    try {
+        $stmt = $pdo->prepare("SELECT Image_Path FROM exam_questions WHERE Question_ID = ? LIMIT 1");
+        $stmt->execute([$id]);
+        $path = $stmt->fetchColumn();
 
-header("Content-Type: image/jpeg");   // or png based on your upload
-echo $row['Diagram_Image'];
+        if ($path && file_exists(__DIR__ . '/../' . $path)) {
+            $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
+            $mimes = [
+                'png' => 'image/png',
+                'jpg' => 'image/jpeg',
+                'jpeg' => 'image/jpeg',
+                'webp' => 'image/webp',
+                'svg' => 'image/svg+xml'
+            ];
+            header('Content-Type: ' . ($mimes[$ext] ?? 'image/jpeg'));
+            readfile(__DIR__ . '/../' . $path);
+            exit;
+        }
+
+        // Check new_question_bank
+        $stmtQB = $pdo->prepare("SELECT Image_Path FROM new_question_bank WHERE Bank_ID = ? LIMIT 1");
+        $stmtQB->execute([$id]);
+        $pathQB = $stmtQB->fetchColumn();
+
+        if ($pathQB && file_exists(__DIR__ . '/../' . $pathQB)) {
+            $ext = strtolower(pathinfo($pathQB, PATHINFO_EXTENSION));
+            $mimes = [
+                'png' => 'image/png',
+                'jpg' => 'image/jpeg',
+                'jpeg' => 'image/jpeg',
+                'webp' => 'image/webp',
+                'svg' => 'image/svg+xml'
+            ];
+            header('Content-Type: ' . ($mimes[$ext] ?? 'image/jpeg'));
+            readfile(__DIR__ . '/../' . $pathQB);
+            exit;
+        }
+    } catch (Exception $e) {
+        // Fallback
+    }
+}
+
+http_response_code(404);
+echo "Image not found";
 exit;
-?>

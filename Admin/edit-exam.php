@@ -1,91 +1,160 @@
-<?php  
-	session_start();
-	if (!($_SESSION["LoginAdmin"] || $_SESSION["LoginFaculty"])){
-		echo '<script> alert("Your Are Not Authorize Person For This link");</script>';
-        echo '<script>window.location="../index.php"</script>';
-	}
-	require_once "../Connection/connection.php";
+<?php
+/**
+ * MITS Exam Portal - Admin / Faculty Exam Editor
+ * Parameterized PDO queries, CSRF validation, and clean AJAX response
+ */
+require_once "../Connection/connection.php";
+require_once "../Common/auth.php";
+require_once "../Common/csrf.php";
 
-    /* -------------------- UPDATE REQUEST -------------------- */
-    if (isset($_POST['action']) && $_POST['action'] === 'update') {
+// Allow Admin, DeptAdmin, or Faculty
+if (!isset($_SESSION['LoginAdmin']) && !isset($_SESSION['LoginFaculty']) && !isset($_SESSION['LoginDeptAdmin'])) {
+    http_response_code(403);
+    echo json_encode(['status' => 'error', 'message' => 'Unauthorized access']);
+    exit;
+}
 
-        $Exam_ID    = mysqli_real_escape_string($con, $_POST['Exam_ID']);
-        $Title      = mysqli_real_escape_string($con, $_POST['Exam_Title']);
-        $Duration   = mysqli_real_escape_string($con, $_POST['Duration']);
-        $Start_Time = mysqli_real_escape_string($con, $_POST['Start_Time']);
-        $End_Time   = mysqli_real_escape_string($con, $_POST['End_Time']);
+header('Content-Type: text/html; charset=utf-8');
 
-        $update = "UPDATE exam SET Exam_Title = '$Title', Duration = '$Duration', Start_Time = '$Start_Time', End_Time = '$End_Time' WHERE Exam_ID = '$Exam_ID'";
+// Handle POST Update Action
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update') {
+    header('Content-Type: application/json; charset=utf-8');
+    verify_csrf();
 
-        if (mysqli_query($con, $update)) {
-            echo json_encode(['status' => 'success']);
-        } else {
-            echo json_encode(['status' => 'error']);
-        }
+    $exam_id = trim($_POST['Exam_ID'] ?? '');
+    $title = trim($_POST['Exam_Name'] ?? '');
+    $duration = (int)($_POST['Duration'] ?? 0);
+    $start_time = trim($_POST['Start_Time'] ?? '');
+    $end_time = trim($_POST['End_Time'] ?? '');
+    $status = trim($_POST['Status'] ?? 'published');
+
+    if (!$exam_id || !$title || $duration <= 0 || !$start_time || !$end_time) {
+        echo json_encode(['status' => 'error', 'message' => 'All fields including positive duration are required.']);
         exit;
     }
 
-    /* -------------------- LOAD FORM -------------------- */
-    if (!isset($_POST['Exam_ID'])) {
-        exit('Invalid request');
-    }
+    try {
+        // Update exams table (and sync view if needed)
+        $stmt = $pdo->prepare("
+            UPDATE exams 
+            SET Exam_Name = ?, Duration = ?, Start_Time = ?, End_Time = ?, Status = ?
+            WHERE Exam_ID = ?
+        ");
+        $stmt->execute([$title, $duration, $start_time, $end_time, $status, $exam_id]);
 
-    $Exam_ID = mysqli_real_escape_string($con, $_POST['Exam_ID']);
-    $res = mysqli_query($con, "SELECT * FROM exam WHERE Exam_ID = '$Exam_ID'");
-    $exam = mysqli_fetch_assoc($res);
+        echo json_encode(['status' => 'success', 'message' => 'Exam schedule updated successfully.']);
+    } catch (Exception $e) {
+        echo json_encode(['status' => 'error', 'message' => 'Failed to update exam: ' . $e->getMessage()]);
+    }
+    exit;
+}
+
+// Handle GET / POST Load Form Action
+$exam_id = trim($_REQUEST['Exam_ID'] ?? '');
+if (!$exam_id) {
+    exit('<div class="alert alert-danger">Invalid exam identifier requested.</div>');
+}
+
+$stmt = $pdo->prepare("SELECT * FROM exams WHERE Exam_ID = ? LIMIT 1");
+$stmt->execute([$exam_id]);
+$exam = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$exam) {
+    // Try fallback to legacy exam table
+    $stmt = $pdo->prepare("SELECT * FROM exam WHERE Exam_ID = ? LIMIT 1");
+    $stmt->execute([$exam_id]);
+    $exam = $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+if (!$exam) {
+    exit('<div class="alert alert-warning">Exam record not found.</div>');
+}
 ?>
 
 <form id="updateExamForm">
+    <?= csrf_field() ?>
     <input type="hidden" name="action" value="update">
-    <input type="hidden" name="Exam_ID" value="<?php echo $exam['Exam_ID']; ?>">
+    <input type="hidden" name="Exam_ID" value="<?= e($exam['Exam_ID']) ?>">
 
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <label>Exam Title</label>
-            <input type="text" name="Exam_Title" class="form-control" value="<?php echo htmlspecialchars($exam['Exam_Title']); ?>" required>
+    <div class="row g-3">
+        <div class="col-md-8">
+            <label class="form-label fw-semibold">Exam Title <span class="text-danger">*</span></label>
+            <input type="text" name="Exam_Name" class="form-control" value="<?= e($exam['Exam_Name']) ?>" required>
+        </div>
+
+        <div class="col-md-4">
+            <label class="form-label fw-semibold">Duration (Minutes) <span class="text-danger">*</span></label>
+            <input type="number" name="Duration" class="form-control" min="5" max="360" value="<?= (int)$exam['Duration'] ?>" required>
         </div>
 
         <div class="col-md-6">
-            <label>Duration (minutes)</label>
-            <input type="number" name="Duration" class="form-control" value="<?php echo $exam['Duration']; ?>" required>
+            <label class="form-label fw-semibold">Start Date & Time <span class="text-danger">*</span></label>
+            <input type="datetime-local" name="Start_Time" class="form-control" value="<?= date('Y-m-d\TH:i', strtotime($exam['Start_Time'])) ?>" required>
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label fw-semibold">End Date & Time <span class="text-danger">*</span></label>
+            <input type="datetime-local" name="End_Time" class="form-control" value="<?= date('Y-m-d\TH:i', strtotime($exam['End_Time'])) ?>" required>
+        </div>
+
+        <div class="col-12">
+            <label class="form-label fw-semibold">Status</label>
+            <select name="Status" class="form-select">
+                <option value="draft" <?= ($exam['Status'] ?? '') === 'draft' ? 'selected' : '' ?>>Draft (Hidden from students)</option>
+                <option value="published" <?= ($exam['Status'] ?? 'published') === 'published' ? 'selected' : '' ?>>Published (Active & Visible)</option>
+                <option value="completed" <?= ($exam['Status'] ?? '') === 'completed' ? 'selected' : '' ?>>Completed</option>
+            </select>
         </div>
     </div>
 
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <label>Start Time</label>
-            <input type="datetime-local" name="Start_Time" class="form-control" value="<?php echo date('Y-m-d\TH:i', strtotime($exam['Start_Time'])); ?>" required>
-        </div>
-
-        <div class="col-md-6">
-            <label>End Time</label>
-            <input type="datetime-local" name="End_Time" class="form-control" value="<?php echo date('Y-m-d\TH:i', strtotime($exam['End_Time'])); ?>" required>
-        </div>
-    </div>
-
-    <div class="modal-footer">
-        <button type="submit" class="btn btn-success">Update Exam</button>
+    <div class="modal-footer bg-light mt-4 -mx-3 -mb-3 px-3 py-2 rounded-bottom">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="saveExamBtn">
+            <i class="bi bi-save me-1"></i> Update Exam Schedule
+        </button>
     </div>
 </form>
 
 <script>
-    $('#updateExamForm').on('submit', function (e) {
-        e.preventDefault();
+$('#updateExamForm').off('submit').on('submit', function (e) {
+    e.preventDefault();
+    const btn = $('#saveExamBtn');
+    btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-1"></span> Saving...');
 
-        $.ajax({
-            url: '../Admin/edit-exam.php',
-            type: 'POST',
-            data: $(this).serialize(),
-            dataType: 'json',
-            success: function (res) {
-                if (res.status === 'success') {
-                    alert('Exam updated successfully');
-                    $('#editExamModal').modal('hide');
-                    location.reload();
+    $.ajax({
+        url: '../Admin/edit-exam.php',
+        type: 'POST',
+        data: $(this).serialize(),
+        dataType: 'json',
+        success: function (res) {
+            btn.prop('disabled', false).html('<i class="bi bi-save me-1"></i> Update Exam Schedule');
+            if (res.status === 'success') {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Updated!',
+                        text: res.message,
+                        timer: 1500,
+                        showConfirmButton: false
+                    }).then(() => {
+                        location.reload();
+                    });
                 } else {
-                    alert('Update failed');
+                    alert(res.message);
+                    location.reload();
+                }
+            } else {
+                if (typeof Swal !== 'undefined') {
+                    Swal.fire('Error', res.message, 'error');
+                } else {
+                    alert(res.message);
                 }
             }
-        });
+        },
+        error: function(xhr) {
+            btn.prop('disabled', false).html('<i class="bi bi-save me-1"></i> Update Exam Schedule');
+            alert('Server error occurred during update.');
+        }
     });
+});
 </script>

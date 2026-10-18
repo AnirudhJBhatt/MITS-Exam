@@ -206,7 +206,7 @@ CREATE TABLE `exam` (
  `Exam_ID` int(11) NOT NULL AUTO_INCREMENT,
  `Fac_ID` varchar(15) NOT NULL,
  `Course_ID` varchar(100) DEFAULT NULL,
- `Exam_Title` varchar(100) NOT NULL,
+ `Exam_Name` varchar(100) NOT NULL,
  `Exam_Type` enum('Statement Filling','Matching','MCQ','Hint Based','Case Study','Cheat Sheet','Open Ended','Chain Question','Diagram','Code') DEFAULT NULL,
  `Dept` varchar(50) NOT NULL,
  `Batch` varchar(50) DEFAULT NULL,

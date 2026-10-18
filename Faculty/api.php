@@ -101,9 +101,10 @@
             $row['rubric']      = $row['Rubric'];
             $row['marks']       = (float) $row['Marks'];
             $row['co']          = (int) ($row['CO'] ?? 1);
+            $row['bloom_level'] = $row['Bloom_Level'] ?? 'Understand';
             
             // Remove duplicates
-            foreach (['Question_Type', 'Question_Text', 'Marks', 'Correct_Opt', 'Word_Limit', 'Image_Path', 'Rubric', 'CO'] as $k) {
+            foreach (['Question_Type', 'Question_Text', 'Marks', 'Correct_Opt', 'Word_Limit', 'Image_Path', 'Rubric', 'CO', 'Bloom_Level'] as $k) {
                 unset($row[$k]);
             }
             $questions[] = $row;
@@ -137,15 +138,20 @@
         $duration  = (int)  ($body['duration']  ?? 0);
         $courseId  = (int)  ($body['course_id'] ?? 0);
         $acad_year = trim($body['acad_year'] ?? '');
-        $status    = in_array($body['status'] ?? '', ['draft', 'published'], true)
-                        ? $body['status'] : 'draft';
+        if (!$acad_year) {
+            $fStmt = $con->prepare("SELECT Acad_Year FROM faculty WHERE Fac_ID = ? LIMIT 1");
+            $fStmt->bind_param('s', $FAC_ID);
+            $fStmt->execute();
+            $acad_year = $fStmt->get_result()->fetch_assoc()['Acad_Year'] ?? '2024-2025';
+            $fStmt->close();
+        }
+        $status    = in_array($body['status'] ?? '', ['draft', 'published'], true) ? $body['status'] : 'draft';
         $startTime = sanitizeDatetime($body['start_time'] ?? null);
         $endTime   = sanitizeDatetime($body['end_time']   ?? null);
         $questions = $body['questions'] ?? [];
 
         if (!$examName)  jsonError('Exam name is required');
         if (!$duration)  jsonError('Duration is required');
-        if (!$acad_year)  jsonError('Acad Year is required');
         if (!$courseId)  jsonError('Course ID is required');
         if (!is_array($questions) || count($questions) === 0) jsonError('At least one question is required');
 
@@ -202,8 +208,8 @@
                 "INSERT INTO exam_questions
                     (Exam_ID, Question_Type, Question_Text, Marks, Sort_Order,
                     Options_JSON, Correct_Opt, Rubric, Word_Limit,
-                    Answers_JSON, Pairs_JSON, Image_Path)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                    Answers_JSON, Pairs_JSON, Image_Path, CO, Bloom_Level)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
             );
 
             foreach ($questions as $q) {
@@ -211,6 +217,8 @@
                 $text       = trim($q['question_text']         ?? '');
                 $marks      = round((float)($q['marks']        ?? 1), 1);
                 $sortOrder  = (int)($q['sort_order']           ?? 0);
+                $co         = (int)($q['co']                   ?? 1);
+                $bloomLevel = trim($q['bloom_level']           ?? 'Understand');
 
                 if (!$type) continue;   // skip malformed
 
@@ -246,7 +254,7 @@
                             ], $opts);
                             $optionsJson = json_encode($cleanOpts);
                         }
-                        $answers = $q['answers'] ?? [];
+                        $answers = $q['answers'] ?? $q['correct_opts'] ?? [];
                         if (is_array($answers) && count($answers)) {
                             $cleanAns = array_filter(array_map('strtoupper', array_map('trim', $answers)), fn($x) => in_array($x, ['A','B','C','D'], true));
                             $answersJson = json_encode(array_values($cleanAns));
@@ -281,17 +289,17 @@
                         break;
                 }
 
-                $qStmt->bind_param('issdississss',
+                $qStmt->bind_param('issdississssis',
                     $examId, $type, $text, $marks, $sortOrder,
                     $optionsJson, $correctOpt, $rubric, $wordLimit,
-                    $answersJson, $pairsJson, $imagePath
+                    $answersJson, $pairsJson, $imagePath, $co, $bloomLevel
                 );
                 $qStmt->execute();
 
                 // ── Also add to question bank (upsert by text+type+fac) ───────────
                 addToBank($con, $courseId, $FAC_ID, $type, $text, $marks,
                         $optionsJson, $correctOpt, $rubric, $wordLimit,
-                        $answersJson, $pairsJson, $imagePath);
+                        $answersJson, $pairsJson, $imagePath, $co, $bloomLevel);
             }
             $qStmt->close();
 
@@ -319,7 +327,8 @@
         // Base query – faculty can see their own + course-wide questions
         $sql    = "SELECT Bank_ID, Question_Type AS `type`, Question_Text AS question_text,
                         Marks AS marks, Options_JSON, Correct_Opt, Rubric,
-                        Word_Limit, Answers_JSON, Pairs_JSON, Image_Path
+                        Word_Limit, Answers_JSON, Pairs_JSON, Image_Path,
+                        CO AS co, Bloom_Level AS bloom_level
                 FROM new_question_bank
                 WHERE Fac_ID = ?";
         $params = [$FAC_ID];
@@ -841,7 +850,8 @@
         mysqli $con, int $courseId, string $facId,
         string $type, string $text, float $marks,
         ?string $optionsJson, ?string $correctOpt, ?string $rubric,
-        ?int $wordLimit, ?string $answersJson, ?string $pairsJson, ?string $imagePath
+        ?int $wordLimit, ?string $answersJson, ?string $pairsJson, ?string $imagePath,
+        int $co = 1, string $bloomLevel = 'Understand'
     ): void {
         // Check duplicate (same faculty, same type, same text)
         $chk = $con->prepare(
@@ -857,13 +867,13 @@
             "INSERT INTO new_question_bank
                 (Course_ID, Fac_ID, Question_Type, Question_Text, Marks,
                 Options_JSON, Correct_Opt, Rubric, Word_Limit,
-                Answers_JSON, Pairs_JSON, Image_Path)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+                Answers_JSON, Pairs_JSON, Image_Path, CO, Bloom_Level)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         );
-        $ins->bind_param('isssdssissss',
+        $ins->bind_param('isssdssissssis',
             $courseId, $facId, $type, $text, $marks,
             $optionsJson, $correctOpt, $rubric, $wordLimit,
-            $answersJson, $pairsJson, $imagePath
+            $answersJson, $pairsJson, $imagePath, $co, $bloomLevel
         );
         $ins->execute();
         $ins->close();

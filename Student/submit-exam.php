@@ -275,19 +275,34 @@
         never leaves a results row with no matching result_answers
         ---------------------------------------------------------- */
 
+    // Fetch Course_ID and Student_Name for denormalized fast query access
+    $course_id = null;
+    $stud_full_name = $_SESSION['student_name'] ?? null;
+    try {
+        $cstmt = $pdo->prepare("SELECT Course_ID FROM exams WHERE Exam_ID = ?");
+        $cstmt->execute([$exam_id]);
+        $course_id = $cstmt->fetchColumn() ?: null;
+
+        $sstmt = $pdo->prepare("SELECT Stud_Name FROM student WHERE Stud_ID = ?");
+        $sstmt->execute([$Stud_ID]);
+        $stud_full_name = $sstmt->fetchColumn() ?: $stud_full_name;
+    } catch (Exception $ignored) {}
+
     $con->begin_transaction();
 
     try {
         $insertResult = $con->prepare("
             INSERT INTO results
-                (Exam_ID, Stud_ID, Total_Marks, Marks_Obtained,
+                (Exam_ID, Course_ID, Stud_ID, Student_Name, Total_Marks, Marks_Obtained,
                 Time_Taken_Sec, Violations, Auto_Submitted, Status, Submitted_At)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
         ");
         $insertResult->bind_param(
-            "isddiiis",
+            "iissddiiis",
             $exam_id,
+            $course_id,
             $Stud_ID,
+            $stud_full_name,
             $totalMarks,
             $marksObtained,
             $time_taken,
@@ -329,6 +344,17 @@
         }
 
         $con->commit();
+
+        // Clear real-time autosave drafts for this attempt
+        try {
+            $draftClean = $pdo->prepare("DELETE FROM exam_drafts WHERE Exam_ID = ? AND Stud_ID = ?");
+            $draftClean->execute([$exam_id, $Stud_ID]);
+        } catch (Exception $eDraft) {
+            error_log("Failed to clean drafts: " . $eDraft->getMessage());
+        }
+
+        // Clear exam start session timer for this attempt
+        unset($_SESSION["exam_start_{$exam_id}_{$Stud_ID}"]);
 
     } catch (Exception $e) {
         $con->rollback();
