@@ -52,44 +52,61 @@ include '../Common/admin-sidebar.php';
     <!-- Live KPI Stat Cards -->
     <div class="row g-4 mb-4">
         <div class="col-sm-6 col-xl-3">
-            <div class="card stat-card hover-elevate h-100">
-                <div class="stat-icon bg-primary bg-opacity-10 text-primary">
-                    <i class="bi bi-people-fill"></i>
+            <div class="card border-0 shadow-sm p-3 h-100">
+                <div class="d-flex align-items-center text-uppercase">
+                    <div class="stat-icon bg-primary-subtle text-primary p-3 me-3">
+                        <i class="bi bi-people-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted small">Total Students</span>
+                        <h4 class="fw-bold mb-0"><?= number_format($totalStudents) ?></h4>
+                    </div>
                 </div>
-                <div class="stat-value text-dark"><?= number_format($totalStudents) ?></div>
-                <div class="stat-label">Enrolled Students</div>
+            </div>
+        </div>
+        
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm p-3 h-100">
+                <div class="d-flex align-items-center text-uppercase">
+                    <div class="stat-icon bg-success-subtle text-success p-3 me-3">
+                        <i class="bi bi-person-badge-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted small">Total Faculty</span>
+                        <h4 class="fw-bold mb-0"><?= number_format($totalFaculty) ?></h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-sm-6 col-xl-3">
+            <div class="card border-0 shadow-sm p-3 h-100">
+                <div class="d-flex align-items-center text-uppercase">
+                    <div class="stat-icon bg-danger-subtle text-danger p-3 me-3">
+                        <i class="bi bi-file-earmark-text-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted small">Assessments</span>
+                        <h4 class="fw-bold mb-0"><?= number_format($totalExams) ?></h4>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="col-sm-6 col-xl-3">
-            <div class="card stat-card hover-elevate h-100">
-                <div class="stat-icon bg-success bg-opacity-10 text-success">
-                    <i class="bi bi-person-badge-fill"></i>
+            <div class="card border-0 shadow-sm p-3 h-100">
+                <div class="d-flex align-items-center text-uppercase">
+                    <div class="stat-icon bg-info-subtle text-info p-3 me-3">
+                        <i class="bi bi-buildings-fill fs-4"></i>
+                    </div>
+                    <div>
+                        <span class="text-muted small">Academic Departments</span>
+                        <h4 class="fw-bold mb-0"><?= number_format($totalDepts) ?></h4>
+                    </div>
                 </div>
-                <div class="stat-value text-dark"><?= number_format($totalFaculty) ?></div>
-                <div class="stat-label">Faculty Members</div>
             </div>
         </div>
-
-        <div class="col-sm-6 col-xl-3">
-            <div class="card stat-card hover-elevate h-100">
-                <div class="stat-icon bg-danger bg-opacity-10 text-danger">
-                    <i class="bi bi-file-earmark-text-fill"></i>
-                </div>
-                <div class="stat-value text-dark"><?= number_format($totalExams) ?></div>
-                <div class="stat-label">Published Assessments</div>
-            </div>
-        </div>
-
-        <div class="col-sm-6 col-xl-3">
-            <div class="card stat-card hover-elevate h-100">
-                <div class="stat-icon bg-info bg-opacity-10 text-info">
-                    <i class="bi bi-buildings-fill"></i>
-                </div>
-                <div class="stat-value text-dark"><?= number_format($totalDepts) ?></div>
-                <div class="stat-label">Academic Departments</div>
-            </div>
-        </div>
+        
     </div>
 
     <!-- Quick Navigation Shortcuts -->

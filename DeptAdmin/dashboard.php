@@ -96,7 +96,6 @@ include '../Common/deptadmin-sidebar.php';
     </div>
 
     <!-- Live Departmental KPI Stat Cards -->
-
     <div class="row g-4 mb-4">
         <div class="col-sm-6 col-xl-3">
             <div class="card border-0 shadow-sm p-3 h-100">

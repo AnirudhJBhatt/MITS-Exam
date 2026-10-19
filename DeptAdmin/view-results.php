@@ -97,7 +97,7 @@ if ($selectedExam !== '') {
             $highest = -1;
             $lowest = 999999;
             $passed = 0;
-            $passingMarks = $examMeta['Passing_Marks'] ?? ($examMeta['Total_Marks'] * 0.4);
+            $passingMarks = ($examMeta['Total_Marks'] * 0.4);
 
             foreach ($results as $res) {
                 $marks = (float)$res['Marks_Obtained'];

@@ -37,7 +37,7 @@ if ($selectedSem !== '') {
 $whereSql = !empty($conditions) ? "WHERE " . implode(" AND ", $conditions) : "";
 
 $query = "
-    SELECT e.Exam_ID, e.Exam_Name, e.Duration, e.Total_Marks, e.Passing_Marks, e.Start_Time, e.End_Time, 
+    SELECT e.Exam_ID, e.Exam_Name, e.Duration, e.Total_Marks,c e.Start_Time, e.End_Time, 
            e.Status, e.Acad_Year, e.Semester, e.Dept,
            c.Course_ID, c.Course_Name,
            f.Fac_ID, f.Fac_Name,
