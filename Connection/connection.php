@@ -27,6 +27,7 @@ if (!$con) {
     error_log("MySQLi Connection Failed: " . mysqli_connect_error());
 } else {
     mysqli_set_charset($con, "utf8mb4");
+    mysqli_query($con, "SET time_zone = '+05:30'");
 }
 
 // 2. High-Performance PDO Connection
@@ -40,6 +41,7 @@ try {
         PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
     ];
     $pdo = new PDO($dsn, $db_user, $db_pass, $options);
+    $pdo->exec("SET time_zone = '+05:30'");
 } catch (PDOException $e) {
     error_log("PDO Connection Failed: " . $e->getMessage());
 }

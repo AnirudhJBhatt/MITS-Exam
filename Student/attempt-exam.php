@@ -58,16 +58,17 @@ if (!$examRow) {
 }
 
 // Check window time if start/end times exist
-$now = new DateTime();
+$istTz = new DateTimeZone('Asia/Kolkata');
+$now = new DateTime('now', $istTz);
 if (!empty($examRow['Start_Time'])) {
-    $startTime = new DateTime($examRow['Start_Time']);
+    $startTime = new DateTime($examRow['Start_Time'], $istTz);
     if ($now < $startTime) {
         echo "<!DOCTYPE html><html><head><meta charset='UTF-8'><script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script></head><body style='background:#111827;'>
         <script>
         Swal.fire({
             icon: 'warning',
             title: 'Exam Not Started Yet',
-            text: 'This exam is scheduled to begin at " . $startTime->format('d M Y, h:i A') . ".',
+            text: 'This exam is scheduled to begin at " . $startTime->format('d M Y, h:i A') . " IST.',
             confirmButtonColor: '#d1202d'
         }).then(() => { window.location.href = 'view-exams.php'; });
         </script></body></html>";
@@ -75,14 +76,14 @@ if (!empty($examRow['Start_Time'])) {
     }
 }
 if (!empty($examRow['End_Time'])) {
-    $endTime = new DateTime($examRow['End_Time']);
+    $endTime = new DateTime($examRow['End_Time'], $istTz);
     if ($now > $endTime) {
         echo "<!DOCTYPE html><html><head><meta charset='UTF-8'><script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script></head><body style='background:#111827;'>
         <script>
         Swal.fire({
             icon: 'error',
             title: 'Exam Window Closed',
-            text: 'The scheduled window for this examination has closed.',
+            text: 'The scheduled window for this examination closed at " . $endTime->format('d M Y, h:i A') . " IST.',
             confirmButtonColor: '#d1202d'
         }).then(() => { window.location.href = 'view-exams.php'; });
         </script></body></html>";

@@ -18,8 +18,8 @@ $stmt = $pdo->prepare("
         r.Result_ID, r.Marks_Obtained, r.Status AS Result_Status, r.Submitted_At,
         CASE 
             WHEN r.Result_ID IS NOT NULL THEN 'Attempted'
-            WHEN (e.Start_Time IS NOT NULL AND NOW() < e.Start_Time) THEN 'Upcoming'
-            WHEN (e.End_Time IS NOT NULL AND NOW() > e.End_Time) THEN 'Over'
+            WHEN (e.Start_Time IS NOT NULL AND COALESCE(CONVERT_TZ(UTC_TIMESTAMP(), '+00:00', '+05:30'), NOW()) < e.Start_Time) THEN 'Upcoming'
+            WHEN (e.End_Time IS NOT NULL AND COALESCE(CONVERT_TZ(UTC_TIMESTAMP(), '+00:00', '+05:30'), NOW()) > e.End_Time) THEN 'Over'
             ELSE 'Ongoing'
         END AS Exam_State
     FROM student_course_mapping scm
@@ -29,8 +29,8 @@ $stmt = $pdo->prepare("
     WHERE scm.Stud_ID = ? AND e.Status = 'published'
     ORDER BY 
         CASE 
-            WHEN r.Result_ID IS NULL AND (e.Start_Time IS NULL OR NOW() >= e.Start_Time) AND (e.End_Time IS NULL OR NOW() <= e.End_Time) THEN 1
-            WHEN (e.Start_Time IS NOT NULL AND NOW() < e.Start_Time) THEN 2
+            WHEN r.Result_ID IS NULL AND (e.Start_Time IS NULL OR COALESCE(CONVERT_TZ(UTC_TIMESTAMP(), '+00:00', '+05:30'), NOW()) >= e.Start_Time) AND (e.End_Time IS NULL OR COALESCE(CONVERT_TZ(UTC_TIMESTAMP(), '+00:00', '+05:30'), NOW()) <= e.End_Time) THEN 1
+            WHEN (e.Start_Time IS NOT NULL AND COALESCE(CONVERT_TZ(UTC_TIMESTAMP(), '+00:00', '+05:30'), NOW()) < e.Start_Time) THEN 2
             WHEN r.Result_ID IS NOT NULL THEN 3
             ELSE 4
         END,
@@ -38,6 +38,28 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute([$Stud_ID]);
 $exams = $stmt->fetchAll();
+
+// Enforce strict IST timezone for exam state evaluation in PHP as authoritative sync
+$istTz = new DateTimeZone('Asia/Kolkata');
+$nowIST = new DateTime('now', $istTz);
+
+foreach ($exams as &$ex) {
+    if (!empty($ex['Result_ID'])) {
+        $ex['Exam_State'] = 'Attempted';
+    } else {
+        $startTime = !empty($ex['Start_Time']) ? new DateTime($ex['Start_Time'], $istTz) : null;
+        $endTime   = !empty($ex['End_Time'])   ? new DateTime($ex['End_Time'], $istTz)   : null;
+
+        if ($startTime && $nowIST < $startTime) {
+            $ex['Exam_State'] = 'Upcoming';
+        } elseif ($endTime && $nowIST > $endTime) {
+            $ex['Exam_State'] = 'Over';
+        } else {
+            $ex['Exam_State'] = 'Ongoing';
+        }
+    }
+}
+unset($ex);
 
 $counts = [
     'all' => count($exams),
@@ -134,13 +156,13 @@ foreach ($exams as $ex) {
                                             <div class="d-flex justify-content-between mb-1">
                                                 <span class="text-muted">Start Window:</span>
                                                 <span class="fw-semibold text-dark">
-                                                    <?= !empty($ex['Start_Time']) ? date('d M Y, h:i A', strtotime($ex['Start_Time'])) : 'Immediate' ?>
+                                                    <?= !empty($ex['Start_Time']) ? date('d M Y, h:i A', strtotime($ex['Start_Time'])) . ' IST' : 'Immediate' ?>
                                                 </span>
                                             </div>
                                             <div class="d-flex justify-content-between">
                                                 <span class="text-muted">End Window:</span>
                                                 <span class="fw-semibold text-dark">
-                                                    <?= !empty($ex['End_Time']) ? date('d M Y, h:i A', strtotime($ex['End_Time'])) : 'No Deadline' ?>
+                                                    <?= !empty($ex['End_Time']) ? date('d M Y, h:i A', strtotime($ex['End_Time'])) . ' IST' : 'No Deadline' ?>
                                                 </span>
                                             </div>
                                         </div>
@@ -183,7 +205,7 @@ foreach ($exams as $ex) {
                                                 <span class="badge bg-warning text-dark px-3 py-2 fw-semibold">
                                                     <i class="bi bi-calendar-event me-1"></i>Upcoming
                                                 </span>
-                                                <small class="text-muted mt-1">Starts <?= date('d M, h:i A', strtotime($ex['Start_Time'])) ?></small>
+                                                <small class="text-muted mt-1">Starts <?= date('d M, h:i A', strtotime($ex['Start_Time'])) ?> IST</small>
                                             </div>
                                         <?php else: ?>
                                             <span class="badge bg-light text-muted border px-3 py-2">

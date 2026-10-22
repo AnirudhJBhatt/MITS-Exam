@@ -51,8 +51,8 @@ $activeExamsStmt = $pdo->prepare("
     JOIN courses c ON e.Course_ID = c.Course_ID
     WHERE scm.Stud_ID = ? 
       AND e.Status = 'published'
-      AND (e.Start_Time IS NULL OR e.Start_Time <= NOW())
-      AND (e.End_Time IS NULL OR e.End_Time >= NOW())
+      AND (e.Start_Time IS NULL OR e.Start_Time <= COALESCE(CONVERT_TZ(UTC_TIMESTAMP(), '+00:00', '+05:30'), NOW()))
+      AND (e.End_Time IS NULL OR e.End_Time >= COALESCE(CONVERT_TZ(UTC_TIMESTAMP(), '+00:00', '+05:30'), NOW()))
       AND e.Exam_ID NOT IN (SELECT Exam_ID FROM results WHERE Stud_ID = ?)
     ORDER BY e.End_Time ASC
 ");
@@ -68,7 +68,7 @@ $upcomingStmt = $pdo->prepare("
     JOIN courses c ON e.Course_ID = c.Course_ID
     WHERE scm.Stud_ID = ? 
       AND e.Status = 'published'
-      AND e.Start_Time > NOW()
+      AND e.Start_Time > COALESCE(CONVERT_TZ(UTC_TIMESTAMP(), '+00:00', '+05:30'), NOW())
     ORDER BY e.Start_Time ASC
     LIMIT 4
 ");
@@ -298,7 +298,7 @@ $recentSubmissions = $recentSubStmt->fetchAll();
                                         </div>
                                         <div class="text-end">
                                             <span class="badge bg-warning bg-opacity-25 text-dark fw-bold mb-1 d-block">
-                                                <?= date('d M Y, h:i A', strtotime($up['Start_Time'])) ?>
+                                                <?= date('d M Y, h:i A', strtotime($up['Start_Time'])) ?> IST
                                             </span>
                                             <small class="text-muted">Max: <?= $up['Total_Marks'] ?> Marks</small>
                                         </div>
