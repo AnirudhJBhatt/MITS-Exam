@@ -334,13 +334,13 @@ $recentSubmissions = $recentSubStmt->fetchAll();
                                             </p>
                                         </div>
                                         <div class="text-end">
-                                            <?php if ($sub['Result_Published'] == 1 || $sub['Status'] === 'graded'): ?>
+                                            <?php if ($sub['Result_Published'] == 1): ?>
                                                 <span class="badge bg-success fs-6 fw-bold">
                                                     <?= (float)$sub['Marks_Obtained'] ?> / <?= (float)$sub['Total_Marks'] ?>
                                                 </span>
                                                 <div class="small text-muted mt-1"><?= round((float)$sub['Percentage'], 1) ?>%</div>
                                             <?php else: ?>
-                                                <span class="badge bg-secondary">Review Pending</span>
+                                                <span class="badge bg-secondary">Attempted</span>
                                             <?php endif; ?>
                                         </div>
                                     </div>

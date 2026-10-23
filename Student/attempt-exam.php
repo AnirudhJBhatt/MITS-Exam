@@ -245,6 +245,35 @@ $totalDurationSecJson = (int)$totalDurationSec;
 		math-field[read-only] { border: 0; background: transparent; padding: 0; outline: none; font-size: 1.1em; }
 		@keyframes blink { 50% { opacity: .4; } }
 		.blink { animation: blink 1s step-end infinite; }
+
+		/* Responsive Question Palette Offcanvas Drawer */
+		@media (max-width: 767.98px) {
+			#palette-offcanvas.offcanvas-md {
+				position: fixed;
+				top: 0;
+				bottom: 0;
+				right: 0;
+				width: 300px;
+				max-width: 85vw;
+				z-index: 1045;
+				background-color: #fff;
+				box-shadow: -4px 0 24px rgba(0,0,0,.2);
+				transition: transform .3s ease-in-out;
+			}
+			#palette-offcanvas.offcanvas-md:not(.show) {
+				transform: translateX(100%);
+				visibility: hidden;
+			}
+		}
+		@media (min-width: 768px) {
+			#palette-offcanvas.offcanvas-md {
+				transform: none !important;
+				visibility: visible !important;
+				position: static !important;
+				display: flex !important;
+				height: 100% !important;
+			}
+		}
 	</style>
 </head>
 
@@ -315,31 +344,41 @@ $totalDurationSecJson = (int)$totalDurationSec;
 	<div id="exam-shell" class="d-none flex-column vh-100">
 
 		<!-- HEADER -->
-		<header class="d-flex align-items-center gap-3 px-3 py-2 text-white shadow-sm flex-shrink-0" style="background-color: #d1202d">
-			<div class="d-flex align-items-center gap-2 border border-secondary rounded px-3 py-1">
+		<header class="d-flex align-items-center gap-2 gap-md-3 px-2 px-md-3 py-2 text-white shadow-sm flex-shrink-0" style="background-color: #d1202d">
+			<div class="d-flex align-items-center gap-1 gap-md-2 border border-secondary rounded px-2 px-md-3 py-1 flex-shrink-0">
 				<div>
 					<div class="text-uppercase text-white-50 fw-bold" style="font-size:.65rem;">Time Left</div>
-					<div id="countdown" class="fs-4 fw-semibold font-monospace text-success">--:--</div>
+					<div id="countdown" class="fs-5 fs-md-4 fw-semibold font-monospace text-success">--:--</div>
 				</div>
-				<i class="bi bi-hourglass-split text-white-50 fs-5"></i>
+				<i class="bi bi-hourglass-split text-white-50 fs-5 d-none d-sm-inline"></i>
 			</div>
 
-			<div class="flex-grow-1 text-center text-truncate">
-				<div class="fw-bold fs-5 text-truncate"><?= htmlspecialchars($exam['Exam_Name']) ?></div>
-				<div class="small text-white-50 text-truncate"><?= htmlspecialchars($exam['Course']) ?></div>
+			<div class="flex-grow-1 text-center text-truncate px-1">
+				<div class="fw-bold fs-6 fs-md-5 text-truncate"><?= htmlspecialchars($exam['Exam_Name']) ?></div>
+				<div class="small text-white-50 text-truncate d-none d-sm-block"><?= htmlspecialchars($exam['Course']) ?></div>
 			</div>
 
-			<div id="autosave-indicator" class="d-flex align-items-center gap-1 small text-white-50">
+			<div id="autosave-indicator" class="d-flex align-items-center gap-1 small text-white-50 flex-shrink-0">
 				<i class="bi bi-cloud-check text-success"></i>
 				<span class="d-none d-md-inline text-light">Synced</span>
 			</div>
 
-			<div class="d-flex align-items-center gap-2">
+			<div class="d-flex align-items-center gap-1 gap-md-2 flex-shrink-0">
+				<!-- Mobile Quick Action Buttons -->
+				<button class="btn btn-sm btn-outline-light d-md-none px-2 py-1" type="button" data-bs-toggle="offcanvas" data-bs-target="#palette-offcanvas" aria-controls="palette-offcanvas" title="Question Palette">
+					<i class="bi bi-grid-3x3-gap-fill"></i>
+					<span class="d-none d-xs-inline ms-1">Palette</span>
+				</button>
+				<button class="btn btn-sm btn-light text-danger fw-bold d-md-none px-2 py-1 shadow-sm" type="button" onclick="confirmSubmit()" title="Submit Examination">
+					<i class="bi bi-send-check-fill"></i>
+					<span class="ms-1">Submit</span>
+				</button>
+
 				<div class="text-end d-none d-md-block lh-sm">
 					<div class="small fw-semibold"><?= htmlspecialchars($student['name']) ?></div>
 					<div class="small text-white-50 font-monospace"><?= htmlspecialchars($student['roll']) ?></div>
 				</div>
-				<div class="rounded-circle border border-secondary d-flex align-items-center justify-content-center fw-bold small" style="width:38px;height:38px;">
+				<div class="rounded-circle border border-secondary d-none d-sm-flex align-items-center justify-content-center fw-bold small flex-shrink-0" style="width:38px;height:38px;">
 					<?= htmlspecialchars($student['avatar']) ?>
 				</div>
 			</div>
@@ -353,67 +392,83 @@ $totalDurationSecJson = (int)$totalDurationSec;
 		<!-- STAGE & PALETTE -->
 		<div class="d-flex flex-grow-1 overflow-hidden">
 			<div class="d-flex flex-column flex-grow-1 overflow-hidden">
-				<div class="px-3 pt-3 pb-1 fw-bold text-danger text-uppercase small flex-shrink-0" id="bc-pos">Question 1 of <?= count($questions) ?></div>
+				<div class="d-flex align-items-center justify-content-between px-3 pt-2 pb-1 flex-shrink-0">
+					<div class="fw-bold text-danger text-uppercase small" id="bc-pos">Question 1 of <?= count($questions) ?></div>
+					<div class="d-flex align-items-center gap-1 d-md-none">
+						<button class="btn btn-sm btn-outline-danger py-0 px-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#palette-offcanvas" aria-controls="palette-offcanvas">
+							<i class="bi bi-grid-3x3-gap-fill me-1"></i>Palette
+						</button>
+						<button class="btn btn-sm btn-danger py-0 px-2 fw-semibold" type="button" onclick="confirmSubmit()">
+							<i class="bi bi-send-check-fill me-1"></i>Submit
+						</button>
+					</div>
+				</div>
 
 				<div id="q-viewport" class="flex-grow-1 overflow-auto px-3 pb-3"></div>
 
-				<div class="d-flex align-items-center gap-2 p-3 bg-white border-top flex-shrink-0">
+				<div class="d-flex align-items-center gap-1 gap-sm-2 p-2 p-sm-3 bg-white border-top flex-shrink-0 flex-wrap flex-sm-nowrap">
 					<button class="btn btn-light" id="btn-prev" onclick="navigate(-1)" disabled>
-						<i class="bi bi-chevron-left"></i> Previous
+						<i class="bi bi-chevron-left"></i> <span class="d-none d-sm-inline">Previous</span>
 					</button>
 					<button class="btn btn-outline-primary" id="btn-mark" onclick="toggleMark()">
-						<i class="bi bi-flag me-1"></i>Mark for Review
+						<i class="bi bi-flag me-1"></i><span class="d-none d-sm-inline">Mark for </span>Review
 					</button>
 					<button class="btn btn-outline-secondary" onclick="clearCurrentAnswer()">
 						<i class="bi bi-x-circle me-1"></i>Clear
 					</button>
 					<div class="flex-grow-1"></div>
+					<button class="btn btn-outline-danger d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#palette-offcanvas" aria-controls="palette-offcanvas" title="Question Palette">
+						<i class="bi bi-grid-3x3-gap-fill"></i>
+					</button>
 					<button class="btn btn-danger" id="btn-next" onclick="navigate(1)">
 						Next <i class="bi bi-chevron-right"></i>
 					</button>
 				</div>
 			</div>
 
-			<aside class="d-none d-md-flex flex-column bg-white border-start flex-shrink-0" style="width:280px;">
-				<div class="px-3 py-2 border-bottom fw-bold text-secondary">
-					<i class="bi bi-grid-3x3-gap me-2"></i>Question Palette
+			<aside id="palette-offcanvas" class="offcanvas-md offcanvas-end flex-column bg-white border-start flex-shrink-0" tabindex="-1" aria-labelledby="palette-title" style="width:290px; max-width:85vw;">
+				<div class="offcanvas-header px-3 py-2 border-bottom fw-bold text-secondary d-flex align-items-center justify-content-between flex-shrink-0">
+					<div id="palette-title"><i class="bi bi-grid-3x3-gap me-2"></i>Question Palette</div>
+					<button type="button" class="btn-close d-md-none" data-bs-dismiss="offcanvas" data-bs-target="#palette-offcanvas" aria-label="Close"></button>
 				</div>
 
-				<ul class="list-group list-group-flush small">
-					<li class="list-group-item d-flex justify-content-between align-items-center">Answered
-						<span class="badge text-bg-success" id="cnt-answered">0</span></li>
-					<li class="list-group-item d-flex justify-content-between align-items-center">Visited, Unanswered
-						<span class="badge text-bg-danger" id="cnt-visited">0</span></li>
-					<li class="list-group-item d-flex justify-content-between align-items-center">Marked for Review
-						<span class="badge text-bg-warning" id="cnt-marked">0</span></li>
-					<li class="list-group-item d-flex justify-content-between align-items-center">Not Visited
-						<span class="badge text-bg-secondary" id="cnt-not">0</span></li>
-				</ul>
+				<div class="offcanvas-body p-0 d-flex flex-column flex-grow-1 overflow-hidden">
+					<ul class="list-group list-group-flush small flex-shrink-0">
+						<li class="list-group-item d-flex justify-content-between align-items-center">Answered
+							<span class="badge text-bg-success" id="cnt-answered">0</span></li>
+						<li class="list-group-item d-flex justify-content-between align-items-center">Visited, Unanswered
+							<span class="badge text-bg-danger" id="cnt-visited">0</span></li>
+						<li class="list-group-item d-flex justify-content-between align-items-center">Marked for Review
+							<span class="badge text-bg-warning" id="cnt-marked">0</span></li>
+						<li class="list-group-item d-flex justify-content-between align-items-center">Not Visited
+							<span class="badge text-bg-secondary" id="cnt-not">0</span></li>
+					</ul>
 
-				<div class="flex-grow-1 overflow-auto p-3 border-top">
-					<div class="text-uppercase text-muted fw-bold mb-2" style="font-size:.7rem;">Jump to Question</div>
-					<div id="palette-grid" class="row row-cols-5 g-2"></div>
-				</div>
+					<div class="flex-grow-1 overflow-auto p-3 border-top">
+						<div class="text-uppercase text-muted fw-bold mb-2" style="font-size:.7rem;">Jump to Question</div>
+						<div id="palette-grid" class="row row-cols-5 g-2"></div>
+					</div>
 
-				<div class="row row-cols-2 g-2 px-3 py-2 border-top m-0">
-					<div class="col"><div class="border rounded text-center p-2">
-						<div class="fs-5 fw-bold text-danger"><?= count($questions) ?></div>
-						<div class="text-uppercase text-muted" style="font-size:.65rem;">Total Qs</div></div></div>
-					<div class="col"><div class="border rounded text-center p-2">
-						<div class="fs-5 fw-bold text-danger"><?= $totalMarks ?></div>
-						<div class="text-uppercase text-muted" style="font-size:.65rem;">Total Marks</div></div></div>
-					<div class="col"><div class="border rounded text-center p-2">
-						<div class="fs-5 fw-bold text-danger" id="stat-attempted">0</div>
-						<div class="text-uppercase text-muted" style="font-size:.65rem;">Attempted</div></div></div>
-					<div class="col"><div class="border rounded text-center p-2">
-						<div class="fs-5 fw-bold text-danger" id="stat-remain"><?= count($questions) ?></div>
-						<div class="text-uppercase text-muted" style="font-size:.65rem;">Remaining</div></div></div>
-				</div>
+					<div class="row row-cols-2 g-2 px-3 py-2 border-top m-0 flex-shrink-0 bg-light-subtle">
+						<div class="col"><div class="border rounded text-center p-2 bg-white">
+							<div class="fs-5 fw-bold text-danger"><?= count($questions) ?></div>
+							<div class="text-uppercase text-muted" style="font-size:.65rem;">Total Qs</div></div></div>
+						<div class="col"><div class="border rounded text-center p-2 bg-white">
+							<div class="fs-5 fw-bold text-danger"><?= $totalMarks ?></div>
+							<div class="text-uppercase text-muted" style="font-size:.65rem;">Total Marks</div></div></div>
+						<div class="col"><div class="border rounded text-center p-2 bg-white">
+							<div class="fs-5 fw-bold text-danger" id="stat-attempted">0</div>
+							<div class="text-uppercase text-muted" style="font-size:.65rem;">Attempted</div></div></div>
+						<div class="col"><div class="border rounded text-center p-2 bg-white">
+							<div class="fs-5 fw-bold text-danger" id="stat-remain"><?= count($questions) ?></div>
+							<div class="text-uppercase text-muted" style="font-size:.65rem;">Remaining</div></div></div>
+					</div>
 
-				<div class="p-3">
-					<button class="btn btn-danger w-100 fw-bold" id="btn-submit" onclick="confirmSubmit()">
-						<i class="bi bi-send-check-fill me-1"></i> SUBMIT EXAM
-					</button>
+					<div class="p-3 border-top flex-shrink-0 bg-white">
+						<button class="btn btn-danger w-100 fw-bold py-2 shadow-sm" id="btn-submit" onclick="confirmSubmit()">
+							<i class="bi bi-send-check-fill me-1"></i> SUBMIT EXAM
+						</button>
+					</div>
 				</div>
 			</aside>
 		</div>
@@ -1046,9 +1101,15 @@ $totalDurationSecJson = (int)$totalDurationSec;
 			const n = document.getElementById('btn-next');
 			if (p) p.disabled = state.currentIdx === 0;
 			if (n) {
-				n.innerHTML = state.currentIdx === TOTAL - 1
-					? 'Review <i class="bi bi-check2-circle"></i>'
-					: 'Next <i class="bi bi-chevron-right"></i>';
+				if (state.currentIdx === TOTAL - 1) {
+					n.innerHTML = 'Submit Exam <i class="bi bi-send-check-fill ms-1"></i>';
+					n.className = 'btn btn-success fw-bold';
+					n.onclick = () => confirmSubmit();
+				} else {
+					n.innerHTML = 'Next <i class="bi bi-chevron-right ms-1"></i>';
+					n.className = 'btn btn-danger';
+					n.onclick = () => navigate(1);
+				}
 			}
 		}
 
@@ -1087,7 +1148,14 @@ $totalDurationSecJson = (int)$totalDurationSec;
 				btn.id = `pal-${q.Question_ID}`;
 				btn.textContent = i + 1;
 				btn.type = 'button';
-				btn.onclick = () => goTo(i);
+				btn.onclick = () => {
+					goTo(i);
+					const offEl = document.getElementById('palette-offcanvas');
+					if (offEl) {
+						const bsOff = bootstrap.Offcanvas.getInstance(offEl);
+						if (bsOff) bsOff.hide();
+					}
+				};
 				col.appendChild(btn);
 				grid.appendChild(col);
 			});
@@ -1117,6 +1185,11 @@ $totalDurationSecJson = (int)$totalDurationSec;
 		}
 
 		function confirmSubmit() {
+			const offEl = document.getElementById('palette-offcanvas');
+			if (offEl) {
+				const bsOff = bootstrap.Offcanvas.getInstance(offEl);
+				if (bsOff) bsOff.hide();
+			}
 			const ans = Object.values(state.status).filter(s => s === 'answered').length,
 				un = TOTAL - ans;
 			Swal.fire({

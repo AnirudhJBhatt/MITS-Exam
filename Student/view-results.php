@@ -20,7 +20,7 @@ $stmt = $pdo->prepare("
     FROM results r
     JOIN exams e ON r.Exam_ID = e.Exam_ID
     LEFT JOIN courses c ON (r.Course_ID = c.Course_ID OR e.Course_ID = c.Course_ID)
-    WHERE r.Stud_ID = ?
+    WHERE r.Stud_ID = ? AND e.Result_Published = 1
     ORDER BY r.Submitted_At DESC
 ");
 $stmt->execute([$Stud_ID]);
