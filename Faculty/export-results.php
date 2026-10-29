@@ -62,7 +62,7 @@ $studStmt = $pdo->prepare("
     LEFT JOIN results r ON r.Exam_ID = e.Exam_ID AND r.Stud_ID = scm.Stud_ID
     WHERE e.Exam_ID = ?
     GROUP BY scm.Stud_ID, s.Stud_Name, r.Result_ID
-    ORDER BY scm.Stud_Name ASC
+    ORDER BY s.Stud_Name ASC
 ");
 $studStmt->execute([$Exam_ID]);
 $candidates = $studStmt->fetchAll();
