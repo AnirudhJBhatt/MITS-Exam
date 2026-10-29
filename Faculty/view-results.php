@@ -130,7 +130,7 @@ if ($examInfo) {
         JOIN student s ON scm.Stud_ID = s.Stud_ID
         LEFT JOIN results r ON r.Exam_ID = ? AND r.Stud_ID = scm.Stud_ID
         WHERE scm.Course_ID = ? AND scm.Acad_Year = ?
-        ORDER BY s.Stud_ID ASC
+        ORDER BY s.Stud_Name ASC
     ");
     $cStmt->execute([$selectedExam, $selectedCourse, $selectedAY]);
     $candidates = $cStmt->fetchAll();
